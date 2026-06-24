@@ -2,9 +2,18 @@
 
 The `schuly` realm is defined in `realms/schuly-realm.json` and **imported on first
 start** (`--import-realm`). It carries the Schuly identity config: the `Student` /
-`Teacher` / `Administrator` realm roles and matching groups, OIDC client scopes, the
-`schuly` login theme selection, a 2FA browser flow, and a password policy that
-references the rockyou blacklist (`passwordBlacklist(rockyou.txt)`).
+`Teacher` / `Administrator` realm roles and matching groups, OIDC client scopes
+(`profile`, `email`, `groups`, `picture`), the `schuly` login theme selection, a 2FA
+browser flow, self-service registration, and a password policy that references the
+rockyou blacklist (`passwordBlacklist(rockyou.txt)`).
+
+## Self-registration
+
+User self-registration is **enabled** (`registrationAllowed`), so the login page shows
+a **Register** link and visitors can create their own account. New users still go
+through the mandatory 2FA enrollment below. Email verification is off by default
+(no SMTP is configured out of the box) — wire up SMTP in the realm if you want
+verified emails or self-service password reset to actually deliver.
 
 ## Two-factor authentication
 
