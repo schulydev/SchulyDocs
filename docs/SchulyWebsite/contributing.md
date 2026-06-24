@@ -20,7 +20,7 @@
 
 ## Absolute rule
 
-**No AI / Claude attribution anywhere** — not in commits, PR bodies, or issues.
+**No AI / Claude attribution anywhere** - not in commits, PR bodies, or issues.
 Ever. No `Co-Authored-By`, "Generated with", or similar trailers.
 
 ## Coding standards

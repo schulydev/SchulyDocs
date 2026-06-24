@@ -26,7 +26,7 @@ output settings), verify the Cloudflare output path still matches.
 
 `.github/workflows/build.yml` is **independent** of deployment. It only runs
 `bun install --frozen-lockfile` + `bun run build` on pushes and PRs to `main` to
-verify the build passes — catching broken code before Cloudflare attempts a
+verify the build passes - catching broken code before Cloudflare attempts a
 preview deploy. It does not publish anything itself.
 
 ## Related

@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Bun `1.2.21+`** — this is the only package manager for the project. There is
+- **Bun `1.2.21+`** - this is the only package manager for the project. There is
   **no npm and no `package-lock.json`**.
   - The version is pinned via `packageManager` in `package.json` and
     `cli.packageManager` in `angular.json`.
