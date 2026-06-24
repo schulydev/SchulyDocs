@@ -4,9 +4,12 @@ In production, run the published image
 `ghcr.io/schulydev/schulykeycloak:latest` (or a pinned `:<semver>` tag — see
 [Release](release.md)). The image is an **optimized** Keycloak build (`kc.sh build`
 runs at image-build time), so the runtime entrypoint starts with
-`start --optimized --import-realm` for fast startup. It is pre-built for the
-Postgres database vendor (`KC_DB=postgres`), with health and metrics endpoints
-enabled.
+`start --optimized --import-realm` for fast startup. It is pre-built for Postgres
+(`KC_DB=postgres`), with health and metrics enabled.
+
+> Deploying the whole stack (Postgres + reverse proxy + TLS) from scratch? Follow
+> [Self-hosting the full stack](self-hosting.md) instead — it has a complete
+> docker-compose and first-admin walkthrough.
 
 ## Run
 
@@ -16,29 +19,20 @@ docker run -p 8080:8080 \
   -e KC_DB_USERNAME=keycloak \
   -e KC_DB_PASSWORD=... \
   -e KC_HOSTNAME=https://auth.schuly.dev \
+  -e KC_PROXY_HEADERS=xforwarded \
+  -e KC_HTTP_ENABLED=true \
   -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
   -e KC_BOOTSTRAP_ADMIN_PASSWORD=... \
   ghcr.io/schulydev/schulykeycloak:latest
 ```
 
-## Environment variables
+The essential variables are the database connection (`KC_DB_*`), the public hostname
+(`KC_HOSTNAME`), the proxy settings when behind a TLS-terminating proxy
+(`KC_PROXY_HEADERS`, `KC_HTTP_ENABLED`), and a first-start bootstrap admin
+(`KC_BOOTSTRAP_ADMIN_*`). The full list — every variable, port, and baked-in default
+— is in the [Configuration reference](../configuration.md).
 
-| Variable | Purpose |
-|---|---|
-| `KC_DB_URL` | JDBC URL of the Postgres database. |
-| `KC_DB_USERNAME` | Database user. |
-| `KC_DB_PASSWORD` | Database password. |
-| `KC_HOSTNAME` | Public hostname/URL Keycloak is served at (e.g. `https://auth.schuly.dev`). |
-| `KC_BOOTSTRAP_ADMIN_USERNAME` | Temporary bootstrap admin username (create a permanent admin, then remove). |
-| `KC_BOOTSTRAP_ADMIN_PASSWORD` | Temporary bootstrap admin password. |
-
-## Baked-in defaults
-
-- **Realm import** — the `schuly` realm is imported on first start; on subsequent
-  starts an existing realm is left as-is.
-- **Leaked-password blacklist** — the rockyou list is shipped at
-  `/opt/keycloak/password-blacklists/rockyou.txt` and wired up via
-  `JAVA_OPTS_APPEND`. The realm's password policy references
-  `passwordBlacklist(rockyou.txt)`.
-- **Login theme** — the `schuly` Keycloakify theme is installed as a provider jar
-  and selected by the realm (`loginTheme: "schuly"`).
+> **Security:** the bootstrap admin is temporary — create a real admin and remove the
+> `KC_BOOTSTRAP_ADMIN_*` variables after first start. Never commit secrets or place
+> them in `realms/schuly-realm.json`, keep TLS terminated at the proxy, and don't
+> expose the management port `9000` publicly.
