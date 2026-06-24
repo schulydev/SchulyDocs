@@ -8,6 +8,13 @@ title: 2. Choose how you sign in
 On first launch Schuly asks how you want to use it. There are two modes - you can change
 your mind later, so don't overthink it.
 
+:::info Self-hosting? Pick your server first
+Just before the mode choice, Schuly asks **which server** to use. Almost everyone should
+keep **Schuly Cloud** (the default). If you run your own Schuly backend, choose
+**Self-hosted** and enter its URL - Schuly verifies it's reachable (and reports its
+version) before continuing. Either mode below then talks to whichever server you picked.
+:::
+
 ## Account mode (recommended for most people)
 
 You sign in with a **Schuly account**. Your data is synced and kept up to date for you in
