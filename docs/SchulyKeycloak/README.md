@@ -28,6 +28,7 @@ fast. Releases push a multi-arch image to `ghcr.io/schulydev/schulykeycloak`.
 - [Production setup](setup/production.md) — run the optimized image against a Postgres DB.
 - [Realm management](realm-management.md) — edit and snapshot the `schuly` realm (incl. 2FA).
 - [Theme development](theme-development.md) — work on the Keycloakify login theme.
+- [Account vs. privacy mode](account-vs-privacy-mode.md) — how users choose to sign in.
 - [Release](setup/release.md) — cut a release and publish images.
 - [Contributing](contributing.md) — the issue → branch → PR workflow.
 

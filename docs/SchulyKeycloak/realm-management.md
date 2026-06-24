@@ -20,6 +20,37 @@ OTP / authenticator-app (`CONFIGURE_TOTP`) is enabled but **optional** — users
 add it from the account console, and the login flow accepts it as an alternative to
 a passkey.
 
+### Choosing a sign-in method
+
+Both methods satisfy the mandatory 2FA step. Everyone gets a passkey by default and
+can add an authenticator app as well; the trade-offs:
+
+**Passkey** (default) — a credential bound to the device, unlocked with biometrics or
+the device PIN.
+
+- **Pros**
+  - Phishing-resistant — nothing to type, copy, or leak; the secret never leaves the device.
+  - Fast — one biometric/PIN tap, no codes to read.
+  - No shared secret to store or transcribe.
+- **Cons**
+  - **No push notifications and no web support** — the passkey lives on the phone it
+    was set up on, so sign-in happens there: no desktop/web login and no
+    push-to-approve flow.
+  - Tied to that device — losing it means re-enrolling (recovery needed).
+  - Requires a device with biometric / WebAuthn support.
+
+**Authenticator app (TOTP)** — a 6-digit time-based code from an app like Google
+Authenticator, Authy, or 1Password.
+
+- **Pros**
+  - Works anywhere, including the web, and across multiple devices.
+  - Portable — the seed can be backed up or moved between devices.
+  - Familiar and widely supported.
+- **Cons**
+  - You type a 6-digit code on every sign-in.
+  - Relies on a shared secret (the seed), which is phishable and must be kept safe.
+  - Codes fail if the device clock drifts out of sync.
+
 > Note: Keycloak cannot present a "choose passkey **or** OTP" screen at first-login
 > enrollment — a passkey can only be enrolled through the required action, and OTP
 > only through the OTP form. The passkey-first model above is the supported way to
