@@ -7,10 +7,9 @@ import { themes as prismThemes } from 'prism-react-renderer';
 const config = {
   title: 'Schuly Docs',
   tagline: 'Documentation for the Schuly project',
+  favicon: 'img/favicon.ico',
 
-  // TODO: set this to your real domain once the Cloudflare Pages custom domain is wired up.
-  // For the default *.pages.dev subdomain this value is cosmetic (used for sitemap/SEO only).
-  url: 'https://schuly-docs.pages.dev',
+  url: 'https://docs.schuly.dev',
   baseUrl: '/',
 
   organizationName: 'schulydev',
@@ -31,10 +30,15 @@ const config = {
   // interpret those as JSX and fail the build; .mdx still gets full MDX if ever needed.
   markdown: {
     format: 'detect',
+    // Render ```mermaid code blocks as diagrams (needs @docusaurus/theme-mermaid below).
+    mermaid: true,
     hooks: {
       onBrokenMarkdownLinks: 'warn',
     },
   },
+
+  // Mermaid diagram rendering.
+  themes: ['@docusaurus/theme-mermaid'],
 
   presets: [
     [
@@ -42,8 +46,8 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          // Docs are the whole site — serve them at the root.
-          routeBasePath: '/',
+          // Docs live under /docs/* so the custom landing page can own the site root.
+          routeBasePath: '/docs',
           sidebarPath: './sidebars.js',
         },
         blog: false,
@@ -57,8 +61,21 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      image: 'img/social-card.png',
+      colorMode: {
+        // The Schuly website is a dark, monochrome design — default to dark to match.
+        defaultMode: 'dark',
+        respectPrefersColorScheme: false,
+      },
+      mermaid: {
+        theme: { light: 'neutral', dark: 'dark' },
+      },
       navbar: {
         title: 'Schuly Docs',
+        logo: {
+          alt: 'Schuly',
+          src: 'img/logo.png',
+        },
         items: [
           {
             type: 'docSidebar',
@@ -77,11 +94,19 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Project',
+            title: 'Sections',
             items: [
-              { label: 'Mobile app (Schuly)', to: '/Schuly/' },
-              { label: 'Backend', to: '/SchulyBackend/' },
-              { label: 'Website', to: '/SchulyWebsite/' },
+              { label: 'Mobile app (Schuly)', to: '/docs/Schuly/' },
+              { label: 'Backend (.NET API)', to: '/docs/SchulyBackend/' },
+              { label: 'Website', to: '/docs/SchulyWebsite/' },
+              { label: 'Keycloak (auth)', to: '/docs/SchulyKeycloak/' },
+            ],
+          },
+          {
+            title: 'Plugins',
+            items: [
+              { label: 'Plugin abstractions', to: '/docs/SchulyPluginAbstractions/' },
+              { label: 'Plugins', to: '/docs/SchulyPlugins/' },
             ],
           },
           {

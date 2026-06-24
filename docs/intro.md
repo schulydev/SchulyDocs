@@ -13,12 +13,12 @@ automatically** whenever its `docs/` folder changes on `main`.
 
 | Section | Repository | What it covers |
 | --- | --- | --- |
-| [Mobile app (Schuly)](/Schuly/) | [Schuly](https://github.com/schulydev/Schuly) | Flutter app, app modes, API client |
-| [Backend (.NET API)](/SchulyBackend/) | [SchulyBackend](https://github.com/schulydev/SchulyBackend) | API, architecture, migrations, plugin management |
-| [Website](/SchulyWebsite/) | [SchulyWebsite](https://github.com/schulydev/SchulyWebsite) | Marketing/site architecture & deployment |
-| [Keycloak (auth)](/SchulyKeycloak/) | [SchulyKeycloak](https://github.com/schulydev/SchulyKeycloak) | Realm & theme management, auth setup |
-| [Plugin abstractions](/SchulyPluginAbstractions/) | [SchulyPluginAbstractions](https://github.com/schulydev/SchulyPluginAbstractions) | Plugin contract & versioning |
-| [Plugins](/SchulyPlugins/) | [SchulyPlugins](https://github.com/schulydev/SchulyPlugins) | Building & distributing plugins |
+| [Mobile app (Schuly)](/docs/Schuly/) | [Schuly](https://github.com/schulydev/Schuly) | Flutter app, app modes, API client |
+| [Backend (.NET API)](/docs/SchulyBackend/) | [SchulyBackend](https://github.com/schulydev/SchulyBackend) | API, architecture, migrations, plugin management |
+| [Website](/docs/SchulyWebsite/) | [SchulyWebsite](https://github.com/schulydev/SchulyWebsite) | Marketing/site architecture & deployment |
+| [Keycloak (auth)](/docs/SchulyKeycloak/) | [SchulyKeycloak](https://github.com/schulydev/SchulyKeycloak) | Realm & theme management, auth setup |
+| [Plugin abstractions](/docs/SchulyPluginAbstractions/) | [SchulyPluginAbstractions](https://github.com/schulydev/SchulyPluginAbstractions) | Plugin contract & versioning |
+| [Plugins](/docs/SchulyPlugins/) | [SchulyPlugins](https://github.com/schulydev/SchulyPlugins) | Building & distributing plugins |
 
 ## How this site is built
 
