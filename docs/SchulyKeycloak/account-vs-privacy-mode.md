@@ -12,7 +12,7 @@ profile and data live with Schuly and follow you across devices.
   - **Push notifications** - get notified about changes (timetable, grades, messages).
   - **Web support** - use Schuly in the browser, not just the app.
   - **Cross-device sync** - sign in anywhere and pick up where you left off.
-  - Protected by mandatory 2FA (passkey, with an authenticator app as an option) - see
+  - Supports 2FA (a passkey, or an authenticator app) - offered, not forced - see
     [Realm management](realm-management.md).
 - **Cons**
   - Requires creating and signing in to an account.

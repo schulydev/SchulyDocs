@@ -10,29 +10,32 @@ rockyou blacklist (`passwordBlacklist(rockyou.txt)`).
 ## Self-registration
 
 User self-registration is **enabled** (`registrationAllowed`), so the login page shows
-a **Register** link and visitors can create their own account. New users still go
-through the mandatory 2FA enrollment below. Email verification is off by default
-(no SMTP is configured out of the box) - wire up SMTP in the realm if you want
-verified emails or self-service password reset to actually deliver.
+a **Register** link and visitors can create their own account. The form is kept minimal
+via a declarative user profile - just **username, email and password** (no first/last
+name). Email verification is off by default (no SMTP is configured out of the box) -
+wire up SMTP in the realm if you want verified emails or self-service password reset to
+actually deliver.
 
 ## Two-factor authentication
 
-2FA is mandatory and **passkey-first**. The `browser-2fa` flow runs username +
-password, then a *conditional* MFA step: if the user already has a 2FA credential
-they're challenged for it (passkey or OTP - whichever they have). Users with no 2FA
-credential are forced to register a **passkey** at next login, driven by the
-`webauthn-register-passwordless` required action, which is marked as a *default
-action* so it's applied automatically to every new user (including ones created via
-the admin API).
+2FA is **passkey-first but optional**. The `browser-2fa` flow runs username + password,
+then a *conditional* MFA step: if the user already has a 2FA credential they're
+challenged for it (passkey or OTP - whichever they have). Enrollment is **offered, not
+forced**: `webauthn-register-passwordless` and `CONFIGURE_TOTP` are enabled but **not**
+default actions, so no one is blocked by a mandatory enrollment step at first login.
 
-OTP / authenticator-app (`CONFIGURE_TOTP`) is enabled but **optional** - users can
-add it from the account console, and the login flow accepts it as an alternative to
-a passkey.
+This matters for **brokered logins** (an external IdP such as Pocket ID): those users
+already authenticated with a passkey at the source, so a forced Keycloak passkey step
+would be redundant - and, because Keycloak applies default required actions to brokered
+users too, it would block them. Keeping enrollment optional avoids that.
+
+OTP / authenticator-app (`CONFIGURE_TOTP`) and passkeys can both be added from the
+account console, and the login flow accepts either as the 2FA step.
 
 ### Choosing a sign-in method
 
-Both methods satisfy the mandatory 2FA step. Everyone gets a passkey by default and
-can add an authenticator app as well; the trade-offs:
+Either method satisfies the 2FA step. You can add a passkey, an authenticator app, or
+both; the trade-offs:
 
 **Passkey** (default) - a credential bound to the device, unlocked with biometrics or
 the device PIN.
@@ -60,45 +63,21 @@ Authenticator, Authy, or 1Password.
   - Relies on a shared secret (the seed), which is phishable and must be kept safe.
   - Codes fail if the device clock drifts out of sync.
 
-> Note: Keycloak cannot present a "choose passkey **or** OTP" screen at first-login
-> enrollment - a passkey can only be enrolled through the required action, and OTP
-> only through the OTP form. The passkey-first model above is the supported way to
-> offer both while keeping enrollment mandatory.
+> Note: Keycloak can't present a single "choose passkey **or** OTP" enrollment screen -
+> a passkey is enrolled through its required action and OTP through the OTP form. Since
+> enrollment is optional, users just add whichever they prefer from the account console.
 
-### ⚠️ Migration: applying this to a realm that already has users
+### Enrollment is optional (no forced migration)
 
-The MFA step is `CONDITIONAL`, so a user with **no** 2FA credential skips it and
-enforcement falls to the `webauthn-register-passwordless` **default action**. Default
-actions are auto-assigned only to **new** users. On a fresh `--import-realm` deploy
-this is fine (every user is new). But if you apply this flow to an **existing** realm,
-any account that was provisioned earlier and has **never enrolled 2FA** would have no
-credential *and* no required action - and could log in with **password only (MFA
-bypass)**.
+The MFA step is `CONDITIONAL`: a user **with** a 2FA credential is challenged for it; a
+user **without** one signs in with their password (no forced enrollment). Because
+`webauthn-register-passwordless` / `CONFIGURE_TOTP` are **not** default actions, there's
+nothing to retro-assign when importing this realm onto an existing user base.
 
-Before/at rollout, retroactively assign the required action to every 2FA-less user
-(one-time). Example against a running instance (needs `jq`):
-
-```sh
-REALM=schuly; BASE=http://localhost:8080
-TOK=$(curl -s -X POST "$BASE/realms/master/protocol/openid-connect/token" \
-  -d client_id=admin-cli -d username="$KC_ADMIN" -d password="$KC_PASS" \
-  -d grant_type=password | jq -r .access_token)
-
-curl -s "$BASE/admin/realms/$REALM/users?max=100000" -H "Authorization: Bearer $TOK" \
-  | jq -r '.[].id' | while read -r USERID; do
-    HAS=$(curl -s "$BASE/admin/realms/$REALM/users/$USERID/credentials" \
-      -H "Authorization: Bearer $TOK" \
-      | jq -r '[.[].type] | map(select(. == "otp" or . == "webauthn-passwordless")) | length')
-    if [ "$HAS" = "0" ]; then
-      # fetch the full user rep, add the action (dedup), then PUT it back
-      BODY=$(curl -s "$BASE/admin/realms/$REALM/users/$USERID" -H "Authorization: Bearer $TOK" \
-        | jq '.requiredActions = ((.requiredActions // []) + ["webauthn-register-passwordless"] | unique)')
-      curl -s -X PUT "$BASE/admin/realms/$REALM/users/$USERID" -H "Authorization: Bearer $TOK" \
-        -H "Content-Type: application/json" -d "$BODY"
-      echo "enrolled-action: $USERID"
-    fi
-  done
-```
+If you *want* to hard-require 2FA, mark `webauthn-register-passwordless` (and/or
+`CONFIGURE_TOTP`) as a **default action** in the realm - but be aware Keycloak applies
+default actions to **brokered IdP users too**, which blocks external-IdP (e.g. Pocket ID)
+logins behind a redundant enrollment step. That's exactly why it's left optional here.
 
 (Users who already have OTP or a passkey are left untouched and keep using it.)
 
