@@ -1,6 +1,6 @@
 # Notes for Claude (and humans) — SchulyDocs
 
-Unified Docusaurus docs site for Schuly, served at docs.schuly.dev. It aggregates each schulydev repo's `docs/` via CI sync — edit docs in the source repos, not here. See `README.md` for the sync + hosting setup. Built with **bun**.
+Unified VitePress docs site for Schuly, served at docs.schuly.dev. It aggregates each schulydev repo's `docs/` via CI sync — edit docs in the source repos, not here. Site config + sidebar/section labels live in `docs/.vitepress/config.mjs`. See `README.md` for the sync + hosting setup. Built with **bun** (`bun run dev` / `bun run build`).
 
 ## Workflow rules (enforced)
 

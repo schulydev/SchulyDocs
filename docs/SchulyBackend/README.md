@@ -16,5 +16,3 @@ runtime from a registry.
 - [Migrations](migrations.md) — EF Core migration scripts and startup behavior.
 - [Plugin management](plugin-management.md) — runtime plugin registry, hot-swap, admin endpoints.
 - [Contributing](contributing.md) — issue → branch → PR workflow and conventions.
-</content>
-</invoke>

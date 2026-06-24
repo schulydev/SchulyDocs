@@ -10,7 +10,8 @@
 # sync workflows in this org) — no per-repo secret to create.
 #
 # The section title/order for this repo lives in SchulyDocs at
-# docs/<Repo>/_category_.json and is intentionally PRESERVED by the copy step below.
+# docs/.vitepress/config.mjs (the SECTIONS map). The copy below just mirrors this
+# repo's docs/ into the section folder.
 
 name: Sync docs to docs site
 
@@ -45,14 +46,15 @@ jobs:
           token: ${{ secrets.MAIN_PUSH_TOKEN }}
           path: docs-site
 
-      - name: Copy docs into section (preserve _category_.json)
+      - name: Copy docs into section
         run: |
           set -euo pipefail
           REPO="${GITHUB_REPOSITORY##*/}"
           DEST="docs-site/docs/$REPO"
+          # Mirror this repo's docs/ into the section folder (section label/order
+          # live in SchulyDocs' docs/.vitepress/config.mjs, not here).
+          rm -rf "$DEST"
           mkdir -p "$DEST"
-          # Replace previous content but keep the docs-site-owned section config.
-          find "$DEST" -mindepth 1 ! -name '_category_.json' -delete
           cp -r source/docs/. "$DEST"/
 
       - name: Configure git as the maintainer
