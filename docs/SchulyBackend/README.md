@@ -11,6 +11,7 @@ runtime from a registry.
   add-an-entity flow, and the plugin host.
 - Setup
   - [Development](setup/development.md) — run the API and Postgres locally.
+  - [Self-hosting](setup/self-hosting.md) — step-by-step: run the full stack on your own server.
   - [Configuration](setup/configuration.md) — settings, OIDC, roles, connection strings.
   - [Production](setup/production.md) — Docker image, release flow, startup migrations.
 - [Migrations](migrations.md) — EF Core migration scripts and startup behavior.
