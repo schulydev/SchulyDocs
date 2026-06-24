@@ -71,10 +71,11 @@ From then on: any push here (including the automated doc-sync commits) triggers 
 
 1. Copy [`templates/sync-docs.yml`](templates/sync-docs.yml) into the source repo at
    `.github/workflows/sync-docs.yml`.
-2. Create a fine-grained PAT (or GitHub App token) with **Contents: Read & Write** scoped
-   to `schulydev/SchulyDocs` only, and add it as a secret named `DOCS_SYNC_TOKEN`. Tip:
-   make it an **organization** secret scoped to the source repos so you set it once.
-3. Push a change under `docs/` (or run the workflow manually) — the section appears here.
+2. No secret to create — it uses the org-level **`MAIN_PUSH_TOKEN`** secret already used
+   by the other cross-repo sync workflows in this org.
+3. Push a change under `docs/` (or run the workflow manually). The workflow opens a PR
+   against this repo and auto-merges it (matching the org's sync convention), which
+   triggers the Cloudflare Pages rebuild.
 
 To add a brand-new repo's section: also add `docs/<Repo>/_category_.json` here with the
 desired `label` and `position`, and add the repo to the list in `scripts/sync-docs.sh`.
