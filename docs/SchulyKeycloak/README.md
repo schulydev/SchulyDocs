@@ -26,5 +26,3 @@ fast. Releases push a multi-arch image to `ghcr.io/schulydev/schulykeycloak`.
 - [Realm management](realm-management.md) — edit and snapshot the `schuly` realm.
 - [Theme development](theme-development.md) — work on the Keycloakify login theme.
 - [Contributing](contributing.md) — the issue → branch → PR workflow.
-
-<!-- docs-sync pipeline test -->
