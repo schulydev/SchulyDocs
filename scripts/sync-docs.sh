@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 #
 # Local doc re-sync. Copies docs/ from each sibling Schuly repo (checked out next to
-# this one) into docs/<Repo>/, PRESERVING the docs-site-owned docs/<Repo>/_category_.json.
+# this one) into docs/<Repo>/. Section labels + order live in docs/.vitepress/config.mjs
+# (the SECTIONS map), so the synced folders only ever hold the source repo's markdown.
 #
 # CI does this per-repo via the GitHub Actions template in templates/sync-docs.yml;
 # this script is for local previews when you have all repos cloned side by side:
 #
 #   bash scripts/sync-docs.sh
-#   bun run start
+#   bun run dev
 #
 set -euo pipefail
 
@@ -22,11 +23,10 @@ for repo in "${REPOS[@]}"; do
     echo "skip $repo (no $src)"
     continue
   fi
+  rm -rf "$dest"
   mkdir -p "$dest"
-  # Wipe previous content but keep the section config this repo owns.
-  find "$dest" -mindepth 1 ! -name '_category_.json' -delete
   cp -r "$src"/. "$dest"/
   echo "synced $repo ($(find "$dest" -type f | wc -l | tr -d ' ') files)"
 done
 
-echo "Done. Run 'bun run start' to preview."
+echo "Done. Run 'bun run dev' to preview."
