@@ -1,7 +1,7 @@
 # Self-hosting the full stack
 
 A complete, copy-pasteable guide to running Schuly Keycloak in production: the
-database, the Keycloak image, and a TLS-terminating reverse proxy — plus the
+database, the Keycloak image, and a TLS-terminating reverse proxy - plus the
 first-login admin setup. For the exhaustive list of every setting, see the
 [Configuration reference](../configuration.md).
 
@@ -16,15 +16,15 @@ flowchart LR
 
 You need three things:
 
-1. **PostgreSQL** — Keycloak's datastore (the image is built for Postgres).
-2. **The Schuly Keycloak image** — `ghcr.io/schulydev/schulykeycloak:<tag>`.
+1. **PostgreSQL** - Keycloak's datastore (the image is built for Postgres).
+2. **The Schuly Keycloak image** - `ghcr.io/schulydev/schulykeycloak:<tag>`.
 3. **A reverse proxy** that terminates TLS and forwards to Keycloak on `:8080`
-   (Caddy, Traefik, nginx — anything that sets `X-Forwarded-*` headers).
+   (Caddy, Traefik, nginx - anything that sets `X-Forwarded-*` headers).
 
 ## 1. Pick a hostname and pin a version
 
 - Decide the public URL, e.g. `https://auth.schuly.dev`, and point its DNS at your host.
-- Pin an image tag instead of `:latest` so deploys are reproducible — see [Release](release.md)
+- Pin an image tag instead of `:latest` so deploys are reproducible - see [Release](release.md)
   for how tags map to versions.
 
 ## 2. docker-compose
@@ -62,7 +62,7 @@ services:
       KC_HOSTNAME: https://auth.schuly.dev
       KC_PROXY_HEADERS: xforwarded
       KC_HTTP_ENABLED: "true"
-      # Bootstrap admin — used once, then removed (see step 4).
+      # Bootstrap admin - used once, then removed (see step 4).
       KC_BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USER:?}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?}
 
@@ -115,7 +115,7 @@ docker compose up -d
 curl -fsS http://keycloak:9000/health/ready
 ```
 
-Then open `https://auth.schuly.dev/` — you should get the branded Schuly login page,
+Then open `https://auth.schuly.dev/` - you should get the branded Schuly login page,
 and the `schuly` realm should exist (it's imported on first start).
 
 ## 4. Create a real admin, drop the bootstrap one
@@ -143,6 +143,6 @@ the Postgres volume before major Keycloak version jumps.
 
 ## Next steps
 
-- [Configuration reference](../configuration.md) — every port, variable, and default.
-- [Realm management](../realm-management.md) — edit and snapshot the `schuly` realm.
-- [Troubleshooting](../troubleshooting.md) — when something doesn't come up.
+- [Configuration reference](../configuration.md) - every port, variable, and default.
+- [Realm management](../realm-management.md) - edit and snapshot the `schuly` realm.
+- [Troubleshooting](../troubleshooting.md) - when something doesn't come up.

@@ -2,15 +2,15 @@
 
 Everything you can configure on the Schuly Keycloak image, in one place. The image
 is an **optimized** Keycloak 26.6 build, so the database vendor, health, and metrics
-are already baked in at build time — at runtime you mainly provide the database
+are already baked in at build time - at runtime you mainly provide the database
 connection, the public hostname, and a bootstrap admin.
 
 ## Ports
 
 | Port | Purpose | Expose publicly? |
 |---|---|---|
-| `8080` | HTTP — login pages, OIDC/SAML endpoints, admin console, admin REST API. | Yes, via your reverse proxy (which terminates TLS). |
-| `9000` | Management — `/health`, `/health/ready`, `/health/live`, `/metrics`. | **No.** Keep internal; never proxy it to the internet. |
+| `8080` | HTTP - login pages, OIDC/SAML endpoints, admin console, admin REST API. | Yes, via your reverse proxy (which terminates TLS). |
+| `9000` | Management - `/health`, `/health/ready`, `/health/live`, `/metrics`. | **No.** Keep internal; never proxy it to the internet. |
 
 ## Runtime environment variables
 
@@ -26,10 +26,10 @@ Set these on the container (e.g. `environment:` in Compose, or `-e` on `docker r
 | `KC_HTTP_ENABLED` | ✅ (behind a proxy) | `true` to let the backend serve plain HTTP on `8080` while the proxy handles HTTPS. |
 | `KC_BOOTSTRAP_ADMIN_USERNAME` | first start only | Temporary bootstrap admin username. Use it once to create a real admin, then remove it. |
 | `KC_BOOTSTRAP_ADMIN_PASSWORD` | first start only | Temporary bootstrap admin password. |
-| `KC_HTTP_PORT` | — | Override the HTTP port (default `8080`). |
-| `KC_LOG_LEVEL` | — | Root log level (e.g. `info`, `debug`). |
+| `KC_HTTP_PORT` | - | Override the HTTP port (default `8080`). |
+| `KC_LOG_LEVEL` | - | Root log level (e.g. `info`, `debug`). |
 
-> Don't set `KC_DB` — the image is built for Postgres. Re-pointing the vendor would
+> Don't set `KC_DB` - the image is built for Postgres. Re-pointing the vendor would
 > require rebuilding the optimized image.
 
 ## Baked-in build settings
@@ -46,12 +46,12 @@ These are fixed at image-build time (`kc.sh build`) and generally not changed at
 
 ## Baked-in behavior
 
-- **Realm import** — the `schuly` realm is imported on **first** start. On later
+- **Realm import** - the `schuly` realm is imported on **first** start. On later
   starts an existing realm is left untouched. See [Realm management](realm-management.md).
-- **Leaked-password blacklist** — the rockyou list ships at
+- **Leaked-password blacklist** - the rockyou list ships at
   `/opt/keycloak/password-blacklists/rockyou.txt`; the realm's password policy uses
   `passwordBlacklist(rockyou.txt)`.
-- **Login theme** — the `schuly` Keycloakify theme is installed as a provider jar and
+- **Login theme** - the `schuly` Keycloakify theme is installed as a provider jar and
   selected by the realm (`loginTheme: "schuly"`). See [Theme development](theme-development.md).
 
 ## Volumes
@@ -60,4 +60,4 @@ In production (Postgres) all state lives in the database, so **no volume is requ
 The realm import files are baked into the image at `/opt/keycloak/data/import`.
 
 Local dev is different: it uses an embedded H2 database persisted in the
-`keycloak-data-dev` named volume — see [Development setup](setup/development.md).
+`keycloak-data-dev` named volume - see [Development setup](setup/development.md).

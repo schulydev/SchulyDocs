@@ -23,7 +23,7 @@ flowchart TB
 
 - **Stage 1** compiles the `keycloakify/` login theme into a Keycloak provider jar.
 - **Stage 2** fetches the rockyou leaked-password list.
-- **Stage 3** copies the theme jar in and runs `kc.sh build` — an **optimized** build
+- **Stage 3** copies the theme jar in and runs `kc.sh build` - an **optimized** build
   pinned to Postgres with health/metrics enabled, so production startup is fast.
 - **Stage 4** assembles the runtime image: the optimized server, the blacklist, and
   the `schuly` realm import files.
@@ -32,7 +32,7 @@ flowchart TB
 
 `kc.sh build` resolves the database vendor and feature flags ahead of time. The
 runtime then starts with `start --optimized`, skipping the per-boot build step. The
-trade-off: build-time settings (notably `KC_DB`) are fixed in the image — changing
+trade-off: build-time settings (notably `KC_DB`) are fixed in the image - changing
 them means rebuilding. Connection details and the hostname stay runtime env vars. See
 the [Configuration reference](configuration.md).
 

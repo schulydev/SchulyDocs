@@ -1,7 +1,7 @@
 # Development setup
 
-Run the full Schuly Keycloak image locally — theme, blacklist, and the `schuly`
-realm all baked in — using Docker Compose.
+Run the full Schuly Keycloak image locally - theme, blacklist, and the `schuly`
+realm all baked in - using Docker Compose.
 
 ## Prerequisites
 

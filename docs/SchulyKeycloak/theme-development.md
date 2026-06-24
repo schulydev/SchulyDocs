@@ -19,7 +19,7 @@ Scripts (`keycloakify/package.json`):
 |---|---|
 | `bun run dev` | Vite dev server for fast iteration on the theme. |
 | `bun run build` | `tsc && vite build`. |
-| `bun run build-keycloak-theme` | `build` then `keycloakify build` — produces the provider jar(s). |
+| `bun run build-keycloak-theme` | `build` then `keycloakify build` - produces the provider jar(s). |
 | `bun run storybook` | Storybook (`-p 6006`) for previewing login pages in isolation. |
 | `bun run format` | Prettier. |
 
@@ -36,7 +36,7 @@ bun run dev          # or: bun run storybook
 
 ## How the theme reaches the image
 
-The theme is **not** a runtime dependency you install separately — it's baked into
+The theme is **not** a runtime dependency you install separately - it's baked into
 the image. In the `Dockerfile`'s first stage (`node:22` + Maven), the theme is built
 with `npm run build-keycloak-theme`, and the resulting
 `dist_keycloak/keycloak-theme-for-kc-all-other-versions.jar` is copied into the

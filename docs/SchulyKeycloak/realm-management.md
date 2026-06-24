@@ -12,20 +12,20 @@ rockyou blacklist (`passwordBlacklist(rockyou.txt)`).
 User self-registration is **enabled** (`registrationAllowed`), so the login page shows
 a **Register** link and visitors can create their own account. New users still go
 through the mandatory 2FA enrollment below. Email verification is off by default
-(no SMTP is configured out of the box) — wire up SMTP in the realm if you want
+(no SMTP is configured out of the box) - wire up SMTP in the realm if you want
 verified emails or self-service password reset to actually deliver.
 
 ## Two-factor authentication
 
 2FA is mandatory and **passkey-first**. The `browser-2fa` flow runs username +
 password, then a *conditional* MFA step: if the user already has a 2FA credential
-they're challenged for it (passkey or OTP — whichever they have). Users with no 2FA
+they're challenged for it (passkey or OTP - whichever they have). Users with no 2FA
 credential are forced to register a **passkey** at next login, driven by the
 `webauthn-register-passwordless` required action, which is marked as a *default
 action* so it's applied automatically to every new user (including ones created via
 the admin API).
 
-OTP / authenticator-app (`CONFIGURE_TOTP`) is enabled but **optional** — users can
+OTP / authenticator-app (`CONFIGURE_TOTP`) is enabled but **optional** - users can
 add it from the account console, and the login flow accepts it as an alternative to
 a passkey.
 
@@ -34,26 +34,26 @@ a passkey.
 Both methods satisfy the mandatory 2FA step. Everyone gets a passkey by default and
 can add an authenticator app as well; the trade-offs:
 
-**Passkey** (default) — a credential bound to the device, unlocked with biometrics or
+**Passkey** (default) - a credential bound to the device, unlocked with biometrics or
 the device PIN.
 
 - **Pros**
-  - Phishing-resistant — nothing to type, copy, or leak; the secret never leaves the device.
-  - Fast — one biometric/PIN tap, no codes to read.
+  - Phishing-resistant - nothing to type, copy, or leak; the secret never leaves the device.
+  - Fast - one biometric/PIN tap, no codes to read.
   - No shared secret to store or transcribe.
 - **Cons**
-  - **No push notifications and no web support** — the passkey lives on the phone it
+  - **No push notifications and no web support** - the passkey lives on the phone it
     was set up on, so sign-in happens there: no desktop/web login and no
     push-to-approve flow.
-  - Tied to that device — losing it means re-enrolling (recovery needed).
+  - Tied to that device - losing it means re-enrolling (recovery needed).
   - Requires a device with biometric / WebAuthn support.
 
-**Authenticator app (TOTP)** — a 6-digit time-based code from an app like Google
+**Authenticator app (TOTP)** - a 6-digit time-based code from an app like Google
 Authenticator, Authy, or 1Password.
 
 - **Pros**
   - Works anywhere, including the web, and across multiple devices.
-  - Portable — the seed can be backed up or moved between devices.
+  - Portable - the seed can be backed up or moved between devices.
   - Familiar and widely supported.
 - **Cons**
   - You type a 6-digit code on every sign-in.
@@ -61,7 +61,7 @@ Authenticator, Authy, or 1Password.
   - Codes fail if the device clock drifts out of sync.
 
 > Note: Keycloak cannot present a "choose passkey **or** OTP" screen at first-login
-> enrollment — a passkey can only be enrolled through the required action, and OTP
+> enrollment - a passkey can only be enrolled through the required action, and OTP
 > only through the OTP form. The passkey-first model above is the supported way to
 > offer both while keeping enrollment mandatory.
 
@@ -72,7 +72,7 @@ enforcement falls to the `webauthn-register-passwordless` **default action**. De
 actions are auto-assigned only to **new** users. On a fresh `--import-realm` deploy
 this is fine (every user is new). But if you apply this flow to an **existing** realm,
 any account that was provisioned earlier and has **never enrolled 2FA** would have no
-credential *and* no required action — and could log in with **password only (MFA
+credential *and* no required action - and could log in with **password only (MFA
 bypass)**.
 
 Before/at rollout, retroactively assign the required action to every 2FA-less user
@@ -107,7 +107,7 @@ curl -s "$BASE/admin/realms/$REALM/users?max=100000" -H "Authorization: Bearer $
 Realm changes are made in the **admin console**, then snapshotted back into the
 repo so they're version-controlled and baked into the next image.
 
-1. Start the dev stack and open the console — see
+1. Start the dev stack and open the console - see
    [Development setup](setup/development.md).
 2. Make your changes in the `schuly` realm via the UI.
 3. Snapshot the realm back into `realms/`:
@@ -130,7 +130,7 @@ The export script stops the running container, runs Keycloak's `export` command
 against the `realms/` folder (mounted at `/export`, `--users skip`), then brings the
 container back up. The updated `realms/schuly-realm.json` is what you commit.
 
-> The export skips users (`--users skip`) — the realm file is configuration only,
+> The export skips users (`--users skip`) - the realm file is configuration only,
 > not user data.
 
 Commit the regenerated `realms/schuly-realm.json` through the normal

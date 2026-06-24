@@ -1,6 +1,6 @@
 # SchulyKeycloak documentation
 
-Schuly's own [Keycloak](https://www.keycloak.org/) image — the production identity
+Schuly's own [Keycloak](https://www.keycloak.org/) image - the production identity
 provider for Schuly. The container bakes in a [Keycloakify](https://keycloakify.dev)
 login theme (as a provider jar), a leaked-password blacklist (rockyou), and the
 `schuly` realm, then ships as an *optimized* Keycloak build so production startup is
@@ -21,18 +21,18 @@ fast. Releases push a multi-arch image to `ghcr.io/schulydev/schulykeycloak`.
 ## Docs index
 
 **Getting started**
-- [Development setup](setup/development.md) — run the image locally with Docker Compose.
-- [Self-hosting the full stack](setup/self-hosting.md) — deploy Keycloak + Postgres + a TLS proxy in production.
+- [Development setup](setup/development.md) - run the image locally with Docker Compose.
+- [Self-hosting the full stack](setup/self-hosting.md) - deploy Keycloak + Postgres + a TLS proxy in production.
 
 **Guides**
-- [Production setup](setup/production.md) — run the optimized image against a Postgres DB.
-- [Realm management](realm-management.md) — edit and snapshot the `schuly` realm (incl. 2FA).
-- [Theme development](theme-development.md) — work on the Keycloakify login theme.
-- [Account vs. privacy mode](account-vs-privacy-mode.md) — how users choose to sign in.
-- [Release](setup/release.md) — cut a release and publish images.
-- [Contributing](contributing.md) — the issue → branch → PR workflow.
+- [Production setup](setup/production.md) - run the optimized image against a Postgres DB.
+- [Realm management](realm-management.md) - edit and snapshot the `schuly` realm (incl. 2FA).
+- [Theme development](theme-development.md) - work on the Keycloakify login theme.
+- [Account vs. privacy mode](account-vs-privacy-mode.md) - how users choose to sign in.
+- [Release](setup/release.md) - cut a release and publish images.
+- [Contributing](contributing.md) - the issue → branch → PR workflow.
 
 **Reference & background**
-- [Configuration reference](configuration.md) — every port, environment variable, and default.
-- [Architecture](architecture.md) — how the theme, realm, and base image compose, and the login flow.
-- [Troubleshooting](troubleshooting.md) — symptoms, causes, and fixes.
+- [Configuration reference](configuration.md) - every port, environment variable, and default.
+- [Architecture](architecture.md) - how the theme, realm, and base image compose, and the login flow.
+- [Troubleshooting](troubleshooting.md) - symptoms, causes, and fixes.
