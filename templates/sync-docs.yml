@@ -1,0 +1,67 @@
+# Doc-sync workflow — COPY THIS INTO EACH SOURCE REPO at:
+#   .github/workflows/sync-docs.yml
+#
+# It runs in the SOURCE repo (Schuly, SchulyBackend, ...). On a push to main that
+# touches docs/**, it copies that repo's docs into SchulyDocs/docs/<Repo>/ and pushes.
+# That push triggers Cloudflare Pages to rebuild the docs site.
+#
+# Setup (once):
+#   1. Create a fine-grained PAT (or GitHub App token) with Contents: Read & Write
+#      scoped to schulydev/SchulyDocs ONLY.
+#   2. Add it as a secret named DOCS_SYNC_TOKEN. Easiest: an *organization* secret
+#      scoped to the source repos, so you set it once instead of per repo.
+#
+# Note: the section title/order for this repo lives in SchulyDocs at
+# docs/<Repo>/_category_.json and is intentionally PRESERVED by the copy step below.
+
+name: Sync docs to docs site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+  workflow_dispatch: {}
+
+# Avoid racing pushes into the docs repo if two doc commits land quickly.
+concurrency:
+  group: sync-docs-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+
+      - name: Checkout docs site
+        uses: actions/checkout@v4
+        with:
+          repository: schulydev/SchulyDocs
+          token: ${{ secrets.DOCS_SYNC_TOKEN }}
+          path: .docs-site
+
+      - name: Copy docs into section (preserve _category_.json)
+        run: |
+          set -euo pipefail
+          REPO="${GITHUB_REPOSITORY##*/}"
+          DEST=".docs-site/docs/$REPO"
+          mkdir -p "$DEST"
+          # Replace previous content but keep the docs-site-owned section config.
+          find "$DEST" -mindepth 1 ! -name '_category_.json' -delete
+          cp -r docs/. "$DEST"/
+
+      - name: Commit & push if changed
+        run: |
+          set -euo pipefail
+          cd .docs-site
+          git config user.name  "schuly-docs-sync[bot]"
+          git config user.email "schuly-docs-sync@users.noreply.github.com"
+          git add docs/
+          if git diff --staged --quiet; then
+            echo "No doc changes to sync."
+          else
+            git commit -m "docs: sync from ${GITHUB_REPOSITORY}@${GITHUB_SHA:0:7}"
+            git push
+          fi
