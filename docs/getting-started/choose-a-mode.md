@@ -5,7 +5,7 @@ title: 2. Choose how you sign in
 
 # 2. Choose how you sign in
 
-On first launch Schuly asks how you want to use it. There are two modes — you can change
+On first launch Schuly asks how you want to use it. There are two modes - you can change
 your mind later, so don't overthink it.
 
 ## Account mode (recommended for most people)
@@ -23,7 +23,7 @@ the background, so the app opens fast and stays current across devices.
 your credentials stay **only on your device**. Schuly fetches your data live and stores
 **nothing** on its servers.
 
-- Maximum privacy — nothing about your school data lives on Schuly's servers.
+- Maximum privacy - nothing about your school data lives on Schuly's servers.
 - Still works with the same schools.
 - Data is fetched live, so it loads when you open the app rather than syncing in the
   background.
