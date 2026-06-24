@@ -19,8 +19,10 @@ What you see next depends on the mode you chose:
 
 ### If you picked Account mode
 
-You'll be taken to the **Schuly login**. Sign in (or create your account), and that's it -
-Schuly connects your school to your account and starts keeping your data in sync.
+You'll be taken to the **Schuly login**. New here? The app takes you straight to sign-up,
+and creating an account is quick - just a **username, email and password** (no name
+fields). Sign in (or sign up), and that's it - Schuly connects your school to your account
+and keeps your data in sync.
 
 ### If you picked Private mode
 
