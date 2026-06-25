@@ -13,3 +13,7 @@ Unified VitePress docs site for Schuly, served at docs.schuly.dev. It aggregates
 - No test plans in PRs. PR body is **Summary** + `Closes #<issue>` only.
 - Commit subject: short imperative.
 - PR labels: `bug`, `enhancement`, `feature`, `refactor`, `CI/CD`, `dependencies`, `documentation`.
+
+## Code formatting
+
+**Declaration signatures go on one line** - in any JS/TS config or script here, don't wrap a function / arrow parameter list across multiple lines, however long it gets. Fluent chains, object / array literals, and multi-line conditionals stay wrapped as they are.
