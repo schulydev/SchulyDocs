@@ -129,6 +129,10 @@ export default withMermaid({
           link: `/${s.dir}/`,
         })),
       },
+      // Previously only linked from the footer, which made the sync workflow easy to
+      // miss - contributors would land on a page, not realize it's a synced copy, and
+      // edit it here (where the change is silently overwritten on the next sync).
+      { text: 'Editing these docs', link: '/editing-these-docs' },
     ],
 
     sidebar: buildSidebar(),
