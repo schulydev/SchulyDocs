@@ -32,6 +32,28 @@ Set these on the container (e.g. `environment:` in Compose, or `-e` on `docker r
 > Don't set `KC_DB` - the image is built for Postgres. Re-pointing the vendor would
 > require rebuilding the optimized image.
 
+## SMTP (realm email)
+
+The `schuly` realm's mail server is filled in from the container environment at
+startup - the realm ships `${env.SMTP_*}` placeholders that
+`scripts/resolve-realm-env.sh` resolves before the import runs. Leave them unset and
+the realm imports with no working mail server, which is fine until you want verified
+emails or self-service password reset.
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `SMTP_HOST` | for mail | Mail server hostname. |
+| `SMTP_PORT` | for mail | Mail server port, e.g. `587`. |
+| `SMTP_FROM` | - | Sender address. Defaults to `noreply@localhost`; set a real address before enabling mail. |
+| `SMTP_USER` | for mail | SMTP username (the realm sends `auth: true`). |
+| `SMTP_PASSWORD` | for mail | SMTP password. |
+| `SMTP_SSL` | - | `true` for implicit TLS. |
+| `SMTP_STARTTLS` | - | `true` for STARTTLS. |
+
+> These only apply on the **first** start, when the realm is imported. Changing them
+> later has no effect on an existing realm - edit the mail settings in the admin
+> console instead (**Realm settings → Email**).
+
 ## Baked-in build settings
 
 These are fixed at image-build time (`kc.sh build`) and generally not changed at runtime:
