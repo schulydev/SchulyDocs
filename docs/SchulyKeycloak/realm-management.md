@@ -13,8 +13,8 @@ User self-registration is **enabled** (`registrationAllowed`), so the login page
 a **Register** link and visitors can create their own account. The form is kept minimal
 via a declarative user profile - just **username, email and password** (no first/last
 name). Email verification is off by default (no SMTP is configured out of the box) -
-wire up SMTP in the realm if you want verified emails or self-service password reset to
-actually deliver.
+set the `SMTP_*` variables from [Configuration](configuration.md#smtp-realm-email) if you
+want verified emails or self-service password reset to actually deliver.
 
 ## Two-factor authentication
 
