@@ -5,8 +5,8 @@ title: 3. Connect your school
 
 # 3. Connect your school
 
-Schuly is provider-agnostic: your school system comes from a live catalog, so you simply
-pick yours from the list - there's nothing to type in by hand or configure.
+Schuly doesn't ship with a fixed list of schools. It loads the current list when you reach
+this screen, so you just pick yours - there's nothing to type in or set up by hand.
 
 ## Step 1 - Pick your school system
 
@@ -30,12 +30,12 @@ Schuly shows a **connect screen with the login fields your school needs** (for e
 username/email and password, and a one-time code if your school uses two-factor). The
 exact fields are provided by your school system, so you only ever see what's relevant.
 
-- Your credentials are saved **only in your device's secure keystore** - never sent to or
-  stored by Schuly.
-- If your school uses a one-time code (TOTP), Schuly can generate it for you on-device
-  from the **Authenticator** screen after setup.
-- When your session expires, Schuly re-connects silently using the credentials in your
-  keystore, so you stay signed in.
+- Your school login is saved **only in your phone's secure storage** - it is never sent to
+  Schuly and never stored on its servers.
+- If your school asks for a one-time code, Schuly can generate it on your phone from the
+  **Authenticator** screen after setup.
+- When your school signs you out, Schuly quietly signs back in with the login saved on
+  your phone, so you stay connected.
 
 :::tip Switching schools or modes later
 You can connect a different school, or switch between Account and Private mode, from the
