@@ -9,6 +9,13 @@ Schuly can hold your two-factor secrets and generate the six-digit codes itself,
 do not need a separate authenticator app. This page walks through adding one, using a
 Microsoft school account as the example.
 
+:::info Screenshots are from a German account
+Microsoft shows this flow in whatever language your account is set to, and the
+screenshots below happen to be from a German one. The German labels are called out in the
+text with their English translation alongside, so look for the option in that position
+regardless of the language your own screen shows.
+:::
+
 :::warning You need a second screen
 The QR code appears on one screen and has to be **scanned by the phone running Schuly**.
 So do this at a laptop or desktop, or on a second device - a phone cannot photograph its
@@ -35,13 +42,14 @@ and sign in.
 
 ![The Microsoft My Account home page](/img/totp/01-account-home.png)
 
-Open **Mein Konto** in the sidebar, then **Sicherheitsinformationen**.
+Open **Mein Konto** ("My account") in the sidebar, then **Sicherheitsinformationen**
+("Security info").
 
 ![Security info in the sidebar](/img/totp/02-security-info-nav.png)
 
 ## 2. Add a sign-in method
 
-Choose **Anmeldemethode hinzufügen**.
+Choose **Anmeldemethode hinzufügen** ("Add sign-in method").
 
 ![The list of sign-in methods](/img/totp/03-add-sign-in-method.png)
 
@@ -52,11 +60,12 @@ Pick **Microsoft Authenticator** from the list.
 ## 3. Tell it you use a different app
 
 Microsoft assumes you want its own app. You don't - Schuly is the authenticator here.
-Choose **Andere App für die Authentifizierung einrichten**.
+Choose **Andere App für die Authentifizierung einrichten** ("Use a different
+authenticator app" / "I want to use a different authenticator app").
 
 ![Use a different authenticator app](/img/totp/05-use-a-different-app.png)
 
-Then continue with **Weiter**.
+Then continue with **Weiter** ("Next").
 
 ![Set up the account in the app](/img/totp/06-set-up-account.png)
 
@@ -81,8 +90,8 @@ showing you - type it in before the countdown runs out. If it expires, the next 
 just as well; the entry is already saved.
 :::
 
-Back on the computer, choose **Weiter**, enter the code, and confirm. **Authenticator-App**
-now appears in your list of sign-in methods.
+Back on the computer, choose **Weiter** ("Next"), enter the code, and confirm.
+**Authenticator-App** ("Authenticator app") now appears in your list of sign-in methods.
 
 ## Afterwards
 
