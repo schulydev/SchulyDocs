@@ -18,12 +18,12 @@ Set these on the container (e.g. `environment:` in Compose, or `-e` on `docker r
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `KC_DB_URL` | ✅ | JDBC URL of the Postgres database, e.g. `jdbc:postgresql://db:5432/keycloak`. |
-| `KC_DB_USERNAME` | ✅ | Database user. |
-| `KC_DB_PASSWORD` | ✅ | Database password. |
-| `KC_HOSTNAME` | ✅ (prod) | Public URL Keycloak is served at, e.g. `https://auth.schuly.dev`. Keycloak builds all issuer/redirect URLs from this. |
-| `KC_PROXY_HEADERS` | ✅ (behind a proxy) | Set to `xforwarded` when a reverse proxy terminates TLS and forwards `X-Forwarded-*` headers (use `forwarded` if it sends RFC 7239 `Forwarded`). |
-| `KC_HTTP_ENABLED` | ✅ (behind a proxy) | `true` to let the backend serve plain HTTP on `8080` while the proxy handles HTTPS. |
+| `KC_DB_URL` | Yes | JDBC URL of the Postgres database, e.g. `jdbc:postgresql://db:5432/keycloak`. |
+| `KC_DB_USERNAME` | Yes | Database user. |
+| `KC_DB_PASSWORD` | Yes | Database password. |
+| `KC_HOSTNAME` | Yes (prod) | Public URL Keycloak is served at, e.g. `https://auth.schuly.dev`. Keycloak builds all issuer/redirect URLs from this. |
+| `KC_PROXY_HEADERS` | Yes (behind a proxy) | Set to `xforwarded` when a reverse proxy terminates TLS and forwards `X-Forwarded-*` headers (use `forwarded` if it sends RFC 7239 `Forwarded`). |
+| `KC_HTTP_ENABLED` | Yes (behind a proxy) | `true` to let the backend serve plain HTTP on `8080` while the proxy handles HTTPS. |
 | `KC_BOOTSTRAP_ADMIN_USERNAME` | first start only | Temporary bootstrap admin username. Use it once to create a real admin, then remove it. |
 | `KC_BOOTSTRAP_ADMIN_PASSWORD` | first start only | Temporary bootstrap admin password. |
 | `KC_HTTP_PORT` | - | Override the HTTP port (default `8080`). |
