@@ -1,4 +1,4 @@
-# Self-hosting the full stack
+# Self-hosting
 
 A complete, copy-pasteable guide to running Schuly Keycloak in production: the
 database, the Keycloak image, and a TLS-terminating reverse proxy - plus the
