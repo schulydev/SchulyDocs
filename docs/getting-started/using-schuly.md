@@ -23,13 +23,13 @@ Once you're connected, Schuly brings your school data together in one place:
 
 - **Add Schuly to your home screen** for one-tap access to grades.
 - **Check the agenda the night before** so you walk in knowing your schedule and any exams.
-- **Lost or changed your password?** Update your school credentials in settings - in
-  Private mode, Schuly will use the new ones from your device keystore.
+- **Lost or changed your password?** Update your school login in settings - in Private
+  mode, Schuly starts using the new one straight away.
 
 ## Need more?
 
-- Curious how the two modes work under the hood? See
-  [App modes: Account vs Private](/docs/Schuly/architecture-modes).
+- Curious how the two modes actually work? See
+  [App modes: Account vs Private](/Schuly/architecture-modes).
 - Want to report a bug or request a feature? Head to the
   [Schuly GitHub repo](https://github.com/schulydev/Schuly).
 
