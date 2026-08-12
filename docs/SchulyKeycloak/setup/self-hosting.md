@@ -99,6 +99,15 @@ BOOTSTRAP_ADMIN_USER=bootstrap
 BOOTSTRAP_ADMIN_PASSWORD=change-me-too
 ```
 
+That's three files, laid out like this:
+
+```
+schuly-keycloak/
+├── compose.yml     # the docker-compose.yml above
+├── Caddyfile        # the Caddyfile above
+└── .env             # the secrets above - not committed
+```
+
 Bring it up:
 
 ```sh
@@ -140,6 +149,50 @@ To move to a newer image, change the pinned tag and `docker compose up -d`. Real
 user data live in Postgres and persist across image upgrades; an already-imported
 realm is left as-is (the bundled realm file only seeds a brand-new database). Back up
 the Postgres volume before major Keycloak version jumps.
+
+## Running without a public domain (LAN / local testing)
+
+Everything above assumes a real domain with DNS you control. You might not have one -
+for example if you're developing against a locally-run backend (per
+[SchulyBackend's development guide](https://docs.schuly.dev/SchulyBackend/setup/development))
+and just need a real, published-image Keycloak reachable on your network, no domain,
+no TLS. (`setup/development.md`'s `compose.dev.yml` is a different thing - it builds
+the image from source for theme work; this is about running the production image
+without a domain.)
+
+**`KC_HOSTNAME` is the URL every token's issuer is set to**, and anything that
+validates those tokens (a backend, a browser, a phone) has to reach Keycloak under
+that *exact* URL - a bare `localhost` only works if everything runs on the same
+machine. See
+[SchulyBackend's self-hosting guide](https://docs.schuly.dev/SchulyBackend/setup/self-hosting#running-without-a-public-domain-lan-local-testing)
+for the full explanation, including why a wildcard-DNS hostname like `<ip>.nip.io`
+often silently fails to resolve on home routers (DNS-rebind protection) and a raw LAN
+IP is the more reliable fallback.
+
+Once you've picked a hostname (say your machine's LAN IP, `192.168.1.42`), three
+things change from step 2 above:
+
+```yaml
+# compose.yml - keycloak service
+environment:
+  KC_HOSTNAME: http://192.168.1.42:8080   # was https://auth.schuly.dev
+
+# proxy (caddy) service
+ports:
+  - "8080:8080"   # was "80:80" / "443:443" - no cert to serve, so no 443
+```
+
+```
+# Caddyfile - plain HTTP, explicit port, no ACME
+http://192.168.1.42:8080 {
+	reverse_proxy keycloak:8080
+}
+```
+
+Everything else - realm import, the bootstrap-admin step, verification - is
+unchanged, just `http://` instead of `https://`. Whatever else is going to validate
+tokens from this Keycloak (e.g. a self-hosted SchulyBackend) will need its own
+HTTPS-metadata requirement relaxed too - see that project's docs.
 
 ## Next steps
 
