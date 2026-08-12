@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Schuly Docs
   text: Documentation for the Schuly project
-  tagline: Every repo's docs, synced into one place.
+  tagline: Install the app, connect your school, or run the whole thing yourself.
   image:
     src: /img/logo.png
     alt: Schuly
@@ -54,7 +54,3 @@ features:
     details: Building, distributing and migrating plugins.
     link: /SchulyPlugins/
 ---
-
-You don't edit docs here. Each section is maintained in its own repository under the
-[`schulydev`](https://github.com/schulydev) GitHub org and is **synced into this site
-automatically** whenever its `docs/` folder changes on `main`.
