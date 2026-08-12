@@ -25,7 +25,7 @@ source repos (Schuly, SchulyBackend, ...)        this repo (SchulyDocs)        C
   local search and cross-linking between sections.
 - Section labels and ordering live in the `SECTIONS` map in `docs/.vitepress/config.mjs`.
   Everything inside `docs/<Repo>/` is **replaced** on each sync (so deletions in the
-  source propagate) — the synced folders hold only the source repo's markdown.
+  source propagate) - the synced folders hold only the source repo's markdown.
 - The sidebar is generated from the `docs/` tree by `config.mjs`, so contributors just
   add markdown. Each section's `README.md` is the section landing page (a `rewrites` rule
   maps `**/README.md` → `index.md`, since VitePress only treats `index.md` as a folder
@@ -71,7 +71,7 @@ From then on: any push here (including the automated doc-sync commits) triggers 
 
 1. Copy [`templates/sync-docs.yml`](templates/sync-docs.yml) into the source repo at
    `.github/workflows/sync-docs.yml`.
-2. No secret to create — it uses the org-level **`MAIN_PUSH_TOKEN`** secret already used
+2. No secret to create - it uses the org-level **`MAIN_PUSH_TOKEN`** secret already used
    by the other cross-repo sync workflows in this org.
 3. Push a change under `docs/` (or run the workflow manually). The workflow opens a PR
    against this repo and auto-merges it (matching the org's sync convention), which
@@ -84,7 +84,7 @@ in `scripts/sync-docs.sh`.
 ## Notes / limitations
 
 - Source docs are plain GitHub-flavored Markdown. VitePress compiles markdown through Vue,
-  so raw `{{ }}` or stray HTML-like `</tag>` lines in a `.md` file will break the build —
+  so raw `{{ }}` or stray HTML-like `</tag>` lines in a `.md` file will break the build -
   keep such content inside code fences.
 - Mermaid ```mermaid code blocks render via `vitepress-plugin-mermaid`.
 - Nested folders (e.g. `setup/`) become collapsible sub-groups labeled by folder name.

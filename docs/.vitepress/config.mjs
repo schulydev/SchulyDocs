@@ -7,7 +7,7 @@ const DOCS_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 
 // Each synced source repo gets a section folder under docs/. Order + display label
 // live here (this replaces Docusaurus' per-folder _category_.json). Contributors only
-// edit markdown in the source repos — the sidebar below is generated from the files.
+// edit markdown in the source repos - the sidebar below is generated from the files.
 const SECTIONS = [
   { dir: 'getting-started', text: 'Getting started' },
   { dir: 'Schuly', text: 'Mobile app (Schuly)' },
@@ -138,7 +138,7 @@ export default withMermaid({
     search: { provider: 'local' },
 
     footer: {
-      message: 'Edit docs in each source repo — they sync here automatically.',
+      message: 'Found a mistake? <a href="/editing-these-docs">Edit these docs</a>.',
       copyright: `Copyright © ${new Date().getFullYear()} Schuly`,
     },
 
