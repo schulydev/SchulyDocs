@@ -18,6 +18,9 @@ absences - from Schulnetz-based school systems, in one clean place.
 3. **[Connect your school](first-setup.md)** - pick your school system and sign in.
 4. **[Explore your data](using-schuly.md)** - grades, exams, agenda, absences.
 
+Once you're set up, Schuly can also **[hold your two-factor codes](authenticator.md)**, so
+you don't need a separate authenticator app.
+
 :::tip In a hurry?
 Most people: install Schuly → pick **Account mode** → choose your school → sign in →
 done. The pages above only matter if you want the privacy-first option or get stuck.
