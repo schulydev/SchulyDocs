@@ -1,8 +1,10 @@
 # SchulyDocs
 
+[![Documentation](https://img.shields.io/badge/docs-docs.schuly.dev-3da8ff)](https://docs.schuly.dev)
+
 Unified [VitePress](https://vitepress.dev/) site that aggregates the documentation of
 every repo in the [`schulydev`](https://github.com/schulydev) org into one searchable,
-cross-linkable site.
+cross-linkable site. It is published at **[docs.schuly.dev](https://docs.schuly.dev)**.
 
 Each source repo keeps its docs next to its code in a `docs/` folder. A GitHub Actions
 workflow in each repo syncs that folder into `docs/<Repo>/` here on every push to `main`,
@@ -88,3 +90,15 @@ in `scripts/sync-docs.sh`.
 - Nested folders (e.g. `setup/`) become collapsible sub-groups labeled by folder name.
 - Cross-section links should use absolute site paths (e.g. `/SchulyBackend/architecture`)
   or full GitHub URLs; relative links only resolve within the same section.
+
+## The Schuly ecosystem
+
+| Repo | Purpose | Section |
+|---|---|---|
+| [**Schuly**](https://github.com/schulydev/Schuly) | Flutter mobile app | [/Schuly](https://docs.schuly.dev/Schuly/) |
+| [**SchulyBackend**](https://github.com/schulydev/SchulyBackend) | ASP.NET Core API backend | [/SchulyBackend](https://docs.schuly.dev/SchulyBackend/) |
+| [**SchulyKeycloak**](https://github.com/schulydev/SchulyKeycloak) | Keycloak image + the `schuly` realm | [/SchulyKeycloak](https://docs.schuly.dev/SchulyKeycloak/) |
+| [**SchulyPluginAbstractions**](https://github.com/schulydev/SchulyPluginAbstractions) | Plugin contract (NuGet) | [/SchulyPluginAbstractions](https://docs.schuly.dev/SchulyPluginAbstractions/) |
+| [**SchulyPlugins**](https://github.com/schulydev/SchulyPlugins) | Official plugins monorepo | [/SchulyPlugins](https://docs.schuly.dev/SchulyPlugins/) |
+| [**SchulyWebsite**](https://github.com/schulydev/SchulyWebsite) | Landing site ([schuly.dev](https://schuly.dev)) | [/SchulyWebsite](https://docs.schuly.dev/SchulyWebsite/) |
+| [**SchulyDocs**](https://github.com/schulydev/SchulyDocs) | Documentation site *(this repo)* | [docs.schuly.dev](https://docs.schuly.dev) |
