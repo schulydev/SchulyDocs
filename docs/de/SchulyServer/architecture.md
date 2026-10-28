@@ -75,7 +75,7 @@ implementieren. Die Plugin-Runtime liegt in `Schuly.API/Plugins`: Plugins werden
 Laufzeit aus einer Registry nach `/app/plugins` heruntergeladen, jedes in seinen
 eigenen collectible `AssemblyLoadContext` mit einem Child-DI-Container geladen, und
 können Controller, Minimal-API-Endpunkte und wiederkehrende Background-Tasks
-registrieren. Die Tasks werden über TickerQ geplant und per Name zurück in den
+registrieren. Die Tasks werden vom eigenen Scheduler des Hosts ausgeführt und per Name zurück in den
 DI-Scope des zugehörigen Plugins geleitet. Plugin-Requests laufen im DI-Scope des
 jeweiligen Plugins ab, vermittelt über `PluginScopeMiddleware`. Siehe
 [Plugin-Verwaltung](plugin-management.md) für Registry, Hot-Swap, Background-Tasks

@@ -75,7 +75,7 @@ Il backend ospita plugin che implementano `ISchulyPlugin` da
 i plugin vengono scaricati a runtime da un registro in `/app/plugins`, ciascuno
 caricato nel proprio `AssemblyLoadContext` collezionabile con un contenitore DI
 figlio, e possono registrare controller, endpoint minimal-API e attività ricorrenti
-in background - pianificate su TickerQ e reinoltrate per nome allo scope DI del
+in background - eseguite dallo scheduler dell'host e reinoltrate per nome allo scope DI del
 plugin proprietario. Le richieste ai plugin vengono eseguite all'interno dello scope
 DI del plugin proprietario tramite `PluginScopeMiddleware`. Vedi
 [Gestione dei plugin](plugin-management.md) per il registro, l'hot-swap, le attività
