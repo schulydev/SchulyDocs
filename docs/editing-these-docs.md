@@ -11,14 +11,14 @@ The first segment of the URL is the repository name.
 | Page | Lives in |
 |---|---|
 | `/Schuly/...` | [Schuly](https://github.com/schulydev/Schuly) `docs/` |
-| `/SchulyBackend/...` | [SchulyBackend](https://github.com/schulydev/SchulyBackend) `docs/` |
+| `/SchulyServer/...` | [SchulyServer](https://github.com/schulydev/SchulyServer) `docs/` |
 | `/SchulyKeycloak/...` | [SchulyKeycloak](https://github.com/schulydev/SchulyKeycloak) `docs/` |
 | `/SchulyPluginAbstractions/...` | [SchulyPluginAbstractions](https://github.com/schulydev/SchulyPluginAbstractions) `docs/` |
 | `/SchulyPlugins/...` | [SchulyPlugins](https://github.com/schulydev/SchulyPlugins) `docs/` |
 | `/SchulyWebsite/...` | [SchulyWebsite](https://github.com/schulydev/SchulyWebsite) `docs/` |
 | `/getting-started/...` | [SchulyDocs](https://github.com/schulydev/SchulyDocs) `docs/getting-started/` |
 
-So `/SchulyBackend/setup/development` is `docs/setup/development.md` in the SchulyBackend
+So `/SchulyServer/setup/development` is `docs/setup/development.md` in the SchulyServer
 repository.
 
 ## How a change reaches the site
@@ -35,5 +35,5 @@ folder, so the change disappears.
   stray `{{ }}` or a bare `</tag>` outside a code fence will break the build.
 - Diagrams are ` ```mermaid ` code blocks.
 - A folder's `README.md` becomes that section's landing page.
-- Link across sections with an absolute path such as `/SchulyBackend/architecture`.
+- Link across sections with an absolute path such as `/SchulyServer/architecture`.
   Relative links only resolve inside the same section.

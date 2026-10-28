@@ -1,7 +1,7 @@
 # Doc-sync workflow — COPY THIS INTO EACH SOURCE REPO at:
 #   .github/workflows/sync-docs.yml
 #
-# It runs in the SOURCE repo (Schuly, SchulyBackend, ...). On a push to main that
+# It runs in the SOURCE repo (Schuly, SchulyServer, ...). On a push to main that
 # touches docs/**, it copies that repo's docs into SchulyDocs/docs/<Repo>/, opens a PR
 # against SchulyDocs and auto-merges it (same pattern as the other org sync workflows).
 # Merging into SchulyDocs is what triggers the Cloudflare Pages rebuild.

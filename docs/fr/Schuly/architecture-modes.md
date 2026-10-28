@@ -13,14 +13,14 @@ sur un serveur.
 flowchart LR
   subgraph account["Mode compte"]
     direction TB
-    AU(["Toi"]) -->|"connexion à Schuly"| AB["SchulyBackend"]
+    AU(["Toi"]) -->|"connexion à Schuly"| AB["SchulyServer"]
     AB -->|"conserve une copie de tes données"| ADB[("Base de données de Schuly")]
   end
 
   subgraph private["Mode privé"]
     direction TB
     PU(["Toi"]) -->|"connexion à ton école"| PP[("Ton téléphone<br/>conserve l'identifiant")]
-    PP -->|"envoyé à chaque requête"| PB["SchulyBackend<br/>le transmet directement"]
+    PP -->|"envoyé à chaque requête"| PB["SchulyServer<br/>le transmet directement"]
   end
 
   School[("Le système de ton école")]

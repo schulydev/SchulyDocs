@@ -3,7 +3,7 @@
 Schuly è un'app mobile Flutter per accedere ai dati scolastici (voti, esami, agenda,
 assenze) dei sistemi basati su Schulnetz. Funziona in due modalità - una
 **modalità account**, basata su
-[SchulyBackend](https://github.com/schulydev/SchulyBackend) tramite OIDC, e una
+[SchulyServer](https://github.com/schulydev/SchulyServer) tramite OIDC, e una
 **modalità privata / sicura**, che mantiene le credenziali sul dispositivo e comunica
 solo con endpoint proxy anonimi e senza stato. L'interfaccia è realizzata con
 [Forui](https://forui.dev).

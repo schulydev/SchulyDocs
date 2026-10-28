@@ -12,7 +12,7 @@
 #
 set -euo pipefail
 
-REPOS=(Schuly SchulyBackend SchulyWebsite SchulyKeycloak SchulyPluginAbstractions SchulyPlugins)
+REPOS=(Schuly SchulyServer SchulyWebsite SchulyKeycloak SchulyPluginAbstractions SchulyPlugins)
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 

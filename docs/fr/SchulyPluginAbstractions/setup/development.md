@@ -28,7 +28,7 @@ src/
 ```
 
 Le csproj référence `libs/Schuly.Domain.dll` et `libs/Schuly.Infrastructure.dll`
-(synchronisés depuis SchulyBackend) pour que le projet compile contre eux, et les packages
+(synchronisés depuis SchulyServer) pour que le projet compile contre eux, et les packages
 sous `lib/net10.0/` afin que les plugins bénéficient d'un accès typé à la base de données. Les
 dépendances transitives dont ces DLL ont besoin (`Microsoft.EntityFrameworkCore`,
 `Npgsql.EntityFrameworkCore.PostgreSQL`) sont déclarées comme `PackageReference` dans le
@@ -41,7 +41,7 @@ dotnet build src/Schuly.Plugin.Abstractions/Schuly.Plugin.Abstractions.csproj
 ```
 
 Il n'y a pas de projet de tests dans ce dépôt ; le contrat est vérifié par les consommateurs
-en aval (SchulyBackend et les plugins).
+en aval (SchulyServer et les plugins).
 
 ## Pack à blanc (local)
 
