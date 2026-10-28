@@ -28,7 +28,7 @@ features:
       dark: /icons/server.dark.svg
     title: Backend (.NET API)
     details: API architecture, migrations, plugin management, configuration.
-    link: /SchulyBackend/
+    link: /SchulyServer/
   - icon:
       light: /icons/globe.light.svg
       dark: /icons/globe.dark.svg

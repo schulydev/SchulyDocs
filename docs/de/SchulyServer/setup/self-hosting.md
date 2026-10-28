@@ -3,7 +3,7 @@
 Eine Anleitung von Grund auf, um das Schuly-Backend **und die Dienste, die es
 braucht**, auf deinem eigenen Server aufzusetzen - mit den veröffentlichten
 GHCR-Images und dem fertigen Stack unter
-[`deploy/`](https://github.com/schulydev/SchulyBackend/tree/main/deploy). Alles
+[`deploy/`](https://github.com/schulydev/SchulyServer/tree/main/deploy). Alles
 läuft hinter [Caddy](https://caddyserver.com/) mit automatischem HTTPS.
 
 Für die lokale Entwicklung siehe stattdessen [Entwicklung](development.md). Für
@@ -53,8 +53,8 @@ Das Repo klonen (oder nur den Ordner `deploy/` kopieren) auf den Server und
 hineinwechseln:
 
 ```sh
-git clone https://github.com/schulydev/SchulyBackend.git
-cd SchulyBackend/deploy
+git clone https://github.com/schulydev/SchulyServer.git
+cd SchulyServer/deploy
 ```
 
 Alles Folgende läuft aus `deploy/` heraus, das vor jeder Änderung so aussieht:
@@ -140,8 +140,8 @@ Anwendungen selbst liegen neben den übrigen Konfigurationsdateien und lesen
 
 | Datei | Enthält |
 |---|---|
-| [`config/backend.env`](https://github.com/schulydev/SchulyBackend/blob/main/deploy/config/backend.env) | Backend-Einstellungen - Datenbankverbindung, OIDC, S3, Plugin-Pfade. |
-| [`config/keycloak.env`](https://github.com/schulydev/SchulyBackend/blob/main/deploy/config/keycloak.env) | Keycloak-Einstellungen - Datenbank, Hostname, Proxy-Header, Bootstrap-Admin, SMTP. |
+| [`config/backend.env`](https://github.com/schulydev/SchulyServer/blob/main/deploy/config/backend.env) | Backend-Einstellungen - Datenbankverbindung, OIDC, S3, Plugin-Pfade. |
+| [`config/keycloak.env`](https://github.com/schulydev/SchulyServer/blob/main/deploy/config/keycloak.env) | Keycloak-Einstellungen - Datenbank, Hostname, Proxy-Header, Bootstrap-Admin, SMTP. |
 
 Normalerweise fasst du keine der beiden an; sie existieren, damit
 `compose.staging.yml` lesbar bleibt als Abbild des Stacks statt als Wand aus

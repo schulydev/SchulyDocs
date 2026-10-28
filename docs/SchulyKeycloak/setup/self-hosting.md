@@ -154,7 +154,7 @@ the Postgres volume before major Keycloak version jumps.
 
 Everything above assumes a real domain with DNS you control. You might not have one -
 for example if you're developing against a locally-run backend (per
-[SchulyBackend's development guide](https://docs.schuly.dev/SchulyBackend/setup/development))
+[SchulyServer's development guide](https://docs.schuly.dev/SchulyServer/setup/development))
 and just need a real, published-image Keycloak reachable on your network, no domain,
 no TLS. (`setup/development.md`'s `compose.dev.yml` is a different thing - it builds
 the image from source for theme work; this is about running the production image
@@ -164,7 +164,7 @@ without a domain.)
 validates those tokens (a backend, a browser, a phone) has to reach Keycloak under
 that *exact* URL - a bare `localhost` only works if everything runs on the same
 machine. See
-[SchulyBackend's self-hosting guide](https://docs.schuly.dev/SchulyBackend/setup/self-hosting#running-without-a-public-domain-lan-local-testing)
+[SchulyServer's self-hosting guide](https://docs.schuly.dev/SchulyServer/setup/self-hosting#running-without-a-public-domain-lan-local-testing)
 for the full explanation, including why a wildcard-DNS hostname like `<ip>.nip.io`
 often silently fails to resolve on home routers (DNS-rebind protection) and a raw LAN
 IP is the more reliable fallback.
@@ -191,7 +191,7 @@ http://192.168.1.42:8080 {
 
 Everything else - realm import, the bootstrap-admin step, verification - is
 unchanged, just `http://` instead of `https://`. Whatever else is going to validate
-tokens from this Keycloak (e.g. a self-hosted SchulyBackend) will need its own
+tokens from this Keycloak (e.g. a self-hosted SchulyServer) will need its own
 HTTPS-metadata requirement relaxed too - see that project's docs.
 
 ## Next steps

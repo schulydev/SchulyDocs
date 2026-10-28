@@ -9,7 +9,7 @@
   `dotnet tool update`). Siehe [migrations.md](../migrations.md).
 - **[Kiota](https://learn.microsoft.com/openapi/kiota/install)** - nur nötig, um den
   Schulware-API-Client neu zu generieren. Siehe [setup/kiota-client.md](kiota-client.md).
-- Ein laufendes **[SchulyBackend](https://github.com/schulydev/SchulyBackend)** mit PostgreSQL,
+- Ein laufendes **[SchulyServer](https://github.com/schulydev/SchulyServer)** mit PostgreSQL,
   um ein Plugin end-to-end zu laden und zu testen.
 
 ## Die Abhängigkeit zu den Abstractions
@@ -53,7 +53,7 @@ Der Plugin-Host des Backends lädt Plugin-DLLs aus seinem `plugins/`-Verzeichnis
 (`/app/plugins/` im Container) und liest die YAML-Konfiguration jedes Plugins aus seinem
 Plugins-Config-Verzeichnis.
 
-1. SchulyBackend + Postgres hochfahren (siehe README des Backends).
+1. SchulyServer + Postgres hochfahren (siehe README des Backends).
 2. Führe `dotnet publish` für das Plugin aus (siehe oben) und kopiere die Plugin-DLL samt ihren
    Drittanbieter-Abhängigkeits-DLLs in den `plugins/`-Ordner des Backends. Vom Host geteilte
    Assemblies (ASP.NET Core, EF Core, Npgsql, die Abstractions, die Schuly-Host-Assemblies) stellt

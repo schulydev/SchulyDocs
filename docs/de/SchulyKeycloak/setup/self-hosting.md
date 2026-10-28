@@ -162,7 +162,7 @@ Sichere das Postgres-Volume vor grösseren Keycloak-Versionssprüngen.
 Alles oben Beschriebene setzt eine echte Domain mit DNS voraus, das du
 kontrollierst. Vielleicht hast du keine - zum Beispiel, wenn du gegen ein lokal
 laufendes Backend entwickelst (gemäss
-[SchulyBackends Entwicklungsanleitung](https://docs.schuly.dev/de/SchulyBackend/setup/development))
+[SchulyServers Entwicklungsanleitung](https://docs.schuly.dev/de/SchulyServer/setup/development))
 und einfach ein echtes, aus dem veröffentlichten Image laufendes Keycloak in
 deinem Netzwerk erreichbar brauchst - ohne Domain, ohne TLS. (Das `compose.dev.yml`
 aus `setup/development.md` ist etwas anderes - es baut das Image für die
@@ -176,7 +176,7 @@ wenn alles auf derselben Maschine läuft. Die vollständige Erklärung, einschli
 warum ein Wildcard-DNS-Hostname wie `<ip>.nip.io` an vielen Heimroutern (wegen
 DNS-Rebind-Schutz) oft stillschweigend nicht auflöst und eine rohe LAN-IP der
 verlässlichere Fallback ist, findest du in
-[SchulyBackends Self-Hosting-Anleitung](https://docs.schuly.dev/de/SchulyBackend/setup/self-hosting#running-without-a-public-domain-lan-local-testing).
+[SchulyServers Self-Hosting-Anleitung](https://docs.schuly.dev/de/SchulyServer/setup/self-hosting#running-without-a-public-domain-lan-local-testing).
 
 Hast du dich für einen Hostnamen entschieden (sagen wir die LAN-IP deiner Maschine,
 `192.168.1.42`), ändern sich drei Dinge gegenüber Schritt 2:
@@ -201,7 +201,7 @@ http://192.168.1.42:8080 {
 Alles Weitere - Realm-Import, der Bootstrap-Admin-Schritt, die Verifizierung -
 bleibt unverändert, nur `http://` statt `https://`. Was auch immer sonst noch
 Tokens von diesem Keycloak validieren wird (z. B. ein selbst gehostetes
-SchulyBackend), muss ebenfalls seine HTTPS-Metadaten-Anforderung lockern - siehe
+SchulyServer), muss ebenfalls seine HTTPS-Metadaten-Anforderung lockern - siehe
 die Dokumentation dieses Projekts.
 
 ## Nächste Schritte

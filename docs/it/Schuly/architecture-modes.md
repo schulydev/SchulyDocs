@@ -13,14 +13,14 @@ risiedere su un server.
 flowchart LR
   subgraph account["Modalità account"]
     direction TB
-    AU(["Tu"]) -->|"accedi a Schuly"| AB["SchulyBackend"]
+    AU(["Tu"]) -->|"accedi a Schuly"| AB["SchulyServer"]
     AB -->|"conserva una copia dei tuoi dati"| ADB[("Database di Schuly")]
   end
 
   subgraph private["Modalità privata"]
     direction TB
     PU(["Tu"]) -->|"accedi alla tua scuola"| PP[("Il tuo telefono<br/>conserva il login")]
-    PP -->|"inviato a ogni richiesta"| PB["SchulyBackend<br/>lo inoltra direttamente"]
+    PP -->|"inviato a ogni richiesta"| PB["SchulyServer<br/>lo inoltra direttamente"]
   end
 
   School[("Il sistema della tua scuola")]

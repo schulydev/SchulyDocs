@@ -3,7 +3,7 @@
 Schuly est une application mobile Flutter qui donne accès aux données scolaires
 (notes, examens, agenda, absences) des systèmes basés sur Schulnetz. Elle fonctionne
 selon deux modes - un **mode compte**, adossé à
-[SchulyBackend](https://github.com/schulydev/SchulyBackend) via OIDC, et un
+[SchulyServer](https://github.com/schulydev/SchulyServer) via OIDC, et un
 **mode privé / sécurisé**, qui conserve les identifiants sur l'appareil et ne
 communique qu'avec des points d'entrée proxy anonymes et sans état. L'interface est
 construite avec [Forui](https://forui.dev).

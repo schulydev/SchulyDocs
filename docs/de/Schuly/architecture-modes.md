@@ -12,14 +12,14 @@ wo dein Login aufbewahrt wird und ob überhaupt Daten auf einem Server landen.
 flowchart LR
   subgraph account["Account-Modus"]
     direction TB
-    AU(["Du"]) -->|"bei Schuly anmelden"| AB["SchulyBackend"]
+    AU(["Du"]) -->|"bei Schuly anmelden"| AB["SchulyServer"]
     AB -->|"behält eine Kopie deiner Daten"| ADB[("Schulys Datenbank")]
   end
 
   subgraph private["Privater Modus"]
     direction TB
     PU(["Du"]) -->|"bei deiner Schule anmelden"| PP[("Dein Smartphone<br/>speichert den Login")]
-    PP -->|"bei jeder Anfrage mitgesendet"| PB["SchulyBackend<br/>leitet ihn direkt durch"]
+    PP -->|"bei jeder Anfrage mitgesendet"| PB["SchulyServer<br/>leitet ihn direkt durch"]
   end
 
   School[("Das System deiner Schule")]

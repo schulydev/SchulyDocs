@@ -1,0 +1,4 @@
+/SchulyBackend/* /SchulyServer/:splat 301
+/de/SchulyBackend/* /de/SchulyServer/:splat 301
+/fr/SchulyBackend/* /fr/SchulyServer/:splat 301
+/it/SchulyBackend/* /it/SchulyServer/:splat 301

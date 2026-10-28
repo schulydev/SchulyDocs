@@ -11,7 +11,7 @@ L'assembly abstractions ne doit référencer **que** :
 - la référence de framework `Microsoft.AspNetCore.App`.
 
 N'ajoute **pas** de référence vers `Schuly.Application` (ces types vivent dans
-[SchulyBackend](https://github.com/schulydev/SchulyBackend) et ne sont pas publiés).
+[SchulyServer](https://github.com/schulydev/SchulyServer) et ne sont pas publiés).
 
 > Le dépôt embarque les DLL du backend `Schuly.Domain.dll` et `Schuly.Infrastructure.dll`
 > comme binaires précompilés sous `src/Schuly.Plugin.Abstractions/libs/` (synchronisés depuis

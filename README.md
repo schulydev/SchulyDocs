@@ -17,7 +17,7 @@ and [Cloudflare Pages](https://pages.cloudflare.com/) rebuilds the site automati
 ## Architecture
 
 ```
-source repos (Schuly, SchulyBackend, ...)        this repo (SchulyDocs)        Cloudflare Pages
+source repos (Schuly, SchulyServer, ...)        this repo (SchulyDocs)        Cloudflare Pages
   docs/**  --push to main-->  GH Action  --commit-->  docs/<Repo>/  --push-->  rebuild & deploy
 ```
 
@@ -88,7 +88,7 @@ in `scripts/sync-docs.sh`.
   keep such content inside code fences.
 - Mermaid ```mermaid code blocks render via `vitepress-plugin-mermaid`.
 - Nested folders (e.g. `setup/`) become collapsible sub-groups labeled by folder name.
-- Cross-section links should use absolute site paths (e.g. `/SchulyBackend/architecture`)
+- Cross-section links should use absolute site paths (e.g. `/SchulyServer/architecture`)
   or full GitHub URLs; relative links only resolve within the same section.
 
 ## The Schuly ecosystem
@@ -96,7 +96,7 @@ in `scripts/sync-docs.sh`.
 | Repo | Purpose | Section |
 |---|---|---|
 | [**Schuly**](https://github.com/schulydev/Schuly) | Flutter mobile app | [/Schuly](https://docs.schuly.dev/Schuly/) |
-| [**SchulyBackend**](https://github.com/schulydev/SchulyBackend) | ASP.NET Core API backend | [/SchulyBackend](https://docs.schuly.dev/SchulyBackend/) |
+| [**SchulyServer**](https://github.com/schulydev/SchulyServer) | ASP.NET Core API backend | [/SchulyServer](https://docs.schuly.dev/SchulyServer/) |
 | [**SchulyKeycloak**](https://github.com/schulydev/SchulyKeycloak) | Keycloak image + the `schuly` realm | [/SchulyKeycloak](https://docs.schuly.dev/SchulyKeycloak/) |
 | [**SchulyPluginAbstractions**](https://github.com/schulydev/SchulyPluginAbstractions) | Plugin contract (NuGet) | [/SchulyPluginAbstractions](https://docs.schuly.dev/SchulyPluginAbstractions/) |
 | [**SchulyPlugins**](https://github.com/schulydev/SchulyPlugins) | Official plugins monorepo | [/SchulyPlugins](https://docs.schuly.dev/SchulyPlugins/) |

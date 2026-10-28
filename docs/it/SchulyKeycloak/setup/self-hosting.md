@@ -165,7 +165,7 @@ versione Keycloak importanti.
 Tutto quanto sopra presuppone un dominio vero con un DNS che controlli. Potresti
 non averne uno - per esempio se stai sviluppando contro un backend eseguito in
 locale (secondo la
-[guida allo sviluppo di SchulyBackend](https://docs.schuly.dev/it/SchulyBackend/setup/development))
+[guida allo sviluppo di SchulyServer](https://docs.schuly.dev/it/SchulyServer/setup/development))
 e ti serve semplicemente un Keycloak vero, basato sull'immagine pubblicata,
 raggiungibile sulla tua rete - senza dominio, senza TLS. (Il `compose.dev.yml` di
 `setup/development.md` è un'altra cosa - costruisce l'immagine dai sorgenti per
@@ -176,7 +176,7 @@ dominio.)
 ciò che valida quei token (un backend, un browser, un telefono) deve poter
 raggiungere Keycloak esattamente sotto quell'URL - un semplice `localhost`
 funziona solo se tutto gira sulla stessa macchina. Vedi la
-[guida al self-hosting di SchulyBackend](https://docs.schuly.dev/it/SchulyBackend/setup/self-hosting#running-without-a-public-domain-lan-local-testing)
+[guida al self-hosting di SchulyServer](https://docs.schuly.dev/it/SchulyServer/setup/self-hosting#running-without-a-public-domain-lan-local-testing)
 per la spiegazione completa, incluso il motivo per cui un hostname DNS
 wildcard come `<ip>.nip.io` spesso non si risolve silenziosamente sui router
 domestici (protezione anti-DNS-rebind) e perché un IP LAN grezzo è il fallback
@@ -205,7 +205,7 @@ http://192.168.1.42:8080 {
 Tutto il resto - l'import del realm, il passaggio dell'admin di bootstrap, la
 verifica - resta invariato, solo con `http://` invece di `https://`. Qualunque
 altra cosa andrà a validare i token emessi da questo Keycloak (es. un
-SchulyBackend self-hosted) dovrà a sua volta allentare il proprio requisito sui
+SchulyServer self-hosted) dovrà a sua volta allentare il proprio requisito sui
 metadati HTTPS - vedi la documentazione di quel progetto.
 
 ## Prossimi passi

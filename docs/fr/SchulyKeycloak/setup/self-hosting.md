@@ -168,7 +168,7 @@ neuve). Sauvegarde le volume Postgres avant un saut de version majeur de Keycloa
 Tout ce qui précède suppose un vrai domaine avec un DNS que tu contrôles. Tu n'en
 as peut-être pas - par exemple si tu développes contre un backend exécuté en local
 (selon le
-[guide de développement de SchulyBackend](https://docs.schuly.dev/fr/SchulyBackend/setup/development))
+[guide de développement de SchulyServer](https://docs.schuly.dev/fr/SchulyServer/setup/development))
 et que tu as simplement besoin d'un Keycloak réel, tiré de l'image publiée,
 accessible sur ton réseau - sans domaine, sans TLS. (Le `compose.dev.yml` de
 `setup/development.md` est une autre chose - il construit l'image depuis les
@@ -179,7 +179,7 @@ production sans domaine.)
 qui valide ces jetons (un backend, un navigateur, un téléphone) doit pouvoir
 joindre Keycloak sous cette URL *exacte* - un simple `localhost` ne fonctionne que
 si tout tourne sur la même machine. Voir le
-[guide d'auto-hébergement de SchulyBackend](https://docs.schuly.dev/fr/SchulyBackend/setup/self-hosting#running-without-a-public-domain-lan-local-testing)
+[guide d'auto-hébergement de SchulyServer](https://docs.schuly.dev/fr/SchulyServer/setup/self-hosting#running-without-a-public-domain-lan-local-testing)
 pour l'explication complète, y compris pourquoi un nom d'hôte DNS générique comme
 `<ip>.nip.io` échoue souvent silencieusement à se résoudre sur les routeurs
 domestiques (protection anti-DNS-rebind) et pourquoi une IP LAN brute est la
@@ -207,7 +207,7 @@ http://192.168.1.42:8080 {
 
 Tout le reste - l'import du realm, l'étape de l'admin de démarrage, la vérification
 - reste inchangé, seulement en `http://` au lieu de `https://`. Tout ce qui va par
-ailleurs valider des jetons émis par ce Keycloak (par ex. un SchulyBackend
+ailleurs valider des jetons émis par ce Keycloak (par ex. un SchulyServer
 auto-hébergé) devra lui aussi assouplir son exigence de métadonnées HTTPS - voir la
 documentation de ce projet.
 

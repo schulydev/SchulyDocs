@@ -3,7 +3,7 @@
 Il client API Dart in `lib/api/` è **generato**, non scritto a mano. Viene prodotto
 da [openapi-generator](https://openapi-generator.tech) (generatore `dart-dio`) a
 partire dalla specifica OpenAPI 3.0 di
-[SchulyBackend](https://github.com/schulydev/SchulyBackend), servita su
+[SchulyServer](https://github.com/schulydev/SchulyServer), servita su
 `/openapi/v1.json`. L'app lo importa come package locale tramite un riferimento
 `path:` in `pubspec.yaml` (`schuly_api`).
 

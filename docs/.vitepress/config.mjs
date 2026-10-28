@@ -25,12 +25,12 @@ const SECTIONS = [
     },
   },
   {
-    dir: 'SchulyBackend',
+    dir: 'SchulyServer',
     text: {
-      en: 'Backend (.NET API)',
-      de: 'Backend (.NET-API)',
-      fr: 'Backend (API .NET)',
-      it: 'Backend (API .NET)',
+      en: 'Server (.NET API + web app)',
+      de: 'Server (.NET-API + Web-App)',
+      fr: 'Serveur (API .NET + app web)',
+      it: 'Server (API .NET + app web)',
     },
   },
   {

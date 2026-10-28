@@ -1,6 +1,6 @@
 # Documentation SchulyPlugins
 
-Plugins officiels pour le [backend Schuly](https://github.com/schulydev/SchulyBackend). Chaque
+Plugins officiels pour le [backend Schuly](https://github.com/schulydev/SchulyServer). Chaque
 plugin vit dans son propre dossier sous `src/`, cible **.NET 10** et implémente `ISchulyPlugin`
 depuis [`Schuly.Plugin.Abstractions`](https://github.com/schulydev/SchulyPluginAbstractions)
 (consommé comme `PackageReference` NuGet). Le backend charge les DLL des plugins compilées au

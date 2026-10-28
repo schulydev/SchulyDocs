@@ -1,6 +1,6 @@
-# Documentation SchulyBackend
+# Documentation SchulyServer
 
-SchulyBackend est l'API ASP.NET Core 10 derrière Schuly. Elle suit une architecture
+SchulyServer est l'API ASP.NET Core 10 derrière Schuly. Elle suit une architecture
 propre (clean architecture) avec CQRS (via [Mediator](https://github.com/martinothamar/Mediator)),
 utilise EF Core sur PostgreSQL, s'authentifie avec OIDC, et héberge des plugins chargés
 à l'exécution depuis un registre.
