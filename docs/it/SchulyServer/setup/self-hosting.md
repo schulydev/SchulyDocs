@@ -412,8 +412,6 @@ services:
   schulware:
     image: ghcr.io/pianonic/schulwareapi:latest
     restart: unless-stopped
-    init: true        # ripulisce i processi zombie
-    ipc: host         # margine di memoria condivisa per lo scraper
     environment:
       # Il client id Schulnetz e l'host PWA sono già integrati come predefiniti
       # nell'immagine SchulwareAPI, quindi qui non serve alcuna configurazione
