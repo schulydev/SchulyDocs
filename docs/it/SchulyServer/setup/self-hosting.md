@@ -15,9 +15,7 @@ immagine/release e l'elenco completo delle impostazioni, vedi
 flowchart TB
     user([Browser / Schuly app]) -->|HTTPS| caddy["Caddy (ports 80/443)"]
     caddy -->|API_HOST| backend["backend - ghcr.io/schulydev/schuly"]
-    caddy -->|AUTH_HOST| kc["keycloak - schuly realm"]
-    backend -->|JDBC| pg[("PostgreSQL")]
-    kc -->|JDBC| pg
+    backend -->|SQL| pg[("PostgreSQL")]
     backend -->|S3| s3[("SeaweedFS - documenti")]
     backend -->|scraper bridge| sw["schulware"]
 ```
@@ -26,24 +24,24 @@ flowchart TB
 |---|---|---|
 | `caddy` | `caddy:2` | **80 / 443** - le uniche porte pubbliche |
 | `backend` | `ghcr.io/schulydev/schuly` | via Caddy → `https://${API_HOST}` |
-| `keycloak` | `ghcr.io/schulydev/schulykeycloak` | via Caddy → `https://${AUTH_HOST}` |
-| `postgres` | `postgres:18.1` | interno (database `schuly` e `keycloak`) |
+| `postgres` | `postgres:18.1` | interno (database `schuly`) |
 | `seaweedfs` | `chrislusf/seaweedfs` | interno - storage documenti S3 |
 | `schulware` | `ghcr.io/pianonic/schulwareapi` | interno - bridge Schulnetz per il plugin Schulware |
 
-Il backend convalida i token OIDC rispetto al realm Keycloak `schuly`, applica le
-proprie migrazioni EF Core automaticamente all'avvio e scarica dal registro i
-plugin dichiarati in `config/plugins.yml` (nessuna DLL di plugin è integrata
-nell'immagine).
+L'accesso è integrato nel backend: emette e convalida i propri token e conserva gli
+account nel database `schuly`. Non c'è un identity provider separato. Il backend
+applica le proprie migrazioni EF Core automaticamente all'avvio e scarica dal
+registro i plugin dichiarati in `config/plugins.yml` (nessuna DLL di plugin è
+integrata nell'immagine).
 
 ## Prerequisiti
 
 - Un server Linux con **Docker** e il **plugin Compose** (`docker compose`).
 - Le porte **80** e **443** aperte verso internet.
-- Due record DNS che puntano al server - uno per l'API, uno per Keycloak
-  (ad es. `api.schuly.example` e `auth.schuly.example`). Caddy ha bisogno che
-  siano risolvibili prima del primo avvio, affinché Let's Encrypt possa emettere
-  i certificati.
+- Un record DNS che punta al server per l'API (ad es. `api.schuly.example`). Caddy
+  ha bisogno che sia risolvibile prima del primo avvio, affinché Let's Encrypt possa
+  emettere un certificato.
+- Un server SMTP per le mail di verifica e di reimpostazione della password.
 
 ## 1. Recupera i file di deploy
 
@@ -64,12 +62,9 @@ deploy/
 ├── compose.staging.yml
 ├── config/
 │   ├── backend.env
-│   ├── keycloak.env
 │   ├── plugins.yml
 │   ├── plugins-config/
 │   │   └── Schuly.Plugin.Schulware.yml
-│   ├── postgres-init/
-│   │   └── 01-create-keycloak-db.sh
 │   └── seaweedfs/
 │       └── s3-config.json
 └── README.md
@@ -93,9 +88,8 @@ deploy/
 
 ## 2. Punta il DNS verso il server
 
-Crea i record A/AAAA per i tuoi due hostname e attendi che si risolvano verso
-l'IP pubblico del server. Finché non lo fanno, l'emissione del certificato
-fallirà.
+Crea i record A/AAAA per il tuo hostname e attendi che si risolvano verso l'IP
+pubblico del server. Finché non lo fanno, l'emissione del certificato fallirà.
 
 ## 3. Configura i segreti
 
@@ -108,42 +102,55 @@ cp .env.example .env
 | Variabile | Cosa impostare |
 |---|---|
 | `API_HOST` | Hostname pubblico per l'API, ad es. `api.schuly.example`. |
-| `AUTH_HOST` | Hostname pubblico per Keycloak, ad es. `auth.schuly.example`. |
 | `SCHULY_VERSION` | Tag dell'immagine del backend. `latest` segue ogni release; fissa una versione come `1.3.3` per decidere tu stesso quando aggiornare. |
-| `KEYCLOAK_VERSION` | Tag dell'immagine Keycloak, stessa logica. |
-| `POSTGRES_USER` | Utente del database (condiviso da backend e Keycloak). |
+| `POSTGRES_USER` | Utente del database. |
 | `POSTGRES_PASSWORD` | Una password del database robusta. |
-| `KC_ADMIN_USER` | Nome utente admin di bootstrap di Keycloak (realm master). |
-| `KC_ADMIN_PASSWORD` | Password admin di bootstrap di Keycloak. |
+| `LOCAL_LOGIN_SIGNING_KEY` | Chiave che firma gli access token (obbligatoria). Base64 di 32 byte - generala con `openssl rand -base64 32`. Una nuova chiave disconnette tutti. |
+| `TWO_FACTOR_ENCRYPTION_KEY` | Chiave che cifra i segreti della verifica in due passaggi (obbligatoria). Base64 di 32 byte - generala con `openssl rand -base64 32`. Una nuova chiave rompe la verifica in due passaggi per ogni account. |
+| `ADMIN_EMAIL` | La tua email. L'account registrato con essa riceve il ruolo `Administrator`. |
 | `S3_ACCESS_KEY` | Access key S3 di SeaweedFS. |
 | `S3_SECRET_KEY` | Secret key S3 di SeaweedFS. |
 | `AVATAR_SIGNING_KEY` | Chiave HMAC per firmare gli URL degli avatar (obbligatoria). Generala con `openssl rand -hex 32`. |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_SSL`, `SMTP_STARTTLS` | Facoltativo. Server di posta per il realm Keycloak - necessario per le email verificate e il reset password self-service. |
+| `DOCUMENTS_ENCRYPTION_KEY` | Chiave master per cifrare a riposo i documenti degli studenti (obbligatoria). Base64 di 32 byte - generala con `openssl rand -base64 32`. Se la perdi, i documenti salvati diventano illeggibili. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_USER`, `SMTP_PASSWORD` | Server di posta per la verifica dell'email e la reimpostazione della password. |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Facoltativo. Base64 di un JSON di service account Firebase, per le notifiche push - generalo con `base64 -w0 service-account.json`. Lascialo non impostato per funzionare senza push. |
 
 > Le credenziali S3 **devono corrispondere** a `config/seaweedfs/s3-config.json` -
 > aggiorna sia `.env` sia quel file con gli stessi valori, altrimenti lo storage
 > dei documenti non si autenticherà.
 
-> I valori `SMTP_*` vengono incorporati nel realm quando questo viene importato
-> per la **prima volta**. Modificarli in seguito non ha alcun effetto su un realm
-> esistente - modifica invece **Realm settings → Email** nella console di
-> amministrazione di Keycloak. Lasciarli non impostati va bene; il realm viene
-> allora importato senza un server di posta funzionante.
+### Eliminazione dell'account
+
+`DELETE /api/auth/me` cancella tutto ciò che il backend conserva sul chiamante: i suoi
+utenti scolastici e tutti i voti, le assenze, le voci dell'agenda, le pagelle
+semestrali e i documenti (compresi gli oggetti in S3), poi la riga dell'account
+stessa. L'account di accesso (credenziali, token, verifica in due passaggi) viene
+eliminato nello stesso passo.
+
+### Conservazione dei dati
+
+Il backend esegue una pulizia di conservazione una volta al giorno, a partire da cinque
+minuti dopo l'avvio. Elimina i dati scolastici in cache degli utenti scolastici il cui
+`LeaveDate` risale a più di `Retention__MonthsAfterLeave` (6 mesi), ed elimina gli
+account che non hanno fatto richieste autenticate per `Retention__MonthsInactive`
+(12 mesi). Entrambe le soglie, e l'interruttore `Retention__Enabled`, si trovano in
+[`config/backend.env`](https://github.com/schulydev/SchulyServer/blob/main/deploy/config/backend.env).
+
+La pulizia elimina solo i dati di Schuly, non gli account di accesso, quindi chi ha
+dati in cache scaduti può accedere di nuovo e risincronizzare.
 
 ### Dove vivono le altre impostazioni
 
-`.env` contiene ciò che cambia per ogni deployment. Le impostazioni proprie delle
-due applicazioni si trovano accanto agli altri file di configurazione, e leggono
-i valori `${...}` direttamente da `.env`:
+`.env` contiene ciò che cambia per ogni deployment. Le impostazioni proprie del
+backend si trovano accanto agli altri file di configurazione, e leggono i valori
+`${...}` direttamente da `.env`:
 
 | File | Contiene |
 |---|---|
-| [`config/backend.env`](https://github.com/schulydev/SchulyServer/blob/main/deploy/config/backend.env) | Impostazioni del backend - connessione al database, OIDC, S3, percorsi dei plugin. |
-| [`config/keycloak.env`](https://github.com/schulydev/SchulyServer/blob/main/deploy/config/keycloak.env) | Impostazioni di Keycloak - database, hostname, header proxy, admin di bootstrap, SMTP. |
+| [`config/backend.env`](https://github.com/schulydev/SchulyServer/blob/main/deploy/config/backend.env) | Impostazioni del backend - connessione al database, accesso, SMTP, S3, percorsi dei plugin. |
 
-Normalmente non tocchi nessuno dei due; esistono affinché `compose.staging.yml`
-resti leggibile come rappresentazione dello stack, invece che un muro di
-variabili d'ambiente.
+Normalmente non lo tocchi; esiste affinché `compose.staging.yml` resti leggibile come
+rappresentazione dello stack, invece che un muro di variabili d'ambiente.
 
 ## 4. (Facoltativo) Rivedi i plugin
 
@@ -162,16 +169,12 @@ docker compose -f compose.staging.yml up -d
 docker compose -f compose.staging.yml logs -f backend
 ```
 
-Al primo avvio: Postgres crea i database `schuly` e `keycloak`, Keycloak importa
-il realm `schuly`, il backend applica le proprie migrazioni e popola il catalogo
-dei sistemi scolastici a partire dai plugin caricati, e Caddy ottiene i
-certificati TLS per entrambi gli hostname.
+Al primo avvio: Postgres crea il database `schuly`, il backend applica le proprie
+migrazioni e popola il catalogo dei sistemi scolastici a partire dai plugin caricati,
+e Caddy ottiene un certificato TLS per l'hostname.
 
 ## 6. Verifica end-to-end
 
-- `https://${AUTH_HOST}` → la console di amministrazione di Keycloak. Accedi al
-  realm master con `KC_ADMIN_USER` / `KC_ADMIN_PASSWORD`; il realm `schuly`
-  dovrebbe già esistere.
 - `https://${API_HOST}/api/app/school-systems` → l'endpoint anonimo del catalogo,
   a conferma che l'API è attiva (`/api/app` è l'unica rotta non autenticata).
 - `https://${API_HOST}/api/app` → la configurazione dell'app (anch'essa anonima);
@@ -180,42 +183,27 @@ certificati TLS per entrambi gli hostname.
 - `https://${API_HOST}/api/plugins` → i plugin caricati (richiede un login
   `Administrator`). Gestiscili a runtime con `POST /api/plugins/install` e
   `DELETE /api/plugins/{name}`.
-- Punta l'app Schuly verso `https://${API_HOST}`. Il suo login pilota Keycloak
-  tramite il client `schuly-app`; poiché sia l'app sia il backend usano
-  `https://${AUTH_HOST}` come authority OIDC, l'issuer del token corrisponde e la
-  convalida va a buon fine.
+- Punta l'app Schuly verso `https://${API_HOST}`. L'app accede tramite gli endpoint
+  `/auth` del backend.
 
 ## 7. Crea il tuo primo login
 
-L'admin di bootstrap (`KC_ADMIN_USER` / `KC_ADMIN_PASSWORD`) accede solo al
-**realm master** di Keycloak - la console di amministrazione, non l'app Schuly in
-sé. Per ottenere un login che funzioni nell'app, crea un utente nel realm
-**schuly**:
+Apri la web app su `https://${API_HOST}` e registrati con l'indirizzo che hai messo in
+`ADMIN_EMAIL`, oppure chiama direttamente `POST https://${API_HOST}/auth/register`.
+Conferma l'indirizzo tramite il link nella mail di verifica. Quell'account riceve il
+ruolo `Administrator`, necessario per gestire i plugin tramite l'API. Altri
+amministratori vanno in `config/backend.env` come `Auth__Administrators__1`,
+`Auth__Administrators__2` e così via.
 
-1. Nella console di amministrazione di Keycloak, cambia il selettore del realm
-   (in alto a sinistra) da `master` a `schuly`.
-2. **Users → Add user.** Imposta uno username (ed eventualmente un'email, se hai
-   configurato SMTP).
-3. **Scheda Credentials → Set password.** Disattiva "Temporary" a meno che tu non
-   voglia essere invitato a cambiarla al primo accesso.
-4. **Scheda Groups → Join group.** Aggiungi l'utente a `Student`, `Teacher` o
-   `Administrator` - il backend legge il claim `groups` come ruolo dell'app, e
-   solo `Administrator` può gestire i plugin tramite l'API.
-
-Quell'utente può ora accedere dall'app Schuly in modalità privata - puntala verso
-`https://${API_HOST}` e da lì pilota Keycloak.
+Tutti gli altri si registrano allo stesso modo, dalla web app o dall'app Schuly. Non
+ricevono alcun ruolo.
 
 ## 8. Blinda per la produzione
 
-Il realm `schuly` incluso fornisce un client PKCE `schuly-app` di tipo
-**starter** e i gruppi Student / Teacher / Administrator (mappati sul claim
-`groups` che il backend legge come ruoli). Prima di un uso reale:
-
-- Sostituisci il realm starter con un export vero e proprio, e ruota ogni segreto
-  in `.env`.
-- Crea un vero admin Keycloak e rimuovi le variabili di bootstrap `KC_ADMIN_*`
-  (vedi la documentazione di self-hosting del progetto SchulyKeycloak per i passi
-  specifici di Keycloak).
+- Ruota ogni segreto in `.env` che ha ancora il valore di esempio. Fallo prima che si
+  registrino i primi utenti: cambiare `LOCAL_LOGIN_SIGNING_KEY` o
+  `TWO_FACTOR_ENCRYPTION_KEY` in seguito disconnette tutti o rompe la verifica in due
+  passaggi.
 - Mantieni i servizi di gestione/interni non esposti - solo Caddy dovrebbe
   pubblicare porte.
 
@@ -226,23 +214,13 @@ così che Caddy possa ottenere un certificato Let's Encrypt. Se vuoi solo esegui
 lo stack sulla tua rete locale - facendo test verso un telefono via Wi-Fi, senza
 dominio, senza TLS - alcune cose cambiano.
 
-**Keycloak firma i token con un URL issuer fisso (`KC_HOSTNAME`), e il backend
-convalida i token in ingresso recuperando i metadati esattamente da quell'URL.**
-Quindi qualunque cosa tu metta in `API_HOST`/`AUTH_HOST` deve risolversi in modo
-**identico** sia per il container del backend sia per qualunque cosa esegua la
-tua app (telefono, browser, emulatore) - se finiscono su indirizzi diversi,
-l'issuer non corrisponderà e ogni login fallirà.
+L'app (telefono, browser, emulatore) ha bisogno di un indirizzo stabile per il
+backend. Due modi per ottenerne uno senza un dominio reale:
 
-Due modi per ottenere un hostname stabile senza un dominio reale:
-
-- **L'IP LAN della tua macchina, usato direttamente** - `API_HOST=AUTH_HOST=192.168.1.42`,
-  senza alcun hostname. Il più semplice, e raggiungibile da un telefono sulla
-  stessa Wi-Fi. Docker Desktop permette in modo affidabile a un container di
-  raggiungere una porta pubblicata sull'IP LAN dell'host stesso (una connessione
-  "hairpin" che esce di nuovo attraverso l'host e vi rientra), quindi il backend
-  può comunque raggiungere Keycloak in questo modo senza alcun cablaggio di rete
-  aggiuntivo - confermato funzionante nella pratica. Svantaggio: si rompe se l'IP
-  cambia (nuovo lease DHCP), ed è raggiungibile solo da quella rete.
+- **L'IP LAN della tua macchina, usato direttamente** - `API_HOST=192.168.1.42`,
+  senza alcun hostname. Il più semplice, e raggiungibile da un telefono sulla stessa
+  Wi-Fi. Svantaggio: si rompe se l'IP cambia (nuovo lease DHCP), ed è raggiungibile
+  solo da quella rete.
 - **Un hostname DNS jolly (wildcard) puntato sul tuo IP LAN**, ad es. `<ip>.nip.io`
   o `<ip>.sslip.io` - questi si risolvono pubblicamente esattamente verso l'IP
   codificato nel nome. Più elegante di un IP nudo, ma **molti router consumer lo
@@ -252,60 +230,56 @@ Due modi per ottenere un hostname stabile senza un dominio reale:
   su quella rete. Se le risoluzioni falliscono misteriosamente senza un errore
   utile, è quasi sempre questo il motivo - ripiega sull'IP nudo.
 
-Con entrambe le opzioni, dato che `API_HOST` e `AUTH_HOST` sono ora lo stesso
-indirizzo, Caddy non può più distinguere i due servizi tramite l'hostname - usa
-invece porte distinte.
+Senza un hostname Caddy non può ottenere un certificato, quindi serve invece HTTP
+semplice su una porta fissa.
 
 ### Esempio pratico
 
 Supponi che l'IP LAN della tua macchina sia `192.168.1.42`. Nulla della struttura
-della cartella `deploy/` dal passo 1 cambia - stai modificando quattro dei file
+della cartella `deploy/` dal passo 1 cambia - stai modificando tre dei file
 esistenti sul posto, niente di più:
 
 ```
 deploy/
-├── .env                  ← crealo da .env.example; API_HOST/AUTH_HOST = l'IP LAN
-├── Caddyfile              ← modifica: HTTP semplice, porte esplicite, nessun routing per hostname
+├── .env                  ← crealo da .env.example; API_HOST = l'IP LAN
+├── Caddyfile              ← modifica: HTTP semplice, porta esplicita
 ├── compose.staging.yml    ← modifica: porte del servizio caddy
 ├── config/
-│   ├── backend.env        ← modifica: RequireHttpsMetadata=false
-│   ├── keycloak.env        (invariato - KC_HTTP_ENABLED è già true)
+│   ├── backend.env        ← modifica: link http nelle mail
 │   ├── plugins.yml         (invariato)
 │   ├── plugins-config/
 │   │   └── Schuly.Plugin.Schulware.yml   (invariato)
-│   ├── postgres-init/
-│   │   └── 01-create-keycloak-db.sh      (invariato)
 │   └── seaweedfs/
 │       └── s3-config.json                (invariato)
 └── data/                  (creata al primo `up`, come nel caso del dominio)
 ```
 
-**`.env`** - stesso template del passo 3, punta semplicemente entrambi gli
-hostname verso l'IP nudo e lascia `SMTP_*` commentato per un test rapido:
+**`.env`** - stesso template del passo 3, punta semplicemente l'hostname verso l'IP
+nudo:
 
 ```sh
 API_HOST=192.168.1.42
-AUTH_HOST=192.168.1.42
 SCHULY_VERSION=latest
-KEYCLOAK_VERSION=latest
 POSTGRES_USER=schuly
 POSTGRES_PASSWORD=change-me-postgres
-KC_ADMIN_USER=admin
-KC_ADMIN_PASSWORD=change-me-kc-admin
+LOCAL_LOGIN_SIGNING_KEY=<openssl rand -base64 32>
+TWO_FACTOR_ENCRYPTION_KEY=<openssl rand -base64 32>
+ADMIN_EMAIL=you@example.com
 S3_ACCESS_KEY=schuly-access
 S3_SECRET_KEY=change-me-s3-secret
 AVATAR_SIGNING_KEY=change-me-avatar-signing-key
+DOCUMENTS_ENCRYPTION_KEY=change-me-documents-encryption-key
 ```
 
-**`Caddyfile`** - sostituisci l'intero file (la versione basata su dominio
-ottiene un certificato TLS per hostname; questa qui fa solo da proxy per porta):
+Mantieni i valori `SMTP_*`, oppure puntali verso un catcher SMTP nella tua rete, così
+le mail di verifica arrivano da qualche parte.
+
+**`Caddyfile`** - sostituisci l'intero file (la versione basata su dominio ottiene un
+certificato TLS; questa fa solo da proxy HTTP semplice su una porta):
 
 ```
 http://{$API_HOST}:8080 {
 	reverse_proxy backend:8080
-}
-http://{$AUTH_HOST}:8081 {
-	reverse_proxy keycloak:8080
 }
 ```
 
@@ -318,23 +292,22 @@ http://{$AUTH_HOST}:8081 {
     restart: unless-stopped
     ports:
       - "8080:8080"
-      - "8081:8081"
     environment:
       API_HOST: ${API_HOST}
-      AUTH_HOST: ${AUTH_HOST}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./data/caddy:/data
       - ./data/caddy-config:/config
     depends_on:
       - backend
-      - keycloak
 ```
 
-**`config/backend.env`** - una sola riga cambia, da `true` a `false`:
+**`config/backend.env`** - i link nelle mail devono puntare all'indirizzo HTTP
+semplice:
 
 ```
-Oidc__RequireHttpsMetadata=false
+Email__Smtp__PasswordResetLinkTemplate=http://${API_HOST}:8080/reset-password?token={token}
+Email__Smtp__EmailVerificationLinkTemplate=http://${API_HOST}:8080/verify-email?token={token}
 ```
 
 Poi avvia tutto esattamente come nel passo 5:
@@ -349,21 +322,14 @@ una porta invece di `https://`:
 
 ```sh
 curl http://192.168.1.42:8080/api/app/school-systems       # catalogo anonimo
-curl http://192.168.1.42:8081/realms/schuly/.well-known/openid-configuration
 ```
 
-Il campo `"issuer"` nella risposta del secondo comando dovrebbe leggere
-esattamente `http://192.168.1.42:8081/realms/schuly` - se non corrisponde a ciò
-che la tua app/browser usa per raggiungere Keycloak, si tratta del disallineamento
-descritto sopra, e il login fallirà.
-
-Tutto il resto - i passi indipendenti dal DNS come l'importazione del realm, il
-caricamento dei plugin e la procedura del primo login descritta sopra -
-funziona esattamente allo stesso modo. Un'ultima cosa utile da sapere: il
-Windows Firewall potrebbe bloccare silenziosamente un telefono sulla stessa
-Wi-Fi dal raggiungere queste porte la prima volta - consenti Docker Desktop
-sulla rete **Privata** se richiesto, oppure aggiungi tu stesso una regola in
-ingresso per le porte.
+Tutto il resto - i passi indipendenti dal DNS come il caricamento dei plugin e la
+procedura del primo login descritta sopra - funziona esattamente allo stesso modo.
+Un'ultima cosa utile da sapere: il Windows Firewall potrebbe bloccare silenziosamente
+un telefono sulla stessa Wi-Fi dal raggiungere queste porte la prima volta - consenti
+Docker Desktop sulla rete **Privata** se richiesto, oppure aggiungi tu stesso una
+regola in ingresso per le porte.
 
 ## Operazioni
 
@@ -375,12 +341,17 @@ ingresso per le porte.
   rende `data/plugins` scrivibile automaticamente dall'utente del backend, così
   funziona semplicemente al primo avvio. Per azzerare tutto, ferma lo stack ed
   elimina `./data`.
-- **Aggiornamenti** - imposta `SCHULY_VERSION` e `KEYCLOAK_VERSION` in `.env` su
-  una versione fissa invece di `latest`, così un deploy si ripete esattamente
-  identico e sei tu a scegliere quando avanzare. Cambia la versione, poi
-  `up -d` per procedere. Le migrazioni girano automaticamente sul nuovo
-  container; esegui un backup di `data/postgres` prima di salti di versione
-  importanti.
+- **Aggiornamenti** - imposta `SCHULY_VERSION` in `.env` su una versione fissa invece
+  di `latest`, così un deploy si ripete esattamente identico e sei tu a scegliere
+  quando avanzare. Cambia la versione, poi `up -d` per procedere. Le migrazioni girano
+  automaticamente sul nuovo container; esegui un backup di `data/postgres` prima di
+  salti di versione importanti.
+- **Abbandonare Keycloak** - i deployment più vecchi eseguivano un container Keycloak
+  separato. Le password non possono essere trasferite da Keycloak, quindi gli utenti
+  esistenti si registrano di nuovo (o reimpostano la password). Aggiungi le nuove
+  impostazioni di accesso a `.env` (passo 3), rimuovi le variabili `AUTH_HOST`,
+  `KEYCLOAK_VERSION` e `KC_*`, e prendi dal repository i nuovi file
+  `compose.staging.yml`, `Caddyfile` e `config/`.
 - **Modifiche ai plugin** effettuate tramite l'API vengono salvate in
   `config/plugins.yml`.
 
@@ -412,15 +383,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: schuly
-    # Crea il database aggiuntivo `keycloak` alla prima inizializzazione (i
-    # database dei plugin del backend vengono creati automaticamente dalle
-    # migrazioni EF).
     volumes:
       # postgres:18 conserva i dati in una sottocartella con versione, quindi
       # il mount avviene su /var/lib/postgresql (non /var/lib/postgresql/data,
       # che ora viene rifiutato).
       - ./data/postgres:/var/lib/postgresql
-      - ./config/postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       # -h 127.0.0.1 forza un controllo TCP. Mentre l'entrypoint esegue gli
       # script di init serve solo sul socket Unix, quindi un controllo basato
@@ -441,14 +408,6 @@ services:
     volumes:
       - ./data/seaweedfs:/data
       - ./config/seaweedfs/s3-config.json:/etc/seaweedfs/s3-config.json:ro
-
-  keycloak:
-    image: ghcr.io/schulydev/schulykeycloak:${KEYCLOAK_VERSION:-latest}
-    restart: unless-stopped
-    env_file: [./config/keycloak.env]
-    depends_on:
-      postgres:
-        condition: service_healthy
 
   schulware:
     image: ghcr.io/pianonic/schulwareapi:latest
@@ -483,12 +442,10 @@ services:
       - "443:443"
     environment:
       API_HOST: ${API_HOST}
-      AUTH_HOST: ${AUTH_HOST}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./data/caddy:/data
       - ./data/caddy-config:/config
     depends_on:
       - backend
-      - keycloak
 ```

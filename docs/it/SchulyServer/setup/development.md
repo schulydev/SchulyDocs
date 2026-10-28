@@ -22,6 +22,17 @@ docker compose -f compose.dev.yml up -d
 - **SeaweedFS** S3 (storage dei documenti) sulla porta `8333`.
 - **SchulwareAPI** (bridge Schulnetz usato dal plugin Schulware) sulla porta `8000`.
 
+Le mail di accesso (verifica, reimpostazione della password) vanno a un catcher SMTP
+locale su `localhost:1025`, come impostato in `appsettings.Development.json`. Non fa
+parte di `compose.dev.yml`; avviane uno, ad esempio, con:
+
+```sh
+docker run -p 1025:1025 -p 8025:8025 axllent/mailpit
+```
+
+La casella di posta si trova su <http://localhost:8025>. I link nelle mail puntano a
+`http://localhost:4200`.
+
 ## 2. Punta l'API verso di esse
 
 Nessuna stringa di connessione è inclusa nel repository, quindi un clone appena
@@ -33,16 +44,15 @@ li tengono fuori da git:
 ```sh
 cd src/Schuly.API
 dotnet user-secrets set "ConnectionStrings:SchulyDatabase" "Host=localhost;Port=2406;Database=schuly-dev;Username=postgres;Password=d4vpas8w0rd13!!!"
-dotnet user-secrets set "Oidc:Authority" "http://localhost:8080/realms/schuly"
+dotnet user-secrets set "LocalLogin:SigningKey" "$(openssl rand -base64 32)"
+dotnet user-secrets set "TwoFactor:EncryptionKey" "$(openssl rand -base64 32)"
 ```
 
 La stringa di connessione non è altro che quanto già definito in `compose.dev.yml`.
-`Oidc:Authority` non viene usato per il login mentre `DevAuth` è abilitato, ma il
-documento OpenAPI pubblicizza gli endpoint OAuth dell'authority, quindi
-**`/openapi/v1.json` fallisce con 500 finché non viene impostato** - e la UI
-Scalar risulta vuota perché carica quel documento. Qualsiasi valore che punti al
-tuo Keycloak funziona. Le variabili d'ambiente sono un'alternativa equivalente -
-vedi [Configurazione](configuration.md).
+Le due chiavi firmano gli access token e cifrano i segreti della verifica in due
+passaggi. Una volta impostate, mantienile: una nuova chiave di firma disconnette
+tutti, e una nuova chiave di cifratura rompe la verifica in due passaggi. Le variabili
+d'ambiente sono un'alternativa equivalente - vedi [Configurazione](configuration.md).
 
 ## 3. Avvia l'API
 
@@ -56,9 +66,21 @@ All'avvio l'API applica le migrazioni EF Core (`ApplyMigrations()` in
 pronto già al primo avvio.
 
 In Development, il logging delle richieste e la UI di riferimento dell'API sono
-abilitati, e un percorso opzionale di finto-OIDC (`DevAuth`) ti permette di
-generare token locali tramite `/api/dev/token` invece di contattare un identity
-provider reale. Vedi [Configurazione](configuration.md).
+abilitati.
+
+## Ottenere un token
+
+Registrati tramite la web app, oppure chiama direttamente gli endpoint di accesso:
+
+```sh
+curl -X POST http://localhost:5033/auth/register -H "Content-Type: application/json" \
+  -d '{"userName":"dev","email":"dev@example.com","password":"<password>"}'
+curl -X POST http://localhost:5033/auth/login -H "Content-Type: application/json" \
+  -d '{"identifier":"dev","password":"<password>"}'
+```
+
+La risposta del login contiene l'access token. Invialo come `Authorization: Bearer` a
+`/api/*`, oppure incollalo nella UI Scalar. Vedi [Configurazione](configuration.md#accesso).
 
 ## Riferimento API
 

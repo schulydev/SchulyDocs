@@ -18,6 +18,42 @@ senza copie manuali di DLL, senza riavvio.
   richieste ai plugin vengono eseguite all'interno dello scope DI proprio del
   plugin (con fallback sui servizi dell'host).
 
+## Attività in background
+
+Un plugin dichiara un job ricorrente registrando un `IPluginBackgroundTask`: un nome,
+un `PluginSchedule` (un'espressione cron più retry opzionali e `RunOnStartup`) e un
+corpo `ExecuteAsync`. Il backend non lascia mai che un plugin parli direttamente con
+TickerQ: possiede un'unica funzione ticker lato host che inoltra allo scope DI del
+plugin per nome del plugin e dell'attività. Questa indirezione esiste perché un
+assembly di plugin viene caricato a runtime in un `AssemblyLoadContext`
+collezionabile; un `[TickerFunction]` dichiarato al suo interno non verrebbe mai visto
+dal source generator di TickerQ, che gira solo alla compilazione dell'host.
+
+La pianificazione di ogni attività viene salvata nel database principale (lo schema
+`ticker` di TickerQ), non tenuta in memoria, quindi la pianificazione, la prossima
+esecuzione e lo storico delle esecuzioni sopravvivono a un riavvio - e un'esecuzione
+prevista durante un fermo non viene saltata in silenzio.
+
+Un operatore può sovrascrivere la cadenza di un'attività per plugin in
+`plugins-config/<AssemblyName>.yml`:
+
+```yaml
+Schedules:
+  schulware.sync-timetable:
+    Cron: "0 6 * * *"
+    Retries: 3
+    RunOnStartup: false
+```
+
+Un override che non si riesce a interpretare (ad esempio un'espressione cron con un
+errore di battitura) viene ignorato a favore del valore predefinito del plugin, invece
+di mettere l'attività fuori servizio. Le stesse chiavi funzionano come variabili
+d'ambiente `SCHULY_PLUGIN_<NAME>_`, come il resto della configurazione dei plugin.
+
+`GET /api/plugins/scheduler` riporta per ogni attività il cron, l'ultima esecuzione,
+la prossima esecuzione e il numero di errori. La dashboard di TickerQ è montata su
+`/tickerq` solo in Development.
+
 ## Configurazione
 
 | Chiave | Predefinito | Scopo |
@@ -32,6 +68,7 @@ senza copie manuali di DLL, senza riavvio.
 | Metodo | Rotta | Azione |
 |---|---|---|
 | `GET` | `/api/plugins` | Plugin caricati. |
+| `GET` | `/api/plugins/scheduler` | Pianificazioni delle attività in background, ultima/prossima esecuzione, numero di errori. |
 | `GET` | `/api/plugins/registry` | Plugin disponibili nel registro. |
 | `POST` | `/api/plugins/install` | `{ "name": "...", "version": "latest" }` - scarica e carica. |
 | `POST` | `/api/plugins/{name}/update` | Aggiorna all'ultima versione del registro. |

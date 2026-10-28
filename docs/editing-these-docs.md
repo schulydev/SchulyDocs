@@ -12,7 +12,6 @@ The first segment of the URL is the repository name.
 |---|---|
 | `/Schuly/...` | [Schuly](https://github.com/schulydev/Schuly) `docs/` |
 | `/SchulyServer/...` | [SchulyServer](https://github.com/schulydev/SchulyServer) `docs/` |
-| `/SchulyKeycloak/...` | [SchulyKeycloak](https://github.com/schulydev/SchulyKeycloak) `docs/` |
 | `/SchulyPluginAbstractions/...` | [SchulyPluginAbstractions](https://github.com/schulydev/SchulyPluginAbstractions) `docs/` |
 | `/SchulyPlugins/...` | [SchulyPlugins](https://github.com/schulydev/SchulyPlugins) `docs/` |
 | `/SchulyWebsite/...` | [SchulyWebsite](https://github.com/schulydev/SchulyWebsite) `docs/` |

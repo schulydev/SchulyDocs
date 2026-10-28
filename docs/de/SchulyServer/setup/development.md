@@ -22,6 +22,17 @@ docker compose -f compose.dev.yml up -d
 - **SeaweedFS** S3 (Dokumenten-Storage) auf `8333`.
 - **SchulwareAPI** (Schulnetz-Bridge für das Schulware-Plugin) auf `8000`.
 
+Anmelde-Mails (Verifizierung, Passwort-Reset) gehen an einen lokalen SMTP-Catcher
+auf `localhost:1025`, wie in `appsettings.Development.json` gesetzt. Er ist nicht
+Teil von `compose.dev.yml`; starte einen zum Beispiel mit:
+
+```sh
+docker run -p 1025:1025 -p 8025:8025 axllent/mailpit
+```
+
+Der Posteingang liegt unter <http://localhost:8025>. Links in den Mails zeigen auf
+`http://localhost:4200`.
+
 ## 2. Die API darauf ausrichten
 
 Im Repo ist kein Connection-String enthalten, daher bricht ein frischer Clone
@@ -32,15 +43,14 @@ ablegen, die dadurch aus Git herausgehalten werden:
 ```sh
 cd src/Schuly.API
 dotnet user-secrets set "ConnectionStrings:SchulyDatabase" "Host=localhost;Port=2406;Database=schuly-dev;Username=postgres;Password=d4vpas8w0rd13!!!"
-dotnet user-secrets set "Oidc:Authority" "http://localhost:8080/realms/schuly"
+dotnet user-secrets set "LocalLogin:SigningKey" "$(openssl rand -base64 32)"
+dotnet user-secrets set "TwoFactor:EncryptionKey" "$(openssl rand -base64 32)"
 ```
 
-Der Connection-String ist nur die Wiederholung von `compose.dev.yml`.
-`Oidc:Authority` wird für die Anmeldung nicht benötigt, solange `DevAuth`
-aktiviert ist, aber das OpenAPI-Dokument kündigt die OAuth-Endpunkte der
-Authority an - deshalb **schlägt `/openapi/v1.json` mit 500 fehl, bis der Wert
-gesetzt ist**, und die Scalar-UI bleibt leer, weil sie dieses Dokument lädt.
-Jeder Wert, der auf dein Keycloak zeigt, funktioniert. Umgebungsvariablen sind
+Der Connection-String ist nur die Wiederholung von `compose.dev.yml`. Die beiden
+Schlüssel signieren Access-Tokens und verschlüsseln Zwei-Faktor-Secrets. Behalte sie,
+sobald sie gesetzt sind: Ein neuer Signierschlüssel meldet alle ab, und ein neuer
+Verschlüsselungsschlüssel macht Zwei-Faktor unbrauchbar. Umgebungsvariablen sind
 eine gleichwertige Alternative - siehe [Konfiguration](configuration.md).
 
 ## 3. Die API ausführen
@@ -54,10 +64,22 @@ Beim Start wendet die API die EF-Core-Migrationen an (`ApplyMigrations()` in
 `Program.cs`) und spielt den School-Systems-Katalog ein, sodass die Datenbank
 beim ersten Lauf bereit ist.
 
-In Development sind Request-Logging und die API-Referenz-UI aktiviert, und ein
-optionaler Fake-OIDC-Pfad (`DevAuth`) erlaubt es, lokale Tokens über
-`/api/dev/token` auszustellen, statt einen echten Identity Provider zu
-kontaktieren. Siehe [Konfiguration](configuration.md).
+In Development sind Request-Logging und die API-Referenz-UI aktiviert.
+
+## Ein Token holen
+
+Registriere dich über die Web-App, oder rufe die Anmelde-Endpunkte direkt auf:
+
+```sh
+curl -X POST http://localhost:5033/auth/register -H "Content-Type: application/json" \
+  -d '{"userName":"dev","email":"dev@example.com","password":"<password>"}'
+curl -X POST http://localhost:5033/auth/login -H "Content-Type: application/json" \
+  -d '{"identifier":"dev","password":"<password>"}'
+```
+
+Die Login-Antwort enthält das Access-Token. Sende es als `Authorization: Bearer` an
+`/api/*`, oder füge es in die Scalar-UI ein. Siehe
+[Konfiguration](configuration.md#anmeldung).
 
 ## API-Referenz
 

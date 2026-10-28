@@ -2,7 +2,7 @@
 
 SchulyServer ist die ASP.NET Core 10 API hinter Schuly. Sie folgt einer Clean
 Architecture mit CQRS (über [Mediator](https://github.com/martinothamar/Mediator)),
-verwendet EF Core auf PostgreSQL, authentifiziert mit OIDC und hostet Plugins, die
+verwendet EF Core auf PostgreSQL, hat die Anmeldung eingebaut und hostet Plugins, die
 zur Laufzeit aus einer Registry geladen werden.
 
 ## Übersicht
@@ -13,7 +13,7 @@ zur Laufzeit aus einer Registry geladen werden.
   - [Entwicklung](setup/development.md) - die API und Postgres lokal ausführen.
   - [Self-Hosting](setup/self-hosting.md) - Schritt für Schritt: den ganzen Stack auf
     deinem eigenen Server betreiben.
-  - [Konfiguration](setup/configuration.md) - Einstellungen, OIDC, Rollen,
+  - [Konfiguration](setup/configuration.md) - Einstellungen, Anmeldung, Rollen,
     Connection-Strings.
   - [Produktion](setup/production.md) - Docker-Image, Release-Ablauf,
     Startup-Migrationen.

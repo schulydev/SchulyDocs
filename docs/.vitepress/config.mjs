@@ -38,10 +38,6 @@ const SECTIONS = [
     text: { en: 'Website', de: 'Website', fr: 'Site web', it: 'Sito web' },
   },
   {
-    dir: 'SchulyKeycloak',
-    text: { en: 'Keycloak (auth)', de: 'Keycloak (Auth)', fr: 'Keycloak (auth)', it: 'Keycloak (auth)' },
-  },
-  {
     dir: 'SchulyPluginAbstractions',
     text: {
       en: 'Plugin abstractions',

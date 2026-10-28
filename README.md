@@ -97,7 +97,6 @@ in `scripts/sync-docs.sh`.
 |---|---|---|
 | [**Schuly**](https://github.com/schulydev/Schuly) | Flutter mobile app | [/Schuly](https://docs.schuly.dev/Schuly/) |
 | [**SchulyServer**](https://github.com/schulydev/SchulyServer) | ASP.NET Core API backend | [/SchulyServer](https://docs.schuly.dev/SchulyServer/) |
-| [**SchulyKeycloak**](https://github.com/schulydev/SchulyKeycloak) | Keycloak image + the `schuly` realm | [/SchulyKeycloak](https://docs.schuly.dev/SchulyKeycloak/) |
 | [**SchulyPluginAbstractions**](https://github.com/schulydev/SchulyPluginAbstractions) | Plugin contract (NuGet) | [/SchulyPluginAbstractions](https://docs.schuly.dev/SchulyPluginAbstractions/) |
 | [**SchulyPlugins**](https://github.com/schulydev/SchulyPlugins) | Official plugins monorepo | [/SchulyPlugins](https://docs.schuly.dev/SchulyPlugins/) |
 | [**SchulyWebsite**](https://github.com/schulydev/SchulyWebsite) | Landing site ([schuly.dev](https://schuly.dev)) | [/SchulyWebsite](https://docs.schuly.dev/SchulyWebsite/) |

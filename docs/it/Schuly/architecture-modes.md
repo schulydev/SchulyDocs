@@ -45,7 +45,7 @@ flowchart LR
 
 |                     | Modalità account                | Modalità privata / sicura                            |
 | ------------------- | -------------------------------- | ------------------------------------------------------ |
-| Autenticazione a Schuly | OIDC (Keycloak) bearer       | **nessuna**                                            |
+| Autenticazione a Schuly | Token bearer dell'account Schuly | **nessuna**                                            |
 | Client HTTP         | `ApiClient` (interceptor di auth) | `Dio` puro, solo endpoint anonimi                     |
 | Dove risiedono i dati | lato server, in Postgres       | **solo sul dispositivo**                               |
 | Ruolo del backend   | memorizza + sincronizza in background | proxy live senza stato, non memorizza nulla        |
