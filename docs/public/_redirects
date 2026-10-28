@@ -2,3 +2,7 @@
 /de/SchulyBackend/* /de/SchulyServer/:splat 301
 /fr/SchulyBackend/* /fr/SchulyServer/:splat 301
 /it/SchulyBackend/* /it/SchulyServer/:splat 301
+/SchulyKeycloak/* /SchulyServer/setup/configuration 301
+/de/SchulyKeycloak/* /de/SchulyServer/setup/configuration 301
+/fr/SchulyKeycloak/* /fr/SchulyServer/setup/configuration 301
+/it/SchulyKeycloak/* /it/SchulyServer/setup/configuration 301

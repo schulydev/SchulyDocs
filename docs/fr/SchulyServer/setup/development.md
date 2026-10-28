@@ -22,6 +22,18 @@ docker compose -f compose.dev.yml up -d
 - **SeaweedFS** S3 (stockage de documents) sur `8333`.
 - **SchulwareAPI** (pont Schulnetz utilisé par le plugin Schulware) sur `8000`.
 
+Les mails de connexion (vérification, réinitialisation du mot de passe) vont vers un
+capteur SMTP local sur `localhost:1025`, comme défini dans
+`appsettings.Development.json`. Il ne fait pas partie de `compose.dev.yml` ; démarres-en
+un, par exemple avec :
+
+```sh
+docker run -p 1025:1025 -p 8025:8025 axllent/mailpit
+```
+
+La boîte de réception est sur <http://localhost:8025>. Les liens dans les mails
+pointent vers `http://localhost:4200`.
+
 ## 2. Pointer l'API vers elles
 
 Aucune chaîne de connexion n'est livrée dans le dépôt, donc un clone tout frais
@@ -33,15 +45,14 @@ ce qui les garde hors de git :
 ```sh
 cd src/Schuly.API
 dotnet user-secrets set "ConnectionStrings:SchulyDatabase" "Host=localhost;Port=2406;Database=schuly-dev;Username=postgres;Password=d4vpas8w0rd13!!!"
-dotnet user-secrets set "Oidc:Authority" "http://localhost:8080/realms/schuly"
+dotnet user-secrets set "LocalLogin:SigningKey" "$(openssl rand -base64 32)"
+dotnet user-secrets set "TwoFactor:EncryptionKey" "$(openssl rand -base64 32)"
 ```
 
-La chaîne de connexion n'est jamais que la reprise de `compose.dev.yml`.
-`Oidc:Authority` n'est pas utilisée pour la connexion tant que `DevAuth` est activé,
-mais le document OpenAPI annonce les endpoints OAuth de l'autorité, donc
-**`/openapi/v1.json` échoue avec une erreur 500 tant qu'elle n'est pas définie** - et
-l'interface Scalar s'affiche vide car elle charge ce document. N'importe quelle valeur
-pointant vers ton Keycloak fonctionne. Les variables d'environnement sont une
+La chaîne de connexion n'est jamais que la reprise de `compose.dev.yml`. Les deux
+clés signent les jetons d'accès et chiffrent les secrets de double authentification.
+Garde-les une fois définies : une nouvelle clé de signature déconnecte tout le monde, et
+une nouvelle clé de chiffrement casse la double authentification. Les variables d'environnement sont une
 alternative équivalente - voir [Configuration](configuration.md).
 
 ## 3. Lancer l'API
@@ -56,9 +67,22 @@ Au démarrage, l'API applique les migrations EF Core (`ApplyMigrations()` dans
 est prête dès le premier lancement.
 
 En Development, la journalisation des requêtes et l'interface de référence de l'API
-sont activées, et un chemin OIDC factice optionnel (`DevAuth`) te permet d'émettre des
-jetons locaux via `/api/dev/token` plutôt que de contacter un vrai fournisseur
-d'identité. Voir [Configuration](configuration.md).
+sont activées.
+
+## Obtenir un jeton
+
+Inscris-toi via l'application web, ou appelle directement les endpoints de connexion :
+
+```sh
+curl -X POST http://localhost:5033/auth/register -H "Content-Type: application/json" \
+  -d '{"userName":"dev","email":"dev@example.com","password":"<password>"}'
+curl -X POST http://localhost:5033/auth/login -H "Content-Type: application/json" \
+  -d '{"identifier":"dev","password":"<password>"}'
+```
+
+La réponse de connexion contient le jeton d'accès. Envoie-le en `Authorization: Bearer`
+à `/api/*`, ou colle-le dans l'interface Scalar. Voir
+[Configuration](configuration.md#connexion).
 
 ## Référence de l'API
 

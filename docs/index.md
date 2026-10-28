@@ -36,12 +36,6 @@ features:
     details: Marketing site architecture, development and deployment.
     link: /SchulyWebsite/
   - icon:
-      light: /icons/key-round.light.svg
-      dark: /icons/key-round.dark.svg
-    title: Keycloak (auth)
-    details: Realm and theme management, auth setup and releases.
-    link: /SchulyKeycloak/
-  - icon:
       light: /icons/puzzle.light.svg
       dark: /icons/puzzle.dark.svg
     title: Plugin abstractions
