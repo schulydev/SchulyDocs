@@ -54,6 +54,19 @@ emails or self-service password reset.
 > later has no effect on an existing realm - edit the mail settings in the admin
 > console instead (**Realm settings → Email**).
 
+## Web app client
+
+The realm ships a public `schuly-web` client for the web app that the Schuly server
+serves. Its redirect URIs are relative to `SCHULY_WEB_URL`, resolved on the first
+import like the SMTP values.
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `SCHULY_WEB_URL` | for the web app | Public URL of the Schuly server, e.g. `https://api.schuly.dev`. |
+
+> On an existing realm, set the client's **Root URL** in the admin console
+> (**Clients → schuly-web**) instead.
+
 ## Baked-in build settings
 
 These are fixed at image-build time (`kc.sh build`) and generally not changed at runtime:
