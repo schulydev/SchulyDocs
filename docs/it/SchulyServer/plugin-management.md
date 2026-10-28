@@ -22,17 +22,17 @@ senza copie manuali di DLL, senza riavvio.
 
 Un plugin dichiara un job ricorrente registrando un `IPluginBackgroundTask`: un nome,
 un `PluginSchedule` (un'espressione cron più retry opzionali e `RunOnStartup`) e un
-corpo `ExecuteAsync`. Il backend non lascia mai che un plugin parli direttamente con
-TickerQ: possiede un'unica funzione ticker lato host che inoltra allo scope DI del
-plugin per nome del plugin e dell'attività. Questa indirezione esiste perché un
-assembly di plugin viene caricato a runtime in un `AssemblyLoadContext`
-collezionabile; un `[TickerFunction]` dichiarato al suo interno non verrebbe mai visto
-dal source generator di TickerQ, che gira solo alla compilazione dell'host.
+corpo `ExecuteAsync`. Il backend le esegue con il proprio scheduler: controlla ogni secondo
+quali attività sono dovute, risolve l'attività per nome del plugin e dell'attività
+nello scope DI del plugin e ripete un'esecuzione fallita tante volte quante lo
+consente la pianificazione (a 30 secondi di distanza, salvo diversa indicazione in
+`RetryIntervals`). Un'attività non si sovrappone mai a se stessa; se è ancora in
+corso quando è dovuta la successiva, questa parte appena la prima è terminata.
 
-La pianificazione di ogni attività viene salvata nel database principale (lo schema
-`ticker` di TickerQ), non tenuta in memoria, quindi la pianificazione, la prossima
-esecuzione e lo storico delle esecuzioni sopravvivono a un riavvio - e un'esecuzione
-prevista durante un fermo non viene saltata in silenzio.
+Il cron, la prossima esecuzione, l'ultima esecuzione e i contatori di ogni attività
+sono salvati nel database principale (tabella `PluginTasks`), quindi lo storico
+sopravvive a un riavvio - e un'esecuzione prevista durante un fermo viene recuperata
+una volta subito dopo l'avvio successivo.
 
 Un operatore può sovrascrivere la cadenza di un'attività per plugin in
 `plugins-config/<AssemblyName>.yml`:
@@ -51,8 +51,7 @@ di mettere l'attività fuori servizio. Le stesse chiavi funzionano come variabil
 d'ambiente `SCHULY_PLUGIN_<NAME>_`, come il resto della configurazione dei plugin.
 
 `GET /api/plugins/scheduler` riporta per ogni attività il cron, l'ultima esecuzione,
-la prossima esecuzione e il numero di errori. La dashboard di TickerQ è montata su
-`/tickerq` solo in Development.
+la prossima esecuzione e il numero di errori.
 
 ## Configurazione
 

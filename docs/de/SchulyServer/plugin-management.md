@@ -25,17 +25,17 @@ Neu-Builds, kein manuelles Ablegen von DLLs, kein Neustart.
 Ein Plugin deklariert einen wiederkehrenden Job, indem es einen
 `IPluginBackgroundTask` registriert: einen Namen, einen `PluginSchedule` (einen
 Cron-Ausdruck plus optionale Retries und `RunOnStartup`) und einen
-`ExecuteAsync`-Body. Das Backend lässt ein Plugin nie direkt mit TickerQ sprechen.
-Es besitzt eine einzige Ticker-Funktion auf Host-Seite, die per Plugin- und
-Task-Name in den eigenen DI-Scope des Plugins weiterleitet. Diese Umleitung gibt es,
-weil eine Plugin-Assembly zur Laufzeit in einen collectible `AssemblyLoadContext`
-geladen wird. Eine darin deklarierte `[TickerFunction]` würde der Source-Generator
-von TickerQ nie sehen, denn er läuft nur beim Kompilieren des Hosts.
+`ExecuteAsync`-Body. Das Backend führt diese Tasks mit seinem eigenen Scheduler aus: Es
+prüft jede Sekunde, welche Tasks fällig sind, löst den Task per Plugin- und Task-Name
+im eigenen DI-Scope des Plugins auf und wiederholt einen fehlgeschlagenen Lauf so oft,
+wie der Zeitplan es erlaubt (im Abstand von 30 Sekunden, sofern `RetryIntervals`
+nichts anderes vorgibt). Ein Task überschneidet sich nie mit sich selbst; läuft er
+noch, wenn der nächste Lauf fällig ist, startet dieser erst danach.
 
-Der Zeitplan jedes Tasks wird in der Hauptdatenbank gespeichert (Schema `ticker` von
-TickerQ), nicht im Speicher gehalten. Zeitplan, nächster Lauf und Laufhistorie
-überstehen so einen Neustart, und ein Lauf, der während einer Ausfallzeit fällig war,
-wird nicht stillschweigend übersprungen.
+Cron, nächster Lauf, letzter Lauf und Laufzähler jedes Tasks liegen in der
+Hauptdatenbank (Tabelle `PluginTasks`). Die Historie übersteht so einen Neustart, und
+ein Lauf, der während einer Ausfallzeit fällig war, wird direkt nach dem nächsten
+Start einmal nachgeholt.
 
 Ein Betreiber kann den Takt eines Tasks pro Plugin in
 `plugins-config/<AssemblyName>.yml` überschreiben:
@@ -54,8 +54,7 @@ offline. Dieselben Keys funktionieren als Umgebungsvariablen `SCHULY_PLUGIN_<NAM
 wie der Rest der Plugin-Konfiguration.
 
 `GET /api/plugins/scheduler` meldet für jeden Task Cron, letzten Lauf, nächsten Lauf
-und Fehlerzähler. Das TickerQ-Dashboard ist nur in Development unter `/tickerq`
-eingebunden.
+und Fehlerzähler.
 
 ## Konfiguration
 

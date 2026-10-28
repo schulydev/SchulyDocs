@@ -23,18 +23,17 @@ rebuild, pas de dépôt manuel de DLL, pas de redémarrage.
 
 Un plugin déclare une tâche récurrente en enregistrant un `IPluginBackgroundTask` : un
 nom, un `PluginSchedule` (une expression cron plus des retries optionnels et
-`RunOnStartup`), et un corps `ExecuteAsync`. Le backend ne laisse jamais un plugin
-parler directement à TickerQ - il possède une seule fonction ticker côté hôte qui
-renvoie l'exécution dans le scope DI propre au plugin, par nom de plugin et de tâche.
-Cette indirection existe parce qu'une assembly de plugin est chargée à l'exécution dans
-un `AssemblyLoadContext` collectible ; une `[TickerFunction]` déclarée à l'intérieur ne
-serait jamais vue par le générateur de code source de TickerQ, qui ne s'exécute qu'à la
-compilation de l'hôte.
+`RunOnStartup`), et un corps `ExecuteAsync`. Le backend les exécute avec son propre planificateur : il vérifie
+chaque seconde quelles tâches sont dues, résout la tâche par nom de plugin et de tâche
+dans le scope DI propre au plugin, et relance une exécution échouée autant de fois que
+le planning le permet (à 30 secondes d'intervalle, sauf si `RetryIntervals` indique
+autre chose). Une tâche ne se chevauche jamais elle-même ; si elle tourne encore quand
+la suivante est due, celle-ci démarre une fois la première terminée.
 
-Le planning de chaque tâche est persisté dans la base de données principale (schéma
-`ticker` de TickerQ), pas gardé en mémoire. Le planning, la prochaine exécution et
-l'historique des exécutions survivent donc à un redémarrage - et une exécution prévue
-pendant une interruption n'est pas sautée en silence.
+Le cron, la prochaine exécution, la dernière exécution et les compteurs de chaque
+tâche sont stockés dans la base de données principale (table `PluginTasks`).
+L'historique survit donc à un redémarrage - et une exécution prévue pendant une
+interruption est rattrapée une fois juste après le démarrage suivant.
 
 Un opérateur peut surcharger la cadence d'une tâche par plugin dans
 `plugins-config/<AssemblyName>.yml` :
@@ -53,8 +52,7 @@ service. Les mêmes clés fonctionnent comme variables d'environnement
 `SCHULY_PLUGIN_<NAME>_`, comme le reste de la configuration des plugins.
 
 `GET /api/plugins/scheduler` indique pour chaque tâche son cron, sa dernière exécution,
-sa prochaine exécution et ses compteurs d'échecs. Le tableau de bord TickerQ est monté
-sur `/tickerq` en Development uniquement.
+sa prochaine exécution et ses compteurs d'échecs.
 
 ## Configuration
 
