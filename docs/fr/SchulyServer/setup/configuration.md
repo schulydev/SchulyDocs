@@ -245,6 +245,17 @@ Le serveur expose MCP à `/mcp`, pour que les utilisateurs puissent connecter de
 
 En général, tu ne définis que ces deux paramètres. Les durées de vie des jetons et les limites se trouvent aussi sous `Mcp:` et ont des valeurs par défaut fonctionnelles (`McpOAuthOptions`).
 
+## Limiter les inscriptions à la Suisse
+
+Définis `SignUp:SwitzerlandOnly` sur `true` (`SignUp__SwitzerlandOnly=true` dans `config/backend.env`) pour n'accepter de nouveaux comptes que depuis des réseaux suisses. C'est désactivé par défaut.
+
+- Les inscriptions par mot de passe depuis d'autres réseaux reçoivent une erreur. Le serveur compare seulement l'adresse à une liste intégrée, sans la stocker ni la journaliser.
+- Les fournisseurs OIDC ne peuvent pas créer de comptes, quelle que soit la valeur de `AllowSignUp`. Les comptes qui ont déjà lié un fournisseur continuent à l'utiliser.
+- Les comptes existants continuent à fonctionner partout. Le mode privé n'a pas de compte et n'est donc pas concerné.
+- Une adresse suisse doit atteindre le serveur. Derrière un proxy, définis correctement `ForwardedHeaders:KnownNetworks`, sinon toutes les inscriptions sont refusées.
+
+La liste provient des données de registre RIPE, qui indiquent où un réseau est enregistré. Elle n'est donc pas exacte. Un VPN peut la contourner. Pour actualiser la liste avant une release, exécute `scripts/update-swiss-networks.sh`.
+
 ## Politique d'autorisation
 
 La politique de repli exige un utilisateur authentifié pour chaque point d'entrée (`AddSchulyAuthorization`). Les

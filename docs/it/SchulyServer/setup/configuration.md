@@ -237,6 +237,17 @@ Il server espone MCP su `/mcp`, così gli utenti possono collegare app di IA.
 
 Di norma imposti solo queste due. Le durate dei token e i limiti si trovano anch'essi sotto `Mcp:` e hanno valori predefiniti funzionanti (`McpOAuthOptions`).
 
+## Limitare le registrazioni alla Svizzera
+
+Imposta `SignUp:SwitzerlandOnly` su `true` (`SignUp__SwitzerlandOnly=true` in `config/backend.env`) per accettare nuovi account solo da reti svizzere. Di default è disattivato.
+
+- Le registrazioni con password da altre reti ricevono un errore. Il server confronta l'indirizzo solo con un elenco integrato, senza salvarlo né registrarlo nei log.
+- I provider OIDC non possono creare account, qualunque sia il valore di `AllowSignUp`. Gli account che hanno già collegato un provider continuano a usarlo.
+- Gli account esistenti continuano a funzionare ovunque. La modalità privata non ha un account e quindi non è interessata.
+- Un indirizzo svizzero deve raggiungere il server. Dietro un proxy, imposta correttamente `ForwardedHeaders:KnownNetworks`, altrimenti ogni registrazione viene rifiutata.
+
+L'elenco proviene dai dati del registro RIPE, che indicano dove è registrata una rete, quindi non è esatto. Una VPN può aggirarlo. Per aggiornare l'elenco prima di una release, esegui `scripts/update-swiss-networks.sh`.
+
 ## Criterio di autorizzazione
 
 Il criterio di fallback richiede un utente autenticato per ogni endpoint (`AddSchulyAuthorization`).
