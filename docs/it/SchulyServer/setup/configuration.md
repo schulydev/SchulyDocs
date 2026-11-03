@@ -6,7 +6,7 @@ d'ambiente, secondo la precedenza standard di ASP.NET Core (le variabili d'ambie
 sovrascrivono i user secrets, che sovrascrivono `appsettings.{Environment}.json`,
 che sovrascrive `appsettings.json`).
 
-I segreti non vengono deliberatamente inclusi nei commit: gli `appsettings*.json`
+I segreti deliberatamente **non** finiscono nei commit: gli `appsettings*.json`
 tracciati contengono solo i livelli di logging e valori predefiniti non segreti
 (issuer dell'accesso, impostazioni mail locali). In locale questo vuoto viene colmato
 con `dotnet user-secrets set` (vedi [Setup di sviluppo](development.md)); in un
@@ -34,14 +34,14 @@ trovano nel database di Schuly (migrazione `AddToamaisutaa`).
 
 Funzioni abilitate: accesso con password con registrazione autonoma, verifica
 dell'email, reimpostazione della password via email, autenticazione a due fattori
-TOTP con codici di recupero, "ricorda questo dispositivo" (dispositivi attendibili) e
-pulizia dei token scaduti. Passkey, magic link, inviti, account creati
-dall'amministratore e provider OIDC esterni non sono abilitati.
+TOTP con codici di recupero, "ricorda questo dispositivo" (dispositivi attendibili),
+single sign-on facoltativo tramite provider OIDC e pulizia dei token scaduti. Passkey,
+magic link, inviti e account creati dall'amministratore non sono abilitati.
 
 Gli endpoint si trovano sotto `/auth`, ad esempio `POST /auth/register`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`, `/auth/password`, `/auth/password/forgot`,
 `/auth/password/reset`, `/auth/email`, `/auth/email/verify`, `/auth/2fa/*` e
-`/auth/devices`. L'API sotto `/api/*` accetta l'access token come
+`/auth/devices`, `/auth/providers` e `/auth/external/*`. L'API sotto `/api/*` accetta l'access token come
 `Authorization: Bearer`. Gli access token durano 15 minuti. I refresh token ruotano a
 ogni utilizzo.
 
@@ -53,20 +53,48 @@ token nel corpo JSON.
 | Chiave | Scopo |
 |---|---|
 | `LocalLogin:SigningKey` | Chiave che firma gli access token. Base64, esattamente 32 byte. |
-| `TwoFactor:EncryptionKey` | Chiave che cifra i segreti della verifica in due passaggi. Base64, esattamente 32 byte. |
+| `TwoFactor:EncryptionKey` | Chiave che cifra i segreti dell'autenticazione a due fattori. Base64, esattamente 32 byte. |
 | `LocalLogin:Issuer` / `LocalLogin:Audience` | Issuer e audience dei token. `appsettings.json` li imposta entrambi a `schuly`. |
 | `LocalLogin:AllowSelfRegistration` | Se chiunque può registrarsi (`true` in `appsettings.json`). |
 | `LocalLogin:RequireVerifiedEmailForPasswordReset` | Invia le mail di reimpostazione solo agli indirizzi verificati (`true` in `appsettings.json`). |
 | `TwoFactor:Issuer` | Nome mostrato nelle app di autenticazione (`Schuly`). |
-| `Auth:Administrators` | Elenco di email o nomi utente che ricevono il ruolo `Administrator` (`Auth__Administrators__0`, `__1`, ...). |
 
 Genera entrambe le chiavi con `openssl rand -base64 32` e mantienile stabili. Una
-nuova chiave di firma disconnette tutti. Una nuova chiave di cifratura rompe la
-verifica in due passaggi per ogni account che l'ha configurata.
+nuova chiave di firma disconnette tutti. Una nuova chiave di cifratura rompe
+l'autenticazione a due fattori per ogni account che l'ha configurata.
 
-Ogni account non elencato in `Auth:Administrators` non ha alcun ruolo. Al primo token
-valido per un utente sconosciuto, l'API crea l'utente Schuly corrispondente
-(`AddUserSync` / `IUserService`).
+Non esiste un ruolo di amministratore. Al primo token valido per un utente sconosciuto,
+l'API crea l'utente Schuly corrispondente (`AddUserSync` / `IUserService`).
+
+### Single sign-on (provider OIDC) {#single-sign-on-oidc-providers}
+
+Il single sign-on è facoltativo. Configura zero, uno o più provider OIDC (Google,
+Microsoft, Authentik, Pocket ID, Keycloak, qualsiasi issuer con un discovery document). Se
+non ne configuri nessuno, la web app e l'app mobile mostrano solo il modulo della password.
+Ogni provider appare come pulsante "Continue with ...", e gli utenti che hanno eseguito
+l'accesso collegano o scollegano i provider in Settings → Security nella web app.
+
+| Chiave | Scopo |
+|---|---|
+| `ExternalLogin:Providers:<key>:DisplayName` | Etichetta del pulsante. Il predefinito è la chiave. |
+| `ExternalLogin:Providers:<key>:IconUrl` | Icona mostrata sul pulsante: qualsiasi URL di immagine, oppure un percorso servito dal server. Le authority Google (`https://accounts.google.com`) e Microsoft (`login.microsoftonline.com`, `login.live.com`) ricevono il proprio logo quando questo valore è vuoto. |
+| `ExternalLogin:Providers:<key>:Authority` | L'issuer, ad es. `https://accounts.google.com`. Deve essere `https://` fuori da Development. |
+| `ExternalLogin:Providers:<key>:ClientId` / `ClientSecret` | Il client rilasciato dal provider. Ometti il segreto per un client pubblico. |
+| `ExternalLogin:Providers:<key>:Scopes` | Il predefinito è `openid profile email`. |
+| `ExternalLogin:Providers:<key>:AllowSignUp` | Se un primo accesso può creare un nuovo account. `false` per impostazione predefinita: solo gli account che hanno collegato il provider possono usarlo. |
+| `ExternalLogin:Providers:<key>:TrustEmailVerified` | Se l'indirizzo che questo provider marca come `email_verified` vale come email dell'account quando l'account non ha un proprio indirizzo verificato. Senza questa opzione, gli account creati tramite il provider non hanno email. Attivala solo per provider che verificano davvero gli indirizzi. |
+| `ExternalLogin:Providers:<key>:LinkByVerifiedEmail` | Se un primo accesso si unisce all'account che ha già l'indirizzo verificato del provider. Attivala solo per provider che verificano davvero gli indirizzi. |
+| `ExternalLogin:AllowedReturnUrls` | URL esatti a cui un accesso completato può tornare (`ExternalLogin__AllowedReturnUrls__0`, `__1`, ...). |
+| `ExternalLogin:CallbackBaseUrl` | Schema e host pubblici del server, quando un proxy non li inoltra. |
+
+`AllowedReturnUrls` richiede queste voci:
+
+- `https://<API_HOST>/login`: accesso nella web app
+- `https://<API_HOST>/settings`: collegamento di un provider nella web app
+- `schuly://auth/callback`: accesso nell'app mobile (`schuly-dev://auth/callback` per la build di sviluppo)
+
+Presso ogni provider, registra `https://<API_HOST>/auth/external/<key>/callback` come
+redirect URI. La chiave viene salvata con ogni collegamento, quindi non rinominarla in seguito.
 
 ### Email (SMTP)
 
@@ -159,8 +187,7 @@ endpoint** (`AddSchulyAuthorization`). Gli endpoint possono escludersi con
 sistemi scolastici e gli asset statici dei loghi sotto `wwwroot`) è raggiungibile
 senza autenticazione, così che l'app possa caricare il proprio catalogo di login.
 Anche la registrazione, il login e gli altri endpoint pubblici di accesso sotto
-`/auth` non richiedono alcun token. Gli endpoint di amministrazione dei plugin sotto
-`/api/plugins` richiedono il ruolo `Administrator`.
+`/auth` non richiedono alcun token.
 
 ## Plugin
 

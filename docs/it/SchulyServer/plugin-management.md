@@ -1,41 +1,45 @@
 # Gestione dei plugin
 
-I plugin vengono caricati nel backend a runtime da un registro - senza rebuild,
-senza copie manuali di DLL, senza riavvio.
+I plugin collegano Schuly ai sistemi scolastici. Il tuo server li scarica da un registro, quindi non
+devi copiare file a mano.
 
-## Come funziona
+## Aggiungere o rimuovere un plugin
 
-- Il **registro** (`Plugins:Registry`, di default il branch `repo` di SchulyPlugins)
-  espone un `index.min.json` e gli artefatti sotto `dll/`: `dll/<name>-v<ver>.dll`
-  più uno `-deps.zip` con le dipendenze private del plugin.
-- Il **set desiderato** risiede in `plugins.yml` (`Plugins:File`). All'avvio il
-  backend lo riconcilia con il registro e la cartella dei plugin: scarica i plugin
-  mancanti o non aggiornati, rimuove quelli non più elencati, poi li carica.
-- **Hot-swap**: ogni plugin viene eseguito nel proprio `AssemblyLoadContext`
-  collezionabile, con un proprio contenitore di servizi figlio. I suoi controller,
-  endpoint minimal-API e attività in background vengono cablati al caricamento e
-  smontati allo scaricamento - il processo in esecuzione non si riavvia mai. Le
-  richieste ai plugin vengono eseguite all'interno dello scope DI proprio del
-  plugin (con fallback sui servizi dell'host).
+Modifica `config/plugins.yml` e riavvia il backend:
 
-## Attività in background
+```yaml
+plugins:
+  - name: Schuly.Plugin.Schulware
+    version: latest
+  - name: Schuly.Plugin.Microsoft
+    version: latest
+  - name: Schuly.Plugin.OdaOrg
+    version: latest
+```
 
-Un plugin dichiara un job ricorrente registrando un `IPluginBackgroundTask`: un nome,
-un `PluginSchedule` (un'espressione cron più retry opzionali e `RunOnStartup`) e un
-corpo `ExecuteAsync`. Il backend le esegue con il proprio scheduler: controlla ogni secondo
-quali attività sono dovute, risolve l'attività per nome del plugin e dell'attività
-nello scope DI del plugin e ripete un'esecuzione fallita tante volte quante lo
-consente la pianificazione (a 30 secondi di distanza, salvo diversa indicazione in
-`RetryIntervals`). Un'attività non si sovrappone mai a se stessa; se è ancora in
-corso quando è dovuta la successiva, questa parte appena la prima è terminata.
+All'avvio, il server scarica ciò che è elencato e rimuove ciò che non lo è. Il sistema scolastico di
+un plugin compare poi automaticamente nell'app. Non esiste un'API di amministrazione per i plugin.
 
-Il cron, la prossima esecuzione, l'ultima esecuzione e i contatori di ogni attività
-sono salvati nel database principale (tabella `PluginTasks`), quindi lo storico
-sopravvive a un riavvio - e un'esecuzione prevista durante un fermo viene recuperata
-una volta subito dopo l'avvio successivo.
+### Eseguire senza Microsoft 365
 
-Un operatore può sovrascrivere la cadenza di un'attività per plugin in
-`plugins-config/<AssemblyName>.yml`:
+1. Rimuovi `Schuly.Plugin.Microsoft` da `plugins.yml`.
+2. In `compose.staging.yml`, rimuovi il servizio `schulymicrosoft` e la voce corrispondente nel
+   `depends_on` del backend.
+
+## Configurare un plugin
+
+Ogni plugin legge `config/plugins-config/<AssemblyName>.yml`. I valori predefiniti vanno bene per la
+maggior parte dei server.
+
+- **Motivi di assenza:** imposta `AbsenceReasons` in `Schuly.Plugin.Schulware.yml`, con come chiave
+  l'host dell'URL Schulnetz della scuola.
+- **Servizio Microsoft:** il plugin Microsoft ha bisogno di `MicrosoftApi.BaseUrl` in
+  `Schuly.Plugin.Microsoft.yml` e senza non si avvia.
+
+## Cambiare quando viene eseguito un task
+
+I plugin eseguono task ricorrenti, come la sincronizzazione di un orario. Per sovrascrivere la
+pianificazione di un task, aggiungila al file di configurazione del plugin:
 
 ```yaml
 Schedules:
@@ -45,35 +49,25 @@ Schedules:
     RunOnStartup: false
 ```
 
-Un override che non si riesce a interpretare (ad esempio un'espressione cron con un
-errore di battitura) viene ignorato a favore del valore predefinito del plugin, invece
-di mettere l'attività fuori servizio. Le stesse chiavi funzionano come variabili
-d'ambiente `SCHULY_PLUGIN_<NAME>_`, come il resto della configurazione dei plugin.
+Se la pianificazione non è valida, si applica quella predefinita del plugin. Le stesse chiavi
+funzionano come variabili d'ambiente `SCHULY_PLUGIN_<NAME>_`.
 
-`GET /api/plugins/scheduler` riporta per ogni attività il cron, l'ultima esecuzione,
-la prossima esecuzione e il numero di errori.
+Schuly conserva la pianificazione e la cronologia delle esecuzioni di ogni task nella tabella
+`PluginTasks`. Un'esecuzione prevista durante un periodo di inattività avviene una volta dopo l'avvio
+successivo. Un task non si sovrappone mai a sé stesso.
 
-## Configurazione
+## Impostazioni
 
 | Chiave | Predefinito | Scopo |
 |---|---|---|
-| `Plugins:Registry` | branch `repo` di SchulyPlugins | URL base del registro. |
-| `Plugins:File` | `<app>/plugins.yml` | Set dichiarativo dei plugin desiderati. |
-| `Plugins:Directory` | `<app>/plugins` | Dove vengono conservate le DLL dei plugin. |
-| `Plugins:ConfigDirectory` | `<app>/plugins-config` | Configurazione `<AssemblyName>.yml` per plugin. |
+| `Plugins:Registry` | Branch `repo` di SchulyPlugins | URL di base del registro |
+| `Plugins:File` | `<app>/plugins.yml` | L'elenco dei plugin |
+| `Plugins:Directory` | `<app>/plugins` | Dove sono salvate le DLL dei plugin |
+| `Plugins:ConfigDirectory` | `<app>/plugins-config` | Dove sono salvati i file di configurazione dei plugin |
 
-## Endpoint di amministrazione (`Administrator`)
+## Come funziona
 
-| Metodo | Rotta | Azione |
-|---|---|---|
-| `GET` | `/api/plugins` | Plugin caricati. |
-| `GET` | `/api/plugins/scheduler` | Pianificazioni delle attività in background, ultima/prossima esecuzione, numero di errori. |
-| `GET` | `/api/plugins/registry` | Plugin disponibili nel registro. |
-| `POST` | `/api/plugins/install` | `{ "name": "...", "version": "latest" }` - scarica e carica. |
-| `POST` | `/api/plugins/{name}/update` | Aggiorna all'ultima versione del registro. |
-| `DELETE` | `/api/plugins/{name}` | Scarica ed elimina. |
-
-Ogni modifica viene applicata in-process e salvata in `plugins.yml`, quindi
-sopravvive a un riavvio. Le DLL di dipendenze condivise sono a conteggio di
-riferimenti (reference-counted): rimuovere un plugin non elimina mai una
-dipendenza ancora usata da un altro.
+Ogni plugin gira nel proprio `AssemblyLoadContext` collectible con il proprio container di servizi.
+L'host collega i suoi controller, endpoint e task in background quando carica il plugin, e li rimuove
+quando lo scarica. Le DLL delle dipendenze condivise hanno un conteggio dei riferimenti, quindi
+rimuovere un plugin non elimina mai una DLL usata da un altro plugin.

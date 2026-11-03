@@ -1,19 +1,22 @@
 # Documentation SchulyServer
 
-SchulyServer est l'API ASP.NET Core 10 derrière Schuly. Elle suit une architecture
+SchulyServer est l'API ASP.NET Core 10 et l'application web derrière Schuly. Il suit une architecture
 propre (clean architecture) avec CQRS (via [Mediator](https://github.com/martinothamar/Mediator)),
-utilise EF Core sur PostgreSQL, intègre la connexion, et héberge des plugins chargés
-à l'exécution depuis un registre.
+utilise EF Core sur PostgreSQL, intègre la connexion et charge des plugins à l'exécution depuis un
+registre.
 
-## Index
+## Faire tourner un serveur
 
-- [Architecture](architecture.md) - découpage en couches, responsabilités des projets,
-  le flux d'ajout d'une entité, et l'hôte de plugins.
-- Mise en place
-  - [Développement](setup/development.md) - faire tourner l'API et Postgres en local.
-  - [Auto-hébergement](setup/self-hosting.md) - pas à pas : faire tourner toute la pile sur ton propre serveur.
-  - [Configuration](setup/configuration.md) - paramètres, connexion, rôles, chaînes de connexion.
-  - [Production](setup/production.md) - image Docker, flux de release, migrations au démarrage.
-- [Migrations](migrations.md) - scripts de migration EF Core et comportement au démarrage.
-- [Gestion des plugins](plugin-management.md) - registre de plugins à l'exécution, hot-swap, endpoints d'administration.
-- [Contribuer](contributing.md) - flux issue → branche → PR et conventions.
+- [Auto-héberger Schuly](setup/self-hosting.md)
+- [Faire tourner Schuly sans domaine](setup/self-hosting-lan.md)
+- [Faire tourner et mettre à jour ton serveur](setup/operations.md)
+- [Configuration](setup/configuration.md)
+- [Gestion des plugins](plugin-management.md)
+
+## Travailler sur le code
+
+- [Mise en place du développement](setup/development.md)
+- [Architecture](architecture.md)
+- [Migrations](migrations.md)
+- [Images et releases](setup/production.md)
+- [Contribuer](contributing.md)

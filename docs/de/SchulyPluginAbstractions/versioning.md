@@ -1,6 +1,6 @@
 # Versionierung
 
-Dieses Package ist ein veröffentlichter Vertrag, daher gilt strikte Semver-Versionierung. Der
+Dieses Package ist ein veröffentlichter Vertrag, daher gilt **strikte Semver-Versionierung**. Der
 ganze Sinn des Repos ist Stabilität: Plugins referenzieren das Package, und der Host stellt die
 Assembly zur Laufzeit bereit - eine unbedachte Änderung bricht damit jedes Plugin im Feld.
 
@@ -15,7 +15,7 @@ Assembly zur Laufzeit bereit - eine unbedachte Änderung bricht damit jedes Plug
 ## Wie die Version bestimmt wird
 
 - `application.properties` enthält die aktuelle `<version>`; sie ist die Single Source of
-  Truth und wird von `src/Directory.Build.props` beim Build/Pack in `$(Version)` eingelesen.
+  Truth, und `src/Directory.Build.props` liest sie beim Build/Pack in `$(Version)` ein.
 - **release-drafter** (`.github/release-drafter.yml`) bestimmt die *nächste* Version anhand
   der Labels auf gemergten PRs: `breaking-change` → major, `feature` → minor, alles andere →
   patch. Es entwirft ausserdem den Changelog.
@@ -31,3 +31,16 @@ ein beliebiges `MAJOR.MINOR.x` gebaut wurde, bindet an eine einzige `MAJOR.MINOR
 sodass Patch-Sprünge keinen Rebuild jedes Plugins erzwingen und keine Type-Load-Fehler über
 Patch-Versionen hinweg verursachen. Nur ein **MINOR- oder MAJOR**-Sprung ändert die
 Bindungs-Assembly-Version - ein weiterer Grund, die Tabelle oben genau zu befolgen.
+
+## Vor 1.0
+
+Solange die Version `0.x` ist, erhöht ein Breaking Change **MINOR** (`0.3` → `0.4`) statt MAJOR.
+Schneide das Release deshalb mit einem expliziten `gh release create v0.<next>.0` statt mit der
+Version, die release-drafter für ein `breaking-change`-Label vorschlägt.
+
+## Kompatibilität beim Laden
+
+Das Backend vergleicht die `Schuly.Plugin.Abstractions`-Assembly-Version, gegen die ein Plugin
+gebaut wurde, mit seiner eigenen. Ein inkompatibles Plugin lehnt es mit einer klaren Log-Meldung
+ab, statt später mit einem Type-Load-Fehler zu scheitern. Kompatibel bedeutet: dieselbe MAJOR für
+`1.x` und später, dieselbe MAJOR.MINOR für `0.x`.

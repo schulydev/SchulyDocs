@@ -3,48 +3,42 @@ layout: home
 
 hero:
   name: Schuly Docs
-  text: Documentation for the Schuly project
-  tagline: Install the app, connect your school, or run the whole thing yourself.
+  text: Your school data, in one app
+  tagline: Free, open source, and yours to run.
   image:
     src: /img/logo.png
     alt: Schuly
   actions:
     - theme: brand
-      text: Getting started
+      text: Get started
       link: /getting-started/
     - theme: alt
-      text: GitHub org
-      link: https://github.com/schulydev
+      text: Self-host
+      link: /self-host/
 
 features:
   - icon:
       light: /icons/smartphone.light.svg
       dark: /icons/smartphone.dark.svg
-    title: Mobile app (Schuly)
-    details: Flutter app, account vs private modes, the generated API client.
-    link: /Schuly/
+    title: Use Schuly
+    details: Install the app, connect your school, and see your grades.
+    link: /getting-started/
   - icon:
       light: /icons/server.light.svg
       dark: /icons/server.dark.svg
-    title: Backend (.NET API)
-    details: API architecture, migrations, plugin management, configuration.
-    link: /SchulyServer/
-  - icon:
-      light: /icons/globe.light.svg
-      dark: /icons/globe.dark.svg
-    title: Website
-    details: Marketing site architecture, development and deployment.
-    link: /SchulyWebsite/
+    title: Self-host
+    details: Run your own Schuly server with Docker.
+    link: /self-host/
   - icon:
       light: /icons/puzzle.light.svg
       dark: /icons/puzzle.dark.svg
-    title: Plugin abstractions
-    details: The plugin contract and versioning rules.
-    link: /SchulyPluginAbstractions/
+    title: Build plugins
+    details: Connect Schuly to another school system.
+    link: /build-plugins/
   - icon:
       light: /icons/plug.light.svg
       dark: /icons/plug.dark.svg
-    title: Plugins
-    details: Building, distributing and migrating plugins.
-    link: /SchulyPlugins/
+    title: Contribute
+    details: Work on the app, server, website, or these docs.
+    link: /contribute/
 ---

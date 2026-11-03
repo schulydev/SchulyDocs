@@ -1,10 +1,10 @@
 # Configuration
 
 La configuration provient de `appsettings.json`, de surcharges propres à
-l'environnement (`appsettings.Development.json`), des secrets utilisateur (user
-secrets), et des variables d'environnement, selon l'ordre de priorité standard d'ASP.NET
-Core (les variables d'environnement l'emportent sur les secrets utilisateur, qui
-l'emportent sur `appsettings.{Environment}.json`, qui l'emporte sur `appsettings.json`).
+l'environnement (`appsettings.Development.json`), des secrets utilisateur et des
+variables d'environnement, selon l'ordre de priorité standard d'ASP.NET Core (les
+variables d'environnement l'emportent sur les secrets utilisateur, qui l'emportent sur
+`appsettings.{Environment}.json`, qui l'emporte sur `appsettings.json`).
 
 Les secrets ne sont volontairement **pas** commités : les `appsettings*.json` suivis
 par git ne contiennent que les niveaux de journalisation et des valeurs par défaut non
@@ -18,8 +18,7 @@ avec des variables d'environnement, en utilisant `__` comme séparateur de secti
 
 `SchulyDbContext` lit la chaîne de connexion nommée **`SchulyDatabase`**
 (`ConnectionStrings:SchulyDatabase`), câblée dans `DatabaseExtensions`. La reprise
-automatique en cas d'échec (retry-on-failure) est activée pour les erreurs transitoires
-de Postgres.
+automatique en cas d'échec est activée pour les erreurs transitoires de Postgres.
 
 Fournis-la via la configuration ou une variable d'environnement, par exemple :
 
@@ -37,16 +36,16 @@ vivent dans la base de données Schuly (migration `AddToamaisutaa`).
 Fonctions activées : connexion par mot de passe avec inscription libre, vérification de
 l'e-mail, réinitialisation du mot de passe par e-mail, double authentification TOTP
 avec codes de récupération, « se souvenir de cet appareil » (appareils de confiance),
-et nettoyage des jetons expirés. Les passkeys, les liens magiques, les invitations, les
-comptes créés par un administrateur et les fournisseurs OIDC externes ne sont pas
-activés.
+authentification unique optionnelle via des fournisseurs OIDC, et nettoyage des jetons
+expirés. Les passkeys, les liens magiques, les invitations et les comptes créés par un
+administrateur ne sont pas activés.
 
 Les endpoints vivent sous `/auth`, par exemple `POST /auth/register`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`, `/auth/password`, `/auth/password/forgot`,
 `/auth/password/reset`, `/auth/email`, `/auth/email/verify`, `/auth/2fa/*` et
-`/auth/devices`. L'API sous `/api/*` prend le jeton d'accès en
-`Authorization: Bearer`. Les jetons d'accès vivent 15 minutes. Les jetons de
-rafraîchissement changent à chaque utilisation.
+`/auth/devices`, `/auth/providers` et `/auth/external/*`. L'API sous `/api/*` prend le
+jeton d'accès en `Authorization: Bearer`. Les jetons d'accès vivent 15 minutes. Les
+jetons de rafraîchissement changent à chaque utilisation.
 
 L'application web (servie par le serveur lui-même) envoie l'en-tête
 `X-Schuly-Client: web`. Elle reçoit alors le jeton de rafraîchissement et le jeton
@@ -62,15 +61,44 @@ JSON.
 | `LocalLogin:AllowSelfRegistration` | Indique si n'importe qui peut s'inscrire (`true` dans `appsettings.json`). |
 | `LocalLogin:RequireVerifiedEmailForPasswordReset` | N'envoie les mails de réinitialisation qu'aux adresses vérifiées (`true` dans `appsettings.json`). |
 | `TwoFactor:Issuer` | Nom affiché dans les applications d'authentification (`Schuly`). |
-| `Auth:Administrators` | Liste d'e-mails ou de noms d'utilisateur qui reçoivent le rôle `Administrator` (`Auth__Administrators__0`, `__1`, ...). |
 
 Génère les deux clés avec `openssl rand -base64 32` et garde-les stables. Une nouvelle
 clé de signature déconnecte tout le monde. Une nouvelle clé de chiffrement casse la
 double authentification pour chaque compte qui l'a configurée.
 
-Tout compte absent de `Auth:Administrators` n'a aucun rôle. Au premier jeton valide
-pour un utilisateur inconnu, l'API crée l'utilisateur Schuly correspondant
-(`AddUserSync` / `IUserService`).
+Il n'y a pas de rôle d'administrateur. Au premier jeton valide pour un utilisateur
+inconnu, l'API crée l'utilisateur Schuly correspondant (`AddUserSync` / `IUserService`).
+
+### Authentification unique (fournisseurs OIDC) {#single-sign-on-oidc-providers}
+
+L'authentification unique est optionnelle. Configure zéro, un ou plusieurs fournisseurs
+OIDC (Google, Microsoft, Authentik, Pocket ID, Keycloak, tout émetteur avec un document
+de découverte). Sans fournisseur configuré, l'application web et l'application mobile
+n'affichent que le formulaire de mot de passe. Chaque fournisseur apparaît sous la forme
+d'un bouton « Continuer avec ... », et les utilisateurs connectés lient ou délient des
+fournisseurs sous Paramètres → Sécurité dans l'application web.
+
+| Clé | Rôle |
+|---|---|
+| `ExternalLogin:Providers:<key>:DisplayName` | Libellé du bouton. Par défaut, la clé. |
+| `ExternalLogin:Providers:<key>:IconUrl` | Icône affichée sur le bouton : n'importe quelle URL d'image, ou un chemin servi par le serveur. Les autorités Google (`https://accounts.google.com`) et Microsoft (`login.microsoftonline.com`, `login.live.com`) reçoivent leur logo quand ce champ est vide. |
+| `ExternalLogin:Providers:<key>:Authority` | L'émetteur, par ex. `https://accounts.google.com`. Doit être en `https://` en dehors de Development. |
+| `ExternalLogin:Providers:<key>:ClientId` / `ClientSecret` | Le client émis par le fournisseur. Omets le secret pour un client public. |
+| `ExternalLogin:Providers:<key>:Scopes` | `openid profile email` par défaut. |
+| `ExternalLogin:Providers:<key>:AllowSignUp` | Indique si une première connexion peut créer un nouveau compte. `false` par défaut : seuls les comptes qui ont lié le fournisseur peuvent l'utiliser. |
+| `ExternalLogin:Providers:<key>:TrustEmailVerified` | Indique si l'adresse que ce fournisseur marque `email_verified` compte comme e-mail du compte quand celui-ci n'a pas d'adresse vérifiée propre. Sans cette option, les comptes créés via le fournisseur n'ont pas d'e-mail. Active-la uniquement pour les fournisseurs qui vérifient réellement les adresses. |
+| `ExternalLogin:Providers:<key>:LinkByVerifiedEmail` | Indique si une première connexion rejoint le compte qui possède déjà l'adresse vérifiée du fournisseur. Active-la uniquement pour les fournisseurs qui vérifient réellement les adresses. |
+| `ExternalLogin:AllowedReturnUrls` | URL exactes vers lesquelles une connexion terminée peut revenir (`ExternalLogin__AllowedReturnUrls__0`, `__1`, ...). |
+| `ExternalLogin:CallbackBaseUrl` | Schéma et hôte publics du serveur, quand un proxy ne les transmet pas. |
+
+`AllowedReturnUrls` a besoin de ces entrées :
+
+- `https://<API_HOST>/login` : connexion dans l'application web
+- `https://<API_HOST>/settings` : liaison d'un fournisseur dans l'application web
+- `schuly://auth/callback` : connexion dans l'application mobile (`schuly-dev://auth/callback` pour le build de dev)
+
+Chez chaque fournisseur, enregistre `https://<API_HOST>/auth/external/<key>/callback` comme
+URI de redirection. La clé est stockée avec chaque liaison, ne la renomme donc pas plus tard.
 
 ### E-mail (SMTP)
 
@@ -117,9 +145,9 @@ fichier va dans le stockage de documents (S3) et est servi via des URL signées 
 durée de vie sous `/api/avatars/users/{id}`.
 
 La base de données ne stocke qu'une simple clé de blob ; une URL de capacité signée est
-générée à chaque accès. La clé est lue de façon paresseuse (lazy), donc une valeur
-manquante ne se manifeste que sous la forme `Avatar:SigningKey is not configured.` la
-première fois qu'une URL d'avatar est signée, plutôt qu'au démarrage.
+générée à chaque accès. La clé est lue de façon paresseuse, donc une valeur manquante
+se manifeste sous la forme `Avatar:SigningKey is not configured.` la première fois
+qu'une URL d'avatar est signée, plutôt qu'au démarrage.
 
 ## Rétention
 
@@ -164,8 +192,7 @@ endpoint** (`AddSchulyAuthorization`). Les endpoints s'en dispensent avec
 scolaires et les ressources statiques de logo sous `wwwroot`) est accessible sans
 authentification, afin que l'application puisse charger son catalogue de connexion.
 L'inscription, la connexion et les autres endpoints de connexion publics sous `/auth`
-ne demandent pas non plus de jeton. Les endpoints d'administration des plugins sous
-`/api/plugins` requièrent le rôle `Administrator`.
+ne demandent pas non plus de jeton.
 
 ## Plugins
 

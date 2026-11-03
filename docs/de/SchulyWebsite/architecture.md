@@ -11,7 +11,7 @@
 
 ## Aufbau
 
-Der Anwendungscode liegt unter [`src/app/`](../src/app):
+Der Anwendungscode liegt unter [`src/app/`](https://github.com/schulydev/SchulyWebsite/tree/main/src/app):
 
 - `app.ts`, `app.config.ts`, `app.routes.ts` - Root-Komponente, Provider, Routing.
 - `app.config.server.ts`, `app.routes.server.ts` - Konfiguration für Server-Side Rendering.

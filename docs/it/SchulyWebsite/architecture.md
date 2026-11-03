@@ -12,7 +12,7 @@
 
 ## Struttura
 
-Il codice sorgente dell'applicazione si trova in [`src/app/`](../src/app):
+Il codice sorgente dell'applicazione si trova in [`src/app/`](https://github.com/schulydev/SchulyWebsite/tree/main/src/app):
 
 - `app.ts`, `app.config.ts`, `app.routes.ts` - componente root, provider, routing.
 - `app.config.server.ts`, `app.routes.server.ts` - configurazione per il server-side

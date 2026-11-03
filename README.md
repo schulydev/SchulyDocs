@@ -12,7 +12,8 @@ and [Cloudflare Pages](https://pages.cloudflare.com/) rebuilds the site automati
 
 > **You usually don't edit docs in this repo.** Edit `docs/` in the source repo; it
 > shows up here within a minute. The only things owned here are the site config
-> (`docs/.vitepress/config.mjs`) and the `docs/getting-started/` walkthrough.
+> (`docs/.vitepress/config.mjs`), the audience pages (`docs/getting-started/`, `docs/self-host/`,
+> `docs/build-plugins/`, `docs/contribute/`), and the translations.
 
 ## Architecture
 
@@ -30,8 +31,10 @@ source repos (Schuly, SchulyServer, ...)        this repo (SchulyDocs)        Cl
   add markdown. Each section's `README.md` is the section landing page (a `rewrites` rule
   maps `**/README.md` → `index.md`, since VitePress only treats `index.md` as a folder
   index).
-- `docs/getting-started/` is an **end-user walkthrough owned by this repo** (no source
-  repo syncs into it), so edit it here directly.
+- The site is organized by reader. `AUDIENCES` in `config.mjs` assigns synced pages to **Self-host**
+  and **Build plugins**. Any other page appears under **Contribute**.
+- `docs/getting-started/` and the other audience pages are **owned by this repo** (no source repo
+  syncs into them), so edit them here directly.
 
 ## Local development
 

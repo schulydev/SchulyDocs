@@ -5,26 +5,24 @@ title: Per iniziare
 
 # Per iniziare con Schuly
 
-Nuovo su Schuly? Questa guida ti accompagna dall'installazione fino alle tue prime
-note, in pochi minuti.
+Schuly mostra in un'unica app le tue note, gli esami, l'orario, le assenze e i documenti del tuo
+portale scolastico. È gratuita e open source, e funziona con Schulnetz e OdA Org.
 
-**Schuly** è un'app mobile che raccoglie i tuoi dati scolastici - note, esami, orario e
-assenze - dai sistemi scolastici basati su Schulnetz, in un unico posto.
+Schuly è un progetto indipendente. Non è un'app ufficiale della tua scuola, di Schulnetz o di OdA Org.
 
-## La guida
+## Configura Schuly
 
-1. **[Installa l'app](install.md)** - scarica Schuly su Android o iOS.
-2. **[Scegli come accedere](choose-a-mode.md)** - modalità Account o modalità Privata.
-3. **[Collega la tua scuola](first-setup.md)** - scegli il tuo sistema scolastico e
-   accedi.
-4. **[Esplora i tuoi dati](using-schuly.md)** - note, esami, orario, assenze.
+1. [Installa l'app](install.md)
+2. [Scegli come accedere](choose-a-mode.md)
+3. [Collega la tua scuola](first-setup.md)
+4. [Esplora i tuoi dati](using-schuly.md)
 
-Una volta configurato, Schuly può anche **[gestire i tuoi codici a due
-fattori](authenticator.md)**, così non hai bisogno di un'app di autenticazione
-separata.
+Non sai cosa scegliere? Usa **Schuly Cloud** e un **Schuly account**. Puoi cambiare idea in seguito.
 
-:::tip Hai fretta?
-La maggior parte delle persone: installa Schuly → scegli la **modalità Account** →
-scegli la tua scuola → accedi → fatto. Le pagine sopra contano solo se vuoi l'opzione
-orientata alla privacy o se ti blocchi da qualche parte.
-:::
+## Facoltativo
+
+- [Configura i codici a due fattori](authenticator.md) in Schuly, così non ti serve un'app di autenticazione separata.
+
+## Ottieni aiuto
+
+Hai trovato un bug o hai un'idea? [Apri un issue su GitHub](https://github.com/schulydev/Schuly/issues).

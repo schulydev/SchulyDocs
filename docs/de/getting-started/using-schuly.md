@@ -5,33 +5,34 @@ title: 4. Daten erkunden
 
 # 4. Daten erkunden
 
-Sobald du verbunden bist, bringt Schuly deine Schuldaten an einem Ort zusammen:
+Die Tabs unten in der App führen zu deinen Daten:
 
-- **Noten** - deine Bewertungen in allen Fächern, sobald sie veröffentlicht werden.
-- **Prüfungen** - anstehende Tests und Prüfungen, damit dich nichts überrascht.
-- **Stundenplan** - dein Stundenplan und deine Lektionen.
-- **Absenzen** - deine erfassten Absenzen und deren Status.
+| Tab | Was du findest |
+|---|---|
+| **Start** | Eine Übersicht über Neues |
+| **Agenda** | Dein Stundenplan |
+| **Grades** | Deine Noten, Prüfungen und Durchschnitte |
+| **Absences** | Deine Absenzen und ihr Status |
+| **Account** | Dein Profil, deine Klassen, Lehrpersonen und Dokumente |
 
-## Daten aktuell halten
+## Daten aktualisieren
 
-- Der **Konto-Modus** hält deine Daten im Hintergrund aktuell, sie sind also meist
-  bereit, sobald du die App öffnest. Du kannst auch per Pull-to-Refresh aktualisieren.
-- Der **private Modus** ruft deine Daten bei jeder Sitzung live ab - gib der App nach
-  dem Öffnen einen Moment, oder nutze Pull-to-Refresh, um die neusten Daten zu laden.
+Ziehe auf einem Bildschirm nach unten, um ihn zu aktualisieren. Mit einem Schuly-Konto werden deine
+Daten auch im Hintergrund aktualisiert. Im privaten Modus laden sie beim Öffnen der App, gib ihr also
+einen Moment.
 
-## Tipps
+## Mehrere Schulen nutzen
 
-- **Füge Schuly deinem Homescreen hinzu** für schnellen Zugriff auf deine Noten.
-- **Schau dir am Vorabend den Stundenplan an**, damit du weisst, was dich erwartet und
-  ob Prüfungen anstehen.
-- **Passwort verloren oder geändert?** Aktualisiere dein Schul-Login in den
-  Einstellungen - im privaten Modus verwendet Schuly das neue sofort.
+Um ein weiteres Schulkonto hinzuzufügen, öffne die Seitenleiste. Dort kannst du zwischen Konten
+wechseln, und die Daten jeder Schule bleiben getrennt.
 
-## Brauchst du mehr?
+## Web-App nutzen
 
-- Neugierig, wie die beiden Modi tatsächlich funktionieren? Sieh dir
-  [App-Modi: Konto vs. Privat](/de/Schuly/architecture-modes) an.
-- Möchtest du einen Fehler melden oder eine Funktion vorschlagen? Besuche das
-  [Schuly-GitHub-Repo](https://github.com/schulydev/Schuly).
+Mit einem Schuly-Konto kannst du Schuly auch auf [app.schuly.dev](https://app.schuly.dev) nutzen.
+Wenn du in den Einstellungen ein Microsoft-365-Konto verknüpfst, zeigt die Web-App auch deine
+E-Mails, Chats, Dateien und Notizen.
 
-Das war's - du bist eingerichtet. Willkommen bei Schuly!
+## Mehr erfahren
+
+- [Zwei-Faktor-Codes einrichten](authenticator.md)
+- [So funktionieren die beiden Modi](/de/Schuly/architecture-modes)

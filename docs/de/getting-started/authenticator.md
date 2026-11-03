@@ -5,38 +5,19 @@ title: Zwei-Faktor-Codes einrichten
 
 # Zwei-Faktor-Codes einrichten
 
-Schuly kann deine Zwei-Faktor-Geheimnisse speichern und die sechsstelligen Codes selbst
-generieren, sodass du keine separate Authenticator-App brauchst. Diese Seite zeigt dir,
-wie du einen einrichtest - am Beispiel eines Microsoft-Schulkontos.
+Schuly kann deine Zwei-Faktor-Codes generieren, du brauchst also keine separate Authenticator-App.
+Diese Seite nutzt ein Microsoft-Schulkonto als Beispiel.
 
-:::warning Du brauchst einen zweiten Bildschirm
-Der QR-Code erscheint auf einem Bildschirm und muss **vom Telefon mit Schuly gescannt
-werden**. Mach das also an einem Laptop oder Desktop, oder auf einem zweiten Gerät - ein
-Telefon kann nicht sein eigenes Display fotografieren. Falls du nur ein Telefon hast,
-nutze stattdessen den Einrichtungsschlüssel: Jeder Dienst, der einen QR-Code anzeigt,
-bietet den Schlüssel auch als Text an, und Schuly akzeptiert ihn unter
-**Manuell eingeben**.
-:::
+Du brauchst einen zweiten Bildschirm, weil das Telefon mit Schuly einen QR-Code scannen muss. Mit
+nur einem Gerät nutzt du stattdessen den Einrichtungsschlüssel: Wähle in Schuly **or enter manually**.
 
-## Zwei verschiedene Dinge, die beide 2FA heissen
+## 1. Sicherheitseinstellungen öffnen
 
-Das solltest du dir vor dem Start klarmachen, weil sie sich in der App ähnlich sehen:
-
-| Wo | Wofür |
-|---|---|
-| Bildschirm **Authenticator** | Codes, die du liest und woanders eintippst, zum Beispiel bei der Anmeldung bei Microsoft. |
-| Zeile **2FA-Geheimnis** im Verbindungsformular einer Schule | Ein Geheimnis, das Schuly aufbewahrt, um den Code während der Hintergrundsynchronisation selbst zu generieren. Diesen liest du nie. |
-
-Auf dieser Seite geht es um den ersten Fall.
-
-## 1. Sicherheitseinstellungen deines Kontos öffnen
-
-Gehe für ein schulisches Microsoft-Konto zu
-[myaccount.microsoft.com](https://myaccount.microsoft.com) und melde dich an.
+Gehe zu [myaccount.microsoft.com](https://myaccount.microsoft.com) und melde dich an.
 
 ![Die Startseite von Microsoft Mein Konto](/img/totp/01-account-home.png)
 
-Öffne **Mein Konto** in der Seitenleiste, dann **Sicherheitsinformationen**.
+Öffne **Mein Konto**, dann **Sicherheitsinformationen**.
 
 ![Sicherheitsinformationen in der Seitenleiste](/img/totp/02-security-info-nav.png)
 
@@ -46,66 +27,58 @@ Wähle **Anmeldemethode hinzufügen**.
 
 ![Die Liste der Anmeldemethoden](/img/totp/03-add-sign-in-method.png)
 
-Wähle aus der Liste **Microsoft Authenticator**.
+Wähle **Microsoft Authenticator**.
 
 ![Microsoft Authenticator auswählen](/img/totp/04-choose-authenticator.png)
 
-## 3. Angeben, dass du eine andere App verwendest
+## 3. Andere App wählen
 
-Microsoft geht davon aus, dass du seine eigene App nutzen willst. Das willst du nicht -
-hier übernimmt Schuly die Rolle des Authenticators. Wähle **Andere App für die
-Authentifizierung einrichten**.
+Wähle **Andere App für die Authentifizierung einrichten**.
 
 ![Eine andere Authenticator-App verwenden](/img/totp/05-use-a-different-app.png)
 
-Fahre dann mit **Weiter** fort.
+Wähle **Weiter**.
 
 ![Konto in der App einrichten](/img/totp/06-set-up-account.png)
 
 ## 4. Code mit Schuly scannen
 
-Microsoft zeigt jetzt den QR-Code an.
+Microsoft zeigt einen QR-Code an.
 
 ![Der zu scannende QR-Code](/img/totp/07-scan-qr-code.png)
 
 Auf deinem Telefon, in Schuly:
 
 1. Tippe oben links auf dein Profilbild, dann auf **Authenticator**.
-2. Tippe auf **Hinzufügen**, dann auf **QR-Code scannen**.
-3. Halte die Kamera auf den Code auf deinem anderen Bildschirm.
+2. Tippe auf **Add**, dann auf **Scan QR code**.
+3. Richte die Kamera auf den Code.
 
-Schuly speichert den Eintrag und zeigt sofort den sechsstelligen Code an, mit der
-verbleibenden Zeit in Sekunden daneben.
+Schuly speichert den Eintrag und zeigt einen sechsstelligen Code an.
 
-:::tip Der Code wird sofort benötigt
-Microsoft verlangt einen aktuellen Code, um das neue Gerät zu bestätigen. Das ist der
-Code, den Schuly dir anzeigt - gib ihn ein, bevor der Countdown abläuft. Falls er
-abläuft, funktioniert der nächste genauso gut; der Eintrag ist bereits gespeichert.
+## 5. Code bestätigen
+
+Wähle am Computer **Weiter**, gib den Code aus Schuly ein und bestätige. Wenn der Code vorher
+abläuft, nutze den nächsten.
+
+**Authenticator-App** erscheint nun in deinen Anmeldemethoden.
+
+## Codes nutzen
+
+Öffne **Authenticator** in Schuly und tippe auf einen Code, um ihn zu kopieren.
+
+::: warning Deine Codes werden nicht gesichert
+Das Geheimnis bleibt auf deinem Telefon und wird nicht synchronisiert. Wenn du das Telefon verlierst,
+verlierst du es also auch. Richte eine zweite Anmeldemethode ein, zum Beispiel eine Telefonnummer,
+und behalte die Wiederherstellungsoptionen deiner Schule.
 :::
 
-Wähle am Computer wieder **Weiter**, gib den Code ein und bestätige.
-**Authenticator-App** erscheint nun in deiner Liste der Anmeldemethoden.
+## Fehlerbehebung
 
-## Danach
+**Die Kamera öffnet sich nicht.** Erlaube Schuly den Kamerazugriff in den Einstellungen deines
+Telefons.
 
-Deine Codes findest du unter **Authenticator** in Schuly. Tippe auf einen, um ihn zu
-kopieren.
+**Der QR-Code lässt sich nicht scannen.** Wähle auf der Microsoft-Seite **QR-Code kann nicht gescannt
+werden?**. Wähle in Schuly **or enter manually** und füge den Einrichtungsschlüssel ein.
 
-Das Geheimnis bleibt auf deinem Telefon. Es wird nicht an das Schuly-Backend gesendet
-und ist nicht Teil einer Synchronisation, was auch bedeutet, dass es nicht automatisch
-wiederhergestellt wird, wenn du das Gerät verlierst - bewahre also die
-Wiederherstellungsoptionen deiner Schule auf und richte, wo möglich, eine zweite Methode
-wie eine Telefonnummer ein.
-
-## Wenn etwas schiefgeht
-
-**Die Kamera öffnet sich nicht.** Schuly braucht Kamerazugriff. Erteile ihn in den
-App-Einstellungen deines Telefons und versuche es erneut.
-
-**Der QR-Code lässt sich nicht scannen.** Nutze stattdessen den Einrichtungsschlüssel:
-Wähle auf der Microsoft-Seite **QR-Code kann nicht gescannt werden?**, dann in Schuly
-**Manuell eingeben** und füge den Schlüssel ein.
-
-**Der Code wird abgelehnt.** Codes sind an die Uhrzeit gebunden. Wenn die Zeit auf
-deinem Telefon manuell eingestellt ist und abweicht, sind die Codes falsch, auch wenn in
-der App alles normal aussieht - stelle dein Telefon auf netzwerkbasierte Zeit um.
+**Der Code wird abgelehnt.** Codes hängen von der Uhrzeit ab. Stelle dein Telefon auf netzwerkbasierte
+Zeit um.

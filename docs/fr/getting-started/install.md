@@ -5,21 +5,22 @@ title: 1. Installer l'application
 
 # 1. Installer l'application
 
-Schuly fonctionne sur **Android** et **iOS**.
+Schuly n'est pas encore dans l'App Store ni sur Google Play. Choisis comment tu veux l'utiliser :
 
-- **Télécharge-la depuis [schuly.dev](https://schuly.dev)** - le site pointe toujours
-  vers les dernières versions pour chaque plateforme.
-- **Android** - installe-la depuis la fiche du store, ou charge manuellement le fichier
-  `.apk` publié sur les [releases GitHub](https://github.com/schulydev/Schuly/releases).
-  Si tu fais un chargement manuel, Android te demandera la première fois d'autoriser les
-  installations depuis ton navigateur ou ton gestionnaire de fichiers.
-- **iOS** - installe-la depuis la fiche du store liée sur le site.
+| Appareil | Comment obtenir Schuly |
+|---|---|
+| Android | Télécharge le fichier `.apk` depuis les [releases GitHub](https://github.com/schulydev/Schuly/releases) et ouvre-le. La première fois, Android te demande d'autoriser les installations depuis ton navigateur. |
+| iPhone ou iPad | Télécharge le fichier `.ipa` depuis les [releases GitHub](https://github.com/schulydev/Schuly/releases) et installe-le en sideload. |
+| Navigateur | Ouvre [app.schuly.dev](https://app.schuly.dev). Il n'y a rien à installer, et il te faut un compte Schuly. |
 
-:::info Deux versions
-Tu verras peut-être **Schuly** et **Schuly DEV**. Installe **Schuly** - « DEV » est une
-version de test séparée utilisée par les contributeurs, qui peut fonctionner en
-parallèle sans toucher à tes vraies données.
-:::
+Installe **Schuly**, pas **Schuly DEV**. La version DEV est une version de test pour les contributeurs.
 
-Une fois l'application installée, ouvre-la et passe à l'étape
-**[choisir ton mode de connexion](choose-a-mode.md)**.
+## Mises à jour
+
+Schuly vérifie s'il existe de nouvelles versions et les propose dans l'application. Sur Android, tu
+peux installer une mise à jour directement. Sur iPhone et iPad, Schuly renvoie vers la nouvelle
+release.
+
+## Étape suivante
+
+[Choisir comment te connecter](choose-a-mode.md)

@@ -12,7 +12,7 @@ die gegen einen Host gebaut wurden, nicht bei einem anderen brechen.
 
 - [Vertragsreferenz](contract.md) - jedes Interface und jeder Record, mit den echten Signaturen
   und wo jedes Mitglied im Plugin-Lebenszyklus einzuordnen ist.
-- [Setup](setup/) - lokale Entwicklung und Veröffentlichung:
+- Setup - lokale Entwicklung und Veröffentlichung:
   - [Entwicklung](setup/development.md) - Voraussetzungen, Build, lokaler Pack-Dry-Run.
   - [Veröffentlichung](setup/publishing.md) - der NuGet-Release-Ablauf und die Package-Metadaten.
 - [Versionierung](versioning.md) - strikte Semver-Regeln und die Labels, die Releases steuern.
