@@ -24,6 +24,8 @@ d'avis plus tard.
 ## En option
 
 - [Configurer les codes à deux facteurs](authenticator.md) dans Schuly, pour ne pas avoir besoin d'une application d'authentification séparée.
+- [Demander à Helply](helply.md), l'assistant IA de l'application web.
+- [Connecter une application d'IA](connect-ai-apps.md), comme Claude ou ChatGPT, à tes données scolaires.
 
 ## Obtenir de l'aide
 

@@ -1,36 +1,38 @@
 # Distribution
 
-Plugins folgen dem **Aniyomi-Stil**-Zwei-Branch-Modell:
+Diese Seite erklärt, wie Plugins von `main` auf einen Server kommen. Plugins nutzen das Zwei-Branch-Modell im
+Aniyomi-Stil:
 
-- `main` - die C#-Plugin-Quellprojekte.
-- `repo` - gebaute DLLs plus ein maschinenlesbarer Index, alles automatisch generiert.
+- `main` enthält die C#-Quellprojekte der Plugins.
+- `repo` enthält gebaute DLLs und einen maschinenlesbaren Index, alles automatisch generiert.
 
-## Der Build-/Publish-Workflow
+## Der Build- und Publish-Workflow
 
-`.github/workflows/build_push.yml` läuft bei Pushes auf `main`, die `src/Schuly.Plugin.*/**`
-(oder den Workflow selbst) betreffen, sowie bei manuellem Auslösen. Er besteht aus drei Jobs:
+[`build_push.yml`](https://github.com/schulydev/SchulyPlugins/blob/main/.github/workflows/build_push.yml)
+läuft bei Pushes auf `main`, die `src/Schuly.Plugin.*/**` oder den Workflow selbst betreffen, und bei manuellem Start.
+Eine Änderung nur in `src/Shared/` löst ihn nicht aus.
 
-1. **discover** - globbt `src/**/Schuly.Plugin.*.csproj` und erzeugt eine Build-Matrix. Ein neuer
-   Plugin-Ordner mit einer csproj wird ohne Workflow-Änderung erkannt.
-2. **build** (pro Plugin) - `dotnet publish -c Release`, danach werden bereitgestellt:
-   - `dll/<AssemblyName>-v<Version>.dll` - die Plugin-Assembly, eigenständig ausgeliefert, damit
-     Betreiber sie unabhängig pinnen/austauschen können.
-   - `dll/<AssemblyName>-v<Version>-deps.zip` - ihre Drittanbieter-Abhängigkeiten. Vom Host
-     bereitgestellte Assemblies werden entfernt (ASP.NET Core, EF Core, Npgsql, Mediator und die
-     Schuly-Host-Assemblies einschliesslich `Schuly.Plugin.Abstractions`); nur echte
-     Drittanbieter-NuGet-Abhängigkeiten (Kiota, AngleSharp, …) werden gebündelt. Ein Plugin ohne
-     solche erhält ein reines Marker-Zip, damit das Index-Schema einheitlich bleibt.
-   - eine Metadaten-JSON pro Plugin (`name`, `pkg`, `dll`, `deps`, `version`, `description`,
-     `authors`), aus der csproj gelesen über `dotnet msbuild -getProperty`.
-3. **publish** - führt die JSONs der einzelnen Plugins zu einer `index.json` (sortiert nach Name)
-   und einer minifizierten `index.min.json` zusammen, kopiert die DLLs + Dependency-Zips und
-   committet alles in den `repo`-Branch.
+Er hat drei Jobs:
 
-`AssemblyName`, `Version`, `Description` und `Authors` stammen also direkt aus der
-`PropertyGroup` der jeweiligen `.csproj` - halte sie aktuell.
+1. **discover** findet jede `src/<folder>/Schuly.Plugin.*.csproj` und gibt eine Build-Matrix aus. Ein neuer Plugin-Ordner
+   mit einer csproj braucht keine Workflow-Änderung.
+2. **build** führt für jedes Plugin `dotnet publish -c Release` aus und stellt dann bereit:
+   - `dll/<AssemblyName>-v<Version>.dll`: die Plugin-Assembly.
+   - `dll/<AssemblyName>-v<Version>-deps.zip`: seine Drittanbieter-Abhängigkeiten, zum Beispiel Kiota oder AngleSharp.
+     Das Zip lässt `Microsoft.AspNetCore.*`, `Microsoft.Extensions.*`, `Microsoft.EntityFrameworkCore.*`, `Npgsql.*`,
+     `Mediator.*` und `Schuly.Plugin.Abstractions.dll` weg, die der Server bereitstellt. Ein Plugin ohne Abhängigkeiten
+     erhält ein Zip nur mit einem Marker, damit das Index-Schema einheitlich bleibt.
+   - Ein Metadaten-JSON für das Plugin mit `name`, `pkg`, `dll`, `deps`, `version`, `contract`, `description` und
+     `authors`. `contract` ist die MAJOR.MINOR von `Schuly.Plugin.Abstractions`, die das Plugin aufgelöst hat. `name`,
+     `version`, `description` und `authors` kommen über `dotnet msbuild -getProperty` aus der csproj.
+3. **publish** führt die JSON-Dateien zu `index.json`, sortiert nach Name, und einer minifizierten `index.min.json`
+   zusammen. Dann ersetzt der Job `dll/` und beide Index-Dateien auf dem `repo`-Branch und committet. Der Branch enthält
+   nur die Builds des letzten Laufs.
 
-## Installation
+`AssemblyName`, `Version`, `Description` und `Authors` kommen aus der csproj jedes Plugins. Halte sie deshalb aktuell.
 
-Server laden Plugins automatisch aus diesem Branch herunter. Betreiber führen die gewünschten Plugins
-in `plugins.yml` auf. Siehe [Plugin-Verwaltung](/de/SchulyServer/plugin-management). `index.min.json`
-ist der Katalog, den Server lesen, um Plugins und Versionen zu finden.
+## Plugin installieren
+
+Server laden Plugins automatisch vom `repo`-Branch herunter. Betreiber listen die gewünschten Plugins in `plugins.yml`
+auf. Siehe [Plugin-Verwaltung](/de/SchulyServer/plugin-management). `index.min.json` ist der Katalog, den Server lesen,
+um Plugins und Versionen zu finden.

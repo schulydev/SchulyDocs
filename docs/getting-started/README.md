@@ -22,6 +22,8 @@ Not sure what to pick? Use **Schuly Cloud** and a **Schuly account**. You can ch
 ## Optional
 
 - [Set up two-factor codes](authenticator.md) in Schuly, so you don't need a separate authenticator app.
+- [Ask Helply](helply.md), the AI assistant in the web app.
+- [Connect an AI app](connect-ai-apps.md), such as Claude or ChatGPT, to your school data.
 
 ## Get help
 

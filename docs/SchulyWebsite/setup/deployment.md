@@ -1,35 +1,31 @@
 # Deployment
 
-The site is hosted on **Cloudflare Pages**. Deployment is wired through the
-**Cloudflare GitHub integration** (configured in the Cloudflare dashboard, **not**
-a GitHub Actions workflow in this repo).
+Use this page to see how the site reaches Cloudflare Pages and what to check when you change the
+build. The Cloudflare GitHub integration handles deploys. It's set up in the Cloudflare dashboard, not
+in a GitHub Actions workflow.
 
-## Production deploys
+## What deploys
 
-- Pushes to **`main`** are auto-deployed by Cloudflare Pages.
-- **PR branches** get **preview deploys** automatically via the same integration.
+- Pushes to `main` deploy to production.
+- Pull request branches get preview deploys.
 
 ## Cloudflare build settings
 
 | Setting | Value |
-|---|---|
+| --- | --- |
 | Build command | `bun run build` |
 | Output directory | `dist/SchulyWebsite/browser` |
 | Environment | `BUN_VERSION=1.2.21` |
 
-The build uses the `@angular/build:application` builder (see `angular.json`),
-which produces the `dist/SchulyWebsite/browser` directory that Cloudflare is
-configured to serve. **If you change `angular.json`** (project name, builder, or
-output settings), verify the Cloudflare output path still matches.
+The `@angular/build:application` builder in `angular.json` produces the output directory. If you change
+the project name, builder, or output settings in `angular.json`, check that the Cloudflare output path
+still matches.
 
-## CI vs. deploy
+The deploy also uses `public/_redirects`, `public/_headers`, and the Pages Function in
+`functions/index.js`.
 
-`.github/workflows/build.yml` is **independent** of deployment. It only runs
-`bun install --frozen-lockfile` + `bun run build` on pushes and PRs to `main` to
-verify the build passes - catching broken code before Cloudflare attempts a
-preview deploy. It does not publish anything itself.
+## CI
 
-## Related
-
-- [Development setup](development.md)
-- [Release](release.md)
+`.github/workflows/build.yml` doesn't deploy anything. On pushes and pull requests to `main`, it runs
+`bun install --frozen-lockfile` and `bun run build` with the latest Bun, so it catches broken code
+before Cloudflare tries a preview deploy.

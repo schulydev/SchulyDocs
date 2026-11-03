@@ -1,21 +1,15 @@
 # Release
 
-Il versioning è guidato da **`application.properties`** (l'unica fonte di verità,
-un file XML con un elemento `<version>`).
+Usa questa pagina per creare una release. L'elemento `<version>` in `application.properties`, un file XML, è la
+fonte di verità per la versione.
 
-## Come viene creata una release
+## Crea una release
 
-1. Pubblica una Release GitHub con un tag (ad es. `v0.1.0`).
-2. Il workflow `sync-version-on-release.yml` viene eseguito su `release: published`
-   e, se la versione del tag differisce da quella nel file, aggiorna entrambi:
-   - il `<version>` in `application.properties`, e
-   - il `"version"` di primo livello in `package.json`
+1. Pubblica una release su GitHub con un tag come `v0.1.0`. Release Drafter tiene pronta una bozza dai push
+   su `main`.
+2. `sync-version-on-release.yml` viene eseguito e confronta il tag con `application.properties`. Se corrispondono,
+   si ferma.
+3. Se differiscono, aggiorna `<version>` in `application.properties` e la `version` di primo livello in
+   `package.json`, poi fa lo squash-merge di una pull request `release-sync/<version>` in `main`.
 
-   poi apre una PR `release-sync/<version>` verso `main` e la unisce automaticamente.
-
-Se la versione nel file corrisponde già al tag, il workflow non fa nulla.
-
-## Vedi anche
-
-- [Distribuzione](deployment.md)
-- [Contributing](../contributing.md)
+Quel merge arriva in produzione tramite il [deploy normale](deployment.md).

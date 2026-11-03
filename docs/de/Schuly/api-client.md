@@ -1,46 +1,35 @@
 # API-Client
 
-Der Dart-API-Client unter `lib/api/` ist **generiert**, nicht von Hand geschrieben. Er
-wird von [openapi-generator](https://openapi-generator.tech) (Generator `dart-dio`) aus
-der OpenAPI-3.0-Spezifikation von
-[SchulyServer](https://github.com/schulydev/SchulyServer) erzeugt, die unter
-`/openapi/v1.json` bereitgestellt wird. Die App bindet ihn als lokales Package über
-eine `path:`-Referenz in `pubspec.yaml` ein (`schuly_api`).
+Generiere den Dart-API-Client in `lib/api/` neu, wenn sich die Backend-API ändert. Bearbeite ihn nicht
+von Hand. [openapi-generator](https://openapi-generator.tech) erzeugt ihn mit dem Generator `dart-dio`
+aus dem OpenAPI-3.0-Dokument von [SchulyServer](https://github.com/schulydev/SchulyServer). Die App
+nutzt ihn als lokales Package `schuly_api`, über eine `path:`-Referenz in `pubspec.yaml`.
 
-## Neu generieren
+## Client neu generieren
 
-Das Backend muss laufen und unter `http://localhost:5033` erreichbar sein. Dann:
+Starte das Backend auf `http://localhost:5033` und führe dann aus:
 
 ```sh
-bun run apigen        # Neugenerierung ab http://localhost:5033/openapi/v1.json
-bun run apigen:local  # gleiches Ziel, expliziter lokaler Alias
+bun run apigen        # regenerate from http://localhost:5033/openapi/v1.json
+bun run apigen:local  # same target, explicit local alias
 ```
 
-`apigen` reiht drei Schritte aneinander:
+`apigen` führt drei Schritte aus:
 
-1. **Generieren** - `openapi-generator-cli generate -g dart-dio` gegen die laufende
-   Spezifikation (`http://localhost:5033/openapi/v1.json`), Ausgabe nach `lib/api`
-   (`pubName=schuly_api`, `pubLibrary=schuly_api`).
-2. **Patchen** (`apigen:patch`) - schreibt die SDK-Constraint in `lib/api/pubspec.yaml`
-   um. Der Generator setzt sie auf `'>=2.18.0 <4.0.0'` zurück, was den Build wegen
-   eines Sprachversions-Mismatches bei den Part-Dateien bricht. Der Patch ersetzt sie
-   durch `^3.10.0`. Als `bun -e`-Einzeiler implementiert, damit er in jeder Shell
-   identisch läuft.
-3. **Bauen** (`apigen:build`) - `cd lib/api && dart pub get && dart run build_runner
-   build --delete-conflicting-outputs`, um den `.g.dart`-Serialisierungscode zu
-   erzeugen.
+1. **Generieren:** führt `openapi-generator-cli generate -g dart-dio` gegen das Live-Dokument aus und
+   schreibt nach `lib/api`, mit `pubName=schuly_api` und `pubLibrary=schuly_api`.
+2. **Patchen (`apigen:patch`):** ändert die SDK-Einschränkung in `lib/api/pubspec.yaml`. Der Generator
+   setzt sie auf `'>=2.18.0 <4.0.0'` zurück. Das bricht den Build mit einem Part-File-Fehler wegen
+   unterschiedlicher Sprachversionen. Der Patch setzt `^3.10.0`. Er ist ein `bun -e`-Einzeiler und
+   funktioniert deshalb in jeder Shell.
+3. **Bauen (`apigen:build`):** führt `dart pub get` und
+   `dart run build_runner build --delete-conflicting-outputs` in `lib/api` aus, um den
+   `.g.dart`-Serialisierungscode zu erzeugen.
 
-## Hinweise
+## Gut zu wissen
 
-- **`openapi.json` ist gitignored** - immer aus dem laufenden Backend neu generieren,
-  statt eine lokale Kopie der Spezifikation zu committen.
-- `lib/api/**` ist **von `flutter analyze` ausgeschlossen** (siehe
-  `analysis_options.yaml`), damit die Generator-Ausgabe nie Lint-Checks auslöst.
-- Die generierten `.g.dart`-Dateien werden von `build_runner` erzeugt; werden sie
-  veraltet, führe `bun run apigen` (oder nur den Schritt `apigen:build`) erneut aus,
-  um sie zu aktualisieren.
-
-## Siehe auch
-
-- [Entwicklungsumgebung](setup/development.md) - Abhängigkeiten installieren, App
-  ausführen.
+- `openapi.json` ist in gitignore eingetragen. Generiere neu aus dem laufenden Backend, statt eine Kopie
+  zu committen.
+- `analysis_options.yaml` schliesst `lib/api/**` von `flutter analyze` aus. Generierter Code löst deshalb
+  nie Lint-Fehler aus.
+- Wenn die `.g.dart`-Dateien veraltet sind, führe `bun run apigen` oder nur `bun run apigen:build` aus.

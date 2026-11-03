@@ -103,4 +103,5 @@ in `scripts/sync-docs.sh`.
 | [**SchulyPluginAbstractions**](https://github.com/schulydev/SchulyPluginAbstractions) | Plugin contract (NuGet) | [/SchulyPluginAbstractions](https://docs.schuly.dev/SchulyPluginAbstractions/) |
 | [**SchulyPlugins**](https://github.com/schulydev/SchulyPlugins) | Official plugins monorepo | [/SchulyPlugins](https://docs.schuly.dev/SchulyPlugins/) |
 | [**SchulyWebsite**](https://github.com/schulydev/SchulyWebsite) | Landing site ([schuly.dev](https://schuly.dev)) | [/SchulyWebsite](https://docs.schuly.dev/SchulyWebsite/) |
+| [**SchulyMicrosoft**](https://github.com/schulydev/SchulyMicrosoft) | Microsoft 365 service | [/SchulyMicrosoft](https://docs.schuly.dev/SchulyMicrosoft/) |
 | [**SchulyDocs**](https://github.com/schulydev/SchulyDocs) | Documentation site *(this repo)* | [docs.schuly.dev](https://docs.schuly.dev) |

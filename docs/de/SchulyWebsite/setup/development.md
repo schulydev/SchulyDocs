@@ -1,50 +1,24 @@
 # Entwicklungsumgebung
 
+Nutze diese Seite, um die Site auf deinem Rechner zu installieren, auszuführen, zu bauen und zu testen.
+
 ## Voraussetzungen
 
-- **Bun `1.2.21+`** - das ist der einzige Paketmanager für dieses Projekt. Es gibt
-  **kein npm und keine `package-lock.json`**.
-  - Die Version wird über `packageManager` in `package.json` und
-    `cli.packageManager` in `angular.json` festgelegt.
-  - Die Version spielt eine Rolle: Das Projekt nutzt das **textbasierte
-    `bun.lock`**-Lockfile-Format, das Bun 1.1.x nicht lesen kann. Verwende 1.2.21
-    oder neuer.
+Installiere Bun `1.2.21` oder neuer. Es ist der einzige Package Manager für dieses Projekt, und es gibt kein
+`package-lock.json`.
 
-## Installieren
+Das Projekt nutzt das Textformat `bun.lock`, das Bun 1.1.x nicht lesen kann. `package.json` legt `bun@1.2.21` in
+`packageManager` fest, und `cli.packageManager` in `angular.json` wählt Bun für die Angular CLI.
+
+## Befehle
 
 ```sh
-bun install
+bun install       # install dependencies
+bun start         # ng serve on http://localhost:4200
+bun run watch     # ng build --watch --configuration development
+bun run build     # ng build (production), then scripts/postbuild.ts
+bun run test      # ng test (Karma and Jasmine)
 ```
 
-## Starten
-
-```sh
-bun start            # ng serve auf http://localhost:4200
-```
-
-## Watch (fortlaufender Dev-Build)
-
-```sh
-bun run watch        # ng build --watch --configuration development
-```
-
-## Production-Build
-
-```sh
-bun run build        # ng build (production) + scripts/postbuild.ts
-```
-
-Der Production-Build wird nach `dist/SchulyWebsite/browser` ausgegeben. Siehe
-[Deployment](deployment.md) dazu, wie diese Ausgabe ausgeliefert wird.
-
-## Testen
-
-```sh
-bun run test         # ng test (Karma + Jasmine)
-```
-
-## Siehe auch
-
-- [Deployment](deployment.md)
-- [Architektur & Coding-Konventionen](../architecture.md)
-- [Contributing](../contributing.md)
+Der Produktions-Build schreibt nach `dist/SchulyWebsite/browser`. Wie diese Ausgabe ausgeliefert wird, steht unter
+[Deployment](deployment.md).

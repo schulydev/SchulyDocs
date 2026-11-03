@@ -1,35 +1,26 @@
 # Contributing
 
-## Enforced workflow
+Use this page for the rules and checks specific to the website. For issues, branches, pull requests,
+and labels, follow the [shared workflow](/contribute/).
 
-**Never work directly on `main`.** Every change follows this flow:
+## Rules
 
-1. **Open a labeled issue** describing the change.
-2. **Branch** off `main`: `feature/<issue#>_PascalCase` or `fix/<issue#>_PascalCase`.
-3. **Open a PR** that references the issue with `Closes #<issue>`.
-   - PR body is **Summary + `Closes #<issue>` only**. No test plans.
-4. **Squash-merge** and delete the branch.
+- Use Bun for everything, not npm, npx, or node.
+- Follow the [Angular 20 coding conventions](architecture.md#angular-20-coding-conventions).
+- When you add a language or a page, update `scripts/postbuild.ts`. See
+  [Routes and languages](architecture.md#routes-and-languages).
 
-### PR labels
+## Checks
 
-`bug`, `enhancement`, `feature`, `refactor`, `CI/CD`, `dependencies`, `documentation`.
+CI runs these on pushes and pull requests to `main`. Run them before you open a pull request:
 
-### Commit messages
+```sh
+bun install --frozen-lockfile
+bun run build
+```
 
-- Short imperative subject (e.g. `Add FAQ section`).
+Run the unit tests as well. CI doesn't run them.
 
-## Absolute rule
-
-**No AI / Claude attribution anywhere** - not in commits, PR bodies, or issues.
-Ever. No `Co-Authored-By`, "Generated with", or similar trailers.
-
-## Coding standards
-
-Follow the **Angular 20 coding conventions** documented in
-[architecture.md](architecture.md#angular-20-coding-conventions).
-
-## Related
-
-- [Development setup](setup/development.md)
-- [Deployment](setup/deployment.md)
-- [Release](setup/release.md)
+```sh
+bun run test
+```

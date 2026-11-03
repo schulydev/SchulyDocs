@@ -1,37 +1,31 @@
-# Distribuzione
+# Deployment
 
-Il sito è ospitato su **Cloudflare Pages**. La distribuzione passa attraverso
-l'**integrazione GitHub di Cloudflare** (configurata nella dashboard di Cloudflare,
-**non** tramite un workflow di GitHub Actions in questo repo).
+Usa questa pagina per vedere come il sito arriva su Cloudflare Pages e cosa controllare quando cambi la
+build. L'integrazione GitHub di Cloudflare gestisce i deploy. È configurata nella dashboard di Cloudflare, non
+in un workflow di GitHub Actions.
 
-## Deploy in produzione
+## Cosa viene distribuito
 
-- I push su **`main`** vengono distribuiti automaticamente da Cloudflare Pages.
-- I **branch delle PR** ricevono automaticamente **deploy di anteprima** tramite la
-  stessa integrazione.
+- I push su `main` vengono distribuiti in produzione.
+- I branch delle pull request ricevono deploy di anteprima.
 
 ## Impostazioni di build di Cloudflare
 
 | Impostazione | Valore |
-|---|---|
+| --- | --- |
 | Comando di build | `bun run build` |
 | Directory di output | `dist/SchulyWebsite/browser` |
 | Ambiente | `BUN_VERSION=1.2.21` |
 
-Il build usa il builder `@angular/build:application` (vedi `angular.json`), che
-produce la directory `dist/SchulyWebsite/browser` che Cloudflare è configurato per
-servire. **Se modifichi `angular.json`** (nome del progetto, builder o impostazioni
-di output), verifica che il percorso di output atteso da Cloudflare corrisponda
-ancora.
+Il builder `@angular/build:application` in `angular.json` produce la directory di output. Se cambi il
+nome del progetto, il builder o le impostazioni di output in `angular.json`, controlla che il percorso di output di Cloudflare
+corrisponda ancora.
 
-## CI vs deploy
+Il deploy usa anche `public/_redirects`, `public/_headers` e la Pages Function in
+`functions/index.js`.
 
-`.github/workflows/build.yml` è **indipendente** dalla distribuzione. Si limita a
-eseguire `bun install --frozen-lockfile` + `bun run build` sui push e sulle PR verso
-`main`, per verificare che il build funzioni - individuando così codice rotto prima
-che Cloudflare tenti un deploy di anteprima. Non pubblica nulla di suo.
+## CI
 
-## Vedi anche
-
-- [Ambiente di sviluppo](development.md)
-- [Release](release.md)
+`.github/workflows/build.yml` non distribuisce nulla. Sui push e sulle pull request verso `main`, esegue
+`bun install --frozen-lockfile` e `bun run build` con l'ultima versione di Bun, così intercetta il codice rotto
+prima che Cloudflare provi un deploy di anteprima.

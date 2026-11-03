@@ -12,6 +12,7 @@ ou `feature` sont un bon point de départ.
 | Plugins | .NET | [Configuration de développement](/fr/SchulyPlugins/setup/development) |
 | Contrat de plugin | .NET, NuGet | [Configuration de développement](/fr/SchulyPluginAbstractions/setup/development) |
 | Site web | Angular | [Configuration de développement](/fr/SchulyWebsite/setup/development) |
+| Service Microsoft 365 | Python, FastAPI | [Configuration de développement](/fr/SchulyMicrosoft/setup/development) |
 | Cette documentation | VitePress | [Modifier cette documentation](/editing-these-docs) |
 
 ## Faire une modification
@@ -37,6 +38,6 @@ La page **Contribuer** de chaque projet indique ses propres règles.
 | `enhancement` | Une amélioration d'un comportement existant |
 | `feature` | Une nouvelle fonctionnalité |
 | `refactor` | Des changements internes sans changement de comportement |
-| `CI/CD` | Les changements de build, de release et de workflow |
-| `dependencies` | Les mises à jour de dépendances |
-| `documentation` | Les changements limités à la documentation |
+| `CI/CD` | Des changements de build, de release et de workflow |
+| `dependencies` | Des mises à jour de dépendances |
+| `documentation` | Des changements de documentation uniquement |

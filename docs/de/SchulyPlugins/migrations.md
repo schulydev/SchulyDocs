@@ -1,61 +1,73 @@
 # EF-Core-Migrationen
 
-Plugins, die Daten persistieren (Schulware, OdaOrg), verwalten ihr Schema über
-EF-Core-Migrationen.
+Nutze EF-Core-Migrationen, um einem Plugin eine eigene Datenbank zu geben und sein Schema zu ändern. Die Plugins
+Schulware und OdaOrg machen das so.
 
-## Jedes Plugin bekommt seine eigene Datenbank
+## Jedes Plugin erhält eine eigene Datenbank
 
-Der Plugin-Host des Backends übergibt dem Plugin einen dedizierten Connection-String über
-`PluginServiceContext.ConnectionString` - er wandelt den Host-Connection-String so ab, dass der
-Datenbankname zu `schuly_plugin_<name>` wird. Das Plugin verdrahtet ihn mit seinem `DbContext`:
+Der Host übergibt jedem Plugin einen eigenen Connection-String in `PluginServiceContext.ConnectionString`. Er nimmt den
+Haupt-Connection-String und ändert den Datenbanknamen in `schuly_plugin_<name>`. Dabei ist `<name>` der Wert von
+`ISchulyPlugin.Name` in Kleinbuchstaben, mit Unterstrichen statt Leerzeichen. Zum Beispiel wird
+`Schulware Integration` zu `schuly_plugin_schulware_integration`.
+
+Binde ihn in deinen `DbContext` ein:
 
 ```csharp
-services.AddDbContext<SchulwareDbContext>(o => o.UseNpgsql(context.ConnectionString));
+services.AddDbContext<SchulwareDbContext>(options => options.UseNpgsql(context.ConnectionString));
 ```
 
-Migrationen berühren die Haupt-Schuly-Datenbank also nie; das Schema jedes Plugins ist isoliert.
+Deine Migrationen berühren die Haupt-Datenbank von Schuly nie.
 
-## Eine Migration hinzufügen
+## Packages hinzufügen
+
+Ein Plugin mit Datenbank referenziert `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Design` und
+`Npgsql.EntityFrameworkCore.PostgreSQL`. Kopiere die Referenzen aus
+[`Schuly.Plugin.OdaOrg.csproj`](https://github.com/schulydev/SchulyPlugins/blob/main/src/Schuly.Plugin.OdaOrg/Schuly.Plugin.OdaOrg.csproj).
+
+## Migration hinzufügen
+
+Du brauchst das Tool `dotnet-ef`. Siehe [Entwicklungsumgebung](setup/development.md).
 
 ```sh
 dotnet ef migrations add <Name> --project src/Schuly.Plugin.Schulware
 ```
 
-(Passe den Projektpfad an das Plugin an, an dem du arbeitest.) Das schreibt die Migration in den
-`Data/Migrations/`-Ordner des Plugins und aktualisiert den Model-Snapshot. Dafür wird das Tool
-`dotnet-ef` benötigt - siehe [setup/development.md](setup/development.md).
+Ersetze den Projektpfad durch den deines Plugins. Der Befehl schreibt die Migration in den Ordner `Data/Migrations/`
+des Plugins und aktualisiert den Modell-Snapshot. Füge bei der ersten Migration eines Plugins
+`--output-dir Data/Migrations` hinzu, um denselben Ordner zu nutzen.
 
-## Design-Time-Factory
+## Design-Time-Factory hinzufügen
 
-`dotnet ef` erzeugt den `DbContext` zur Design-Zeit ohne die Laufzeit-DI-Pipeline, daher liefert
-jedes Plugin neben seinem `DbContext` eine `IDesignTimeDbContextFactory<T>` aus
-(z. B. `Data/SchulwareDbContextFactory.cs`). Der Connection-String in der Factory ist ein
-Wegwerf-Platzhalter - Migrationen brauchen nur das Modell, keine lebende Datenbank:
+`dotnet ef` baut den `DbContext` zur Design-Zeit ohne die DI-Pipeline der Laufzeit. Liefere neben deinem `DbContext` eine
+`IDesignTimeDbContextFactory<T>` aus, zum Beispiel `Data/SchulwareDbContextFactory.cs`. Ihr Connection-String ist ein
+Platzhalter, weil Migrationen nur das Modell brauchen, keine laufende Datenbank:
 
 ```csharp
 internal sealed class SchulwareDbContextFactory : IDesignTimeDbContextFactory<SchulwareDbContext>
 {
-    public SchulwareDbContext CreateDbContext(string[] args) =>
-        new(new DbContextOptionsBuilder<SchulwareDbContext>()
+    public SchulwareDbContext CreateDbContext(string[] args)
+    {
+        var options = new DbContextOptionsBuilder<SchulwareDbContext>()
             .UseNpgsql("Host=localhost;Database=schulware_design;Username=postgres;Password=postgres")
-            .Options);
+            .Options;
+        return new SchulwareDbContext(options);
+    }
 }
 ```
 
-## Migrationen zur Laufzeit anwenden, nicht `EnsureCreated`
+## Migrationen zur Laufzeit anwenden
 
-Wende ausstehende Migrationen aus `MigrateAsync` heraus an:
+Wende ausstehende Migrationen in `MigrateAsync` an. Der Host ruft es bei jedem Laden des Plugins auf.
 
 ```csharp
-public async Task MigrateAsync(IServiceProvider sp, CancellationToken ct = default)
+public async Task MigrateAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
 {
-    using var scope = sp.CreateScope();
+    using var scope = serviceProvider.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<SchulwareDbContext>();
-    await db.Database.MigrateAsync(ct);
+    await db.Database.MigrateAsync(cancellationToken);
 }
 ```
 
-**Verwende `MigrateAsync()`, niemals `EnsureCreatedAsync`.** `EnsureCreatedAsync` legt die
-Datenbank beim ersten Start an, tut bei späteren Schemaänderungen aber nichts mehr - Spalten- oder
-Indexergänzungen würden also nie auf einer bestehenden Datenbank ankommen. `MigrateAsync()` legt
-die DB beim ersten Start an **und** wendet danach jedes Schema-Delta an.
+**Nutze `MigrateAsync()`, nie `EnsureCreatedAsync`.** `EnsureCreatedAsync` erstellt die Datenbank beim ersten Lauf,
+macht aber bei späteren Schemaänderungen nichts. Neue Spalten und Indizes erreichen eine bestehende Datenbank also nie.
+`MigrateAsync()` erstellt die Datenbank beim ersten Lauf und wendet danach jede Schemaänderung an.

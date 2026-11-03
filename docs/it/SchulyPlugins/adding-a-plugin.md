@@ -1,8 +1,12 @@
-# Aggiungere un plugin
+# Aggiungi un plugin
 
-## Scheletro
+Questa guida ti porta da una copia del plugin di esempio a un plugin caricato dal tuo server locale, poi
+lo rilascia. Prima di iniziare, [prepara il tuo ambiente](setup/development.md).
 
-`src/Schuly.Plugin.Example/` - quello che copi - è volutamente minimale:
+## 1. Copia l'esempio
+
+[`src/Schuly.Plugin.Example/`](https://github.com/schulydev/SchulyPlugins/tree/main/src/Schuly.Plugin.Example)
+è volutamente minimo:
 
 ```
 src/Schuly.Plugin.Example/
@@ -11,46 +15,68 @@ src/Schuly.Plugin.Example/
 └── Schuly.Plugin.Example.slnx        # opens this plugin standalone in an IDE
 ```
 
-I plugin reali aggiungono, quando serve, una cartella `Controllers/`, `Data/` (un
-`DbContext` + migrazioni EF) e `Services/` - guarda `src/Schuly.Plugin.Schulware/` o
-`src/Schuly.Plugin.OdaOrg/` per vedere come si presenta un plugin che dialoga con un database e
-un'API esterna. Nulla di tutto ciò è necessario per iniziare.
+1. Copia la cartella in `src/Schuly.Plugin.<Name>/`.
+2. Rinomina `ExamplePlugin.cs` in `<Name>Plugin.cs`. Rinomina di conseguenza la classe e il namespace. La classe
+   implementa `ISchulyPlugin`.
+3. Rinomina `.csproj` e `.slnx` in `Schuly.Plugin.<Name>`, e aggiorna il percorso del progetto all'interno del
+   `.slnx`.
 
-1. Copia `src/Schuly.Plugin.Example/` in `src/Schuly.Plugin.<Name>/`:
+Ottieni questo:
 
+```
+src/Schuly.Plugin.<Name>/
+├── <Name>Plugin.cs
+├── Schuly.Plugin.<Name>.csproj
+└── Schuly.Plugin.<Name>.slnx
+```
+
+I plugin reali aggiungono `Controllers/`, `Data/` (un `DbContext` e le migrazioni EF) e `Services/` quando
+servono. Niente di tutto questo è necessario per iniziare. Per vedere come appare, leggi
+[`Schuly.Plugin.Schulware`](https://github.com/schulydev/SchulyPlugins/tree/main/src/Schuly.Plugin.Schulware)
+o [`Schuly.Plugin.OdaOrg`](https://github.com/schulydev/SchulyPlugins/tree/main/src/Schuly.Plugin.OdaOrg).
+
+## 2. Imposta le proprietà del progetto
+
+Nel `.csproj`:
+
+1. Mantieni `<TargetFramework>net10.0</TargetFramework>` e il `PackageReference` di
+   `Schuly.Plugin.Abstractions`.
+2. Imposta `<Version>`, `<Description>` e `<Authors>`. Finiscono nell'indice pubblicato.
+3. Per usare gli helper condivisi in `src/Shared/` (namespace `Schuly.Plugin.Shared`), includili nella compilazione:
+
+   ```xml
+   <ItemGroup>
+     <Compile Include="..\Shared\**\*.cs" />
+   </ItemGroup>
    ```
-   src/Schuly.Plugin.<Name>/
-   ├── <Name>Plugin.cs
-   ├── Schuly.Plugin.<Name>.csproj
-   └── Schuly.Plugin.<Name>.slnx
-   ```
 
-2. Rinomina `ExamplePlugin.cs` → `<Name>Plugin.cs`; rinomina la classe e il namespace di
-   conseguenza. La classe implementa `ISchulyPlugin`.
-3. Rinomina il `.csproj` (e lo `.slnx`) in `Schuly.Plugin.<Name>`. Mantieni
-   `<TargetFramework>net10.0</TargetFramework>` e la `PackageReference` a
-   `Schuly.Plugin.Abstractions`. Imposta `<Version>`, `<Description>`, `<Authors>` - questi dati
-   confluiscono nell'indice di distribuzione pubblicato.
-4. Apri una issue con etichetta `new-plugin`, poi segui il
-   [flusso di contribuzione](contributing.md): branch → PR (`Closes #<issue>`) → squash-merge.
+## 3. Implementa la classe del plugin
 
-Non serve alcuna modifica al workflow - `build_push.yml` individua automaticamente ogni
-`src/Schuly.Plugin.*/*.csproj`. Vedi [setup/distribution.md](setup/distribution.md).
+La classe del plugin è la composition root, snella come un `Program.cs`. L'host la crea con
+`Activator.CreateInstance`, quindi le serve un costruttore pubblico senza parametri.
 
-## Il ciclo di vita di `ISchulyPlugin`
+Scegli `Name` con attenzione e tienilo stabile. L'host ne ricava il nome del database del plugin, il namespace del
+vault e il prefisso d'ambiente `SCHULY_PLUGIN_<NAME>_`.
 
-La classe del plugin è la composition root (snella, come un `Program.cs`). L'host dei plugin del
-backend, all'avvio, invoca questi metodi in ordine:
+Quando carica un plugin, l'host chiama questi membri in quest'ordine:
+
+1. `ConfigureServices`
+2. `MigrateAsync`
+3. `ConfigureEndpoints`
+
+Poi registra i tuoi controller, pianifica i tuoi task in background e aggiunge il tuo sistema scolastico al
+catalogo.
 
 ### `ConfigureServices(IServiceCollection services, PluginServiceContext context)`
 
-Registra i tuoi servizi, le opzioni, il task in background e il login. `context` espone:
+Registra i tuoi servizi, le opzioni, il task in background e il login. Ogni plugin ha il proprio container di
+servizi. `context` ti dà:
 
-- `context.ConnectionString` - la connection string Postgres dedicata al plugin (l'host la
-  modifica per puntare a `schuly_plugin_<name>`; vedi [migrations.md](migrations.md)).
-- `context.Configuration` - la configurazione YAML del plugin (`Schuly.Plugin.<Name>.yml`).
+- `context.ConnectionString`: il database Postgres proprio del plugin. Vedi [migrazioni](migrations.md).
+- `context.Configuration`: la configurazione dell'host, con sopra il file `Schuly.Plugin.<Name>.yml` del plugin e le
+  variabili d'ambiente `SCHULY_PLUGIN_<NAME>_`.
 
-Registrazioni tipiche (da Schulware/OdaOrg):
+Registrazioni tipiche, da Schulware e OdaOrg:
 
 ```csharp
 services.AddDbContext<MyDbContext>(o => o.UseNpgsql(context.ConnectionString));
@@ -64,51 +90,75 @@ services.AddScoped<MySecretStore>();
 services.AddScoped<IPluginLogin, MyLogin>();
 ```
 
-L'host registra questi servizi del contratto nel container di ogni plugin. Iniettali, mai
-i tipi propri del backend:
+L'host registra questi servizi del contratto nel container di ogni plugin. Iniettali, mai i tipi propri del
+backend. L'host rifiuta di caricare un plugin che fa riferimento a un assembly del backend.
 
 | Servizio | Usalo per |
 |---|---|
-| `ISchoolData` | Predisporre la scuola e lo studente, poi sincronizzare agenda, voti, assenze e documenti |
+| `ISchoolData` | Creare la scuola e lo studente, poi sincronizzare agenda, note, esami, assenze, documenti e pagelle semestrali |
 | `IPluginVault` | Conservare token e credenziali, cifrati, nel namespace proprio del plugin |
-| `IPluginFileStore` | Salvare un file scaricato (ad es. una pagella) e ottenere la sua chiave |
+| `IPluginFileStore` | Salvare un file scaricato, come una pagella, e ottenere la sua chiave |
 | `IPluginUserContext` | Leggere l'utente corrente durante una richiesta di login |
+| `ILinkedAccounts` | Leggere e salvare gli account che un utente ha collegato con un provider esterno, condivisi da tutti i plugin |
 
-Il codice di sincronizzazione crea semplici record e li passa a `ISchoolData`. Assegna a ogni record un
-`ExternalId` stabile (`Shared/ExternalIds.cs`) e converti prima in UTC gli orari locali del provider
-(`Shared/SwissTime.cs` per i sistemi svizzeri). Il backend salva solo UTC.
+L'host fornisce anche `ILogger<T>`, `IHttpClientFactory`, `IHttpContextAccessor` e `IConfiguration`.
+
+### `MigrateAsync(IServiceProvider serviceProvider, CancellationToken)`
+
+Applica le migrazioni EF Core. Risolvi il `DbContext` da uno scope e chiama
+`db.Database.MigrateAsync()`. Usa `MigrateAsync()`, mai `EnsureCreatedAsync`. Vedi
+[migrazioni](migrations.md).
+
+Un plugin senza database, come il plugin Example, restituisce `Task.CompletedTask`.
+
+### `ConfigureEndpoints(IEndpointRouteBuilder endpoints)`
+
+Mappa qui le route minimal API. Il plugin Example fa così:
+
+```csharp
+endpoints.MapGet("/api/plugins/example/hello", () =>
+{
+    return Results.Ok(new { Message = "Hello from the Example Plugin!", Plugin = Name, Version });
+}).RequireAuthorization();
+
+endpoints.MapGet("/api/plugins/example/info", () =>
+{
+    return Results.Ok(new { Name, Version, Description = "A sample plugin demonstrating the Schuly plugin system." });
+}).AllowAnonymous();
+```
+
+Oppure lascia vuoto questo metodo e metti le tue route in `Controllers/`, come fanno i plugin Schulware, OdaOrg e
+Microsoft. L'host registra l'assembly del plugin come ApplicationPart MVC, quindi trova automaticamente
+i controller `[ApiController]`. Entrambi gli approcci funzionano. I controller scalano meglio per superfici più
+grandi.
+
+## 4. Aggiungi funzioni
+
+Aggiungi le parti che servono al tuo plugin. Il [riferimento del contratto](/it/SchulyPluginAbstractions/contract) elenca
+ogni interfaccia e record.
+
+### Permetti agli utenti di collegare un account
+
+Implementa `IPluginLogin` e registralo. Il suo descrittore `SchoolSystem` è ciò che fa comparire il tuo sistema scolastico
+nell'app.
+
+### Sincronizza i dati scolastici
+
+Costruisci record semplici e passali a `ISchoolData`:
+
+- Dai a ogni record un `ExternalId` stabile (`src/Shared/ExternalIds.cs`).
+- Prima converti in UTC gli orari locali del provider (`src/Shared/SwissTime.cs` per i sistemi svizzeri). Il
+  backend memorizza solo UTC.
 
 ```csharp
 var records = lessons.Select(l => new AgendaRecord(ExternalIds.Of("lesson", l.Start.ToString("O"), l.Course), AgendaKind.Lesson, l.Title, l.Start, l.End, l.Room)).ToList();
 await schoolData.SyncAgendaAsync(account.SchoolUserId!.Value, records, ct);
 ```
 
-### `ConfigureEndpoints(IEndpointRouteBuilder endpoints)`
+### Esegui lavoro ricorrente
 
-Mappa qui le route in API minimale. Il plugin Example lo usa direttamente:
-
-```csharp
-endpoints.MapGet("/api/plugins/example/hello",
-    (IPluginUserContext userContext) => Results.Ok(...)).RequireAuthorization();
-endpoints.MapGet("/api/plugins/example/info", () => Results.Ok(...)).AllowAnonymous();
-```
-
-I plugin Schulware e OdaOrg lasciano invece questo metodo vuoto e mettono le route in
-`Controllers/` come controller ASP.NET MVC - l'host registra l'assembly del plugin come
-ApplicationPart MVC, quindi i controller `[ApiController]` vengono scoperti automaticamente.
-Entrambi gli approcci funzionano; i controller si adattano meglio a superfici più ampie.
-
-### `MigrateAsync(IServiceProvider serviceProvider, CancellationToken)`
-
-Applica le migrazioni EF Core. Risolvi il `DbContext` da uno scope e chiama
-`db.Database.MigrateAsync()`. Il plugin Example (senza database) restituisce
-`Task.CompletedTask`. Vedi [migrations.md](migrations.md) - usa `MigrateAsync()`, mai
-`EnsureCreatedAsync`.
-
-### `IPluginBackgroundTask` (opzionale)
-
-Lavoro ricorrente. Implementa `Name`, `Schedule` ed `ExecuteAsync`. Il `PluginBackgroundTaskHost`
-del backend invoca `ExecuteAsync` con la cadenza dichiarata da `Schedule`:
+Implementa `IPluginBackgroundTask`: `Name`, `Schedule` e `ExecuteAsync`. L'host esegue `ExecuteAsync`
+secondo lo `Schedule`. Gli operatori sovrascrivono una pianificazione in base al `Name` del task, quindi tieni stabile il nome.
 
 ```csharp
 public class MySyncTask : IPluginBackgroundTask
@@ -123,3 +173,18 @@ public class MySyncTask : IPluginBackgroundTask
     }
 }
 ```
+
+## 5. Caricalo sul tuo server locale
+
+1. Segui [Esegui un plugin su un server locale](setup/development.md#esegui-un-plugin-su-un-server-locale).
+2. Cerca `Loaded plugin <your plugin name> v<version>` nel log del server. Se il caricamento non riesce, il log
+   contiene `Failed to load plugin` e il motivo.
+3. Chiama una delle tue route per confermare che risponde.
+
+## 6. Rilascialo
+
+1. Apri un issue con l'etichetta `new-plugin`, poi segui il [flusso di lavoro condiviso](/it/contribute/).
+2. Fai il merge in `main`. `build_push.yml` trova automaticamente ogni `src/Schuly.Plugin.*/*.csproj`, quindi
+   non modifichi nessun workflow. Vedi [distribuzione](setup/distribution.md).
+3. Per installare il plugin pubblicato, aggiungilo al `plugins.yml` del server. Vedi
+   [Gestione dei plugin](/it/SchulyServer/plugin-management).

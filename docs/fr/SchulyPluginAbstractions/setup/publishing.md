@@ -1,19 +1,28 @@
 # Publication
 
-La publication est **automatique lors d'une release GitHub** - tu n'exécutes jamais
+Publie une nouvelle version du package en publiant une release GitHub. Tu n'exécutes jamais
 `dotnet nuget push` à la main.
 
-## Flux (`.github/workflows/nuget-publish.yml`)
+## Faire une release
 
-Déclenché sur `release: published`. Deux jobs :
+Fais les releases à la main avec `gh release create vX.Y.Z`, en utilisant la version que release-drafter
+résout à partir des labels des PR fusionnées. Voir [versionnement](../versioning.md).
 
-1. **`sync-version`** - checkout de `main`, retire le `v` initial du tag de release et le
-   compare à la `<version>` dans `application.properties`. En cas de différence, le job édite
-   le fichier, pousse une branche `release-sync/<version>`, ouvre une PR labellisée `CI/CD` et
-   la **merge automatiquement** (`gh pr merge --admin --squash --delete-branch`). Cela maintient
-   `application.properties` (la source de vérité unique pour la version du package) synchronisé
-   avec le tag.
-2. **`publish`** (`needs: sync-version`) - checkout de `main`, installe .NET `10.0.x`, puis :
+## Ce que fait le workflow
+
+[`nuget-publish.yml`](https://github.com/schulydev/SchulyPluginAbstractions/blob/main/.github/workflows/nuget-publish.yml)
+s'exécute sur `release: published`. Il a deux jobs :
+
+1. **`sync-version`** récupère `main`, retire le `v` initial du tag de release et le compare à `<version>`
+   dans `application.properties`. S'ils diffèrent, il :
+   1. Modifie le fichier et pousse une branche `release-sync/<version>`.
+   2. Ouvre une PR avec les labels `CI/CD` et `skip-changelog`.
+   3. La fusionne automatiquement avec `gh pr merge --admin --squash --delete-branch`.
+
+   Cela garde `application.properties`, la seule source de vérité pour la version du package, aligné sur
+   le tag.
+2. **`publish`** (`needs: sync-version`) récupère `main`, installe .NET `10.0.x`, puis exécute :
+
    ```sh
    dotnet pack src/Schuly.Plugin.Abstractions/Schuly.Plugin.Abstractions.csproj \
      --configuration Release -o ./out
@@ -22,47 +31,39 @@ Déclenché sur `release: published`. Deux jobs :
      --source https://api.nuget.org/v3/index.json \
      --skip-duplicate
    ```
-   `--skip-duplicate` rend une nouvelle exécution sûre si la version existe déjà sur
-   NuGet.org.
 
-### D'où viennent les releases
-
-Les releases sont créées par `.github/workflows/auto-release-on-main.yml`, qui ne se déclenche
-**que lorsque les DLL du backend livrées changent** (`paths:
-src/Schuly.Plugin.Abstractions/libs/**`). Il calcule la prochaine version de patch à partir de
-`application.properties` et exécute `gh release create`. Les releases pour les changements de
-contrat sont sinon pilotées par release-drafter - voir [versionnement](../versioning.md).
+   `--skip-duplicate` rend une nouvelle exécution sûre si la version existe déjà sur NuGet.org.
 
 ## Métadonnées du package
 
-Modifie les métadonnées dans le `PropertyGroup` du csproj
-(`src/Schuly.Plugin.Abstractions/Schuly.Plugin.Abstractions.csproj`) : `PackageId`,
-`Description`, `Authors`, `PackageProjectUrl`, `PackageLicenseExpression` (`MIT`),
-`PackageTags`, etc.
+Modifie les métadonnées dans le `PropertyGroup` de
+[`Schuly.Plugin.Abstractions.csproj`](https://github.com/schulydev/SchulyPluginAbstractions/blob/main/src/Schuly.Plugin.Abstractions/Schuly.Plugin.Abstractions.csproj) :
+`PackageId`, `Description`, `Authors`, `PackageProjectUrl`, `RepositoryUrl`, `RepositoryType`,
+`PackageLicenseExpression` (`MIT`) et `PackageTags`.
 
-### Deux README
+### README
 
-| Fichier | Public | Notes |
+Le dépôt a deux README :
+
+| Fichier | Public | Remarques |
 |---|---|---|
 | `README.md` (racine du dépôt) | GitHub | Logo centré, badges, HTML brut. |
-| `src/Schuly.Plugin.Abstractions/NUGET_README.md` | NuGet.org | Markdown simple avec des URL d'image **absolues** - NuGet.org ne rend pas le HTML, et les chemins d'image relatifs ne se résoudraient pas. |
+| `src/Schuly.Plugin.Abstractions/NUGET_README.md` | NuGet.org | Markdown simple avec des URL d'images absolues. NuGet.org n'affiche pas le HTML, et les chemins d'images relatifs ne se résolvent pas. |
 
-Le csproj définit `<PackageReadmeFile>README.md</PackageReadmeFile>` et packe
-`NUGET_README.md` **en tant que** `README.md` dans le package :
+Le csproj définit `<PackageReadmeFile>README.md</PackageReadmeFile>` et empaquette `NUGET_README.md` sous le
+nom `README.md` dans le package :
 
 ```xml
 <None Include="NUGET_README.md" Pack="true" PackagePath="README.md" />
 ```
 
-Ainsi, la page NuGet affiche `NUGET_README.md`, tandis que la page GitHub du dépôt affiche le
-`README.md` à la racine.
+La page NuGet affiche donc `NUGET_README.md`, et la page du dépôt GitHub affiche le `README.md` de la racine.
 
 ### Icône
 
-L'icône du package est `assets/app_icon.png`, packée sous le nom `icon.png` :
+L'icône du package est `assets/app_icon.png`, empaquetée sous le nom `icon.png` et définie avec
+`<PackageIcon>icon.png</PackageIcon>` :
 
 ```xml
 <None Include="../../assets/app_icon.png" Pack="true" PackagePath="icon.png" />
 ```
-
-et reliée via `<PackageIcon>icon.png</PackageIcon>`.

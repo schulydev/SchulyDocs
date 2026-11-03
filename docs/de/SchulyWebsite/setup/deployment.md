@@ -1,35 +1,29 @@
 # Deployment
 
-Die Seite läuft auf **Cloudflare Pages**. Das Deployment läuft über die
-**Cloudflare-GitHub-Integration** (konfiguriert im Cloudflare-Dashboard, **nicht**
-über einen GitHub-Actions-Workflow in diesem Repo).
+Auf dieser Seite siehst du, wie die Site zu Cloudflare Pages gelangt und was du prüfen musst, wenn du den Build änderst. Die
+GitHub-Integration von Cloudflare übernimmt die Deploys. Sie ist im Cloudflare-Dashboard eingerichtet, nicht in einem
+GitHub-Actions-Workflow.
 
-## Production-Deploys
+## Was deployt wird
 
-- Pushes auf **`main`** werden von Cloudflare Pages automatisch deployt.
-- **PR-Branches** erhalten über dieselbe Integration automatisch **Preview-Deploys**.
+- Pushes auf `main` werden in die Produktion deployt.
+- Pull-Request-Branches erhalten Preview-Deploys.
 
-## Cloudflare-Build-Einstellungen
+## Build-Einstellungen bei Cloudflare
 
 | Einstellung | Wert |
-|---|---|
+| --- | --- |
 | Build-Befehl | `bun run build` |
-| Output-Verzeichnis | `dist/SchulyWebsite/browser` |
+| Ausgabeverzeichnis | `dist/SchulyWebsite/browser` |
 | Umgebung | `BUN_VERSION=1.2.21` |
 
-Der Build verwendet den `@angular/build:application`-Builder (siehe `angular.json`),
-der das Verzeichnis `dist/SchulyWebsite/browser` erzeugt, das Cloudflare
-ausgeliefert wird. **Wenn du `angular.json` änderst** (Projektname, Builder oder
-Output-Einstellungen), prüfe, ob der Cloudflare-Output-Pfad noch übereinstimmt.
+Der Builder `@angular/build:application` in `angular.json` erzeugt das Ausgabeverzeichnis. Wenn du in `angular.json` den
+Projektnamen, den Builder oder die Ausgabe-Einstellungen änderst, prüfe, ob der Ausgabepfad bei Cloudflare noch passt.
 
-## CI vs. Deployment
+Das Deployment nutzt auch `public/_redirects`, `public/_headers` und die Pages Function in `functions/index.js`.
 
-`.github/workflows/build.yml` ist **unabhängig** vom Deployment. Er führt bei Pushes
-und PRs auf `main` nur `bun install --frozen-lockfile` + `bun run build` aus, um zu
-prüfen, dass der Build durchläuft - und deckt so kaputten Code auf, bevor Cloudflare
-einen Preview-Deploy versucht. Er selbst veröffentlicht nichts.
+## CI
 
-## Siehe auch
-
-- [Entwicklungsumgebung](development.md)
-- [Release](release.md)
+`.github/workflows/build.yml` deployt nichts. Bei Pushes und Pull Requests auf `main` führt es
+`bun install --frozen-lockfile` und `bun run build` mit dem neusten Bun aus. So erkennt es kaputten Code, bevor Cloudflare einen
+Preview-Deploy versucht.
