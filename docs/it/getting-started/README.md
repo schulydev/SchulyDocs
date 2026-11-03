@@ -6,7 +6,7 @@ title: Per iniziare
 # Per iniziare con Schuly
 
 Schuly mostra in un'unica app le tue note, gli esami, l'orario, le assenze e i documenti del tuo
-portale scolastico. È gratuita e open source, e funziona con Schulnetz e OdA Org.
+portale scolastico. È gratuita, il suo codice sorgente è pubblico, e funziona con Schulnetz e OdA Org.
 
 Schuly è un progetto indipendente. Non è un'app ufficiale della tua scuola, di Schulnetz o di OdA Org.
 

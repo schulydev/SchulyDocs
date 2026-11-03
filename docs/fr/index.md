@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Schuly Docs
   text: Tes données scolaires, dans une seule application
-  tagline: Gratuit, open source, et tu peux l'héberger toi-même.
+  tagline: Gratuit, et tu peux l'héberger toi-même.
   image:
     src: /img/logo.png
     alt: Schuly

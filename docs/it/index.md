@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Schuly Docs
   text: "I tuoi dati scolastici, in un'unica app"
-  tagline: Gratuita, open source e puoi gestirla tu.
+  tagline: Gratuita e puoi gestirla tu.
   image:
     src: /img/logo.png
     alt: Schuly
