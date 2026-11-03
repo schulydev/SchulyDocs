@@ -6,7 +6,7 @@ title: Get started
 # Get started with Schuly
 
 Schuly shows your grades, exams, timetable, absences, and documents from your school portal in one
-app. It's free and open source, and works with Schulnetz and OdA Org.
+app. It's free, its source code is public, and it works with Schulnetz and OdA Org.
 
 Schuly is an independent project. It isn't an official app of your school, Schulnetz, or OdA Org.
 

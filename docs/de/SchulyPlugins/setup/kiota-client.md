@@ -1,7 +1,7 @@
 # Kiota-Client
 
 Nutze diese Seite, um den Client neu zu generieren, mit dem das Schulware-Plugin
-[SchulwareAPI](https://github.com/schulydev/SchulwareAPI) aufruft. Er ist ein von
+[SchulwareAPI](https://github.com/PianoNic/SchulwareAPI) aufruft. Er ist ein von
 [Kiota](https://learn.microsoft.com/openapi/kiota/) generierter Client in `src/Schuly.Plugin.Schulware/Client/`.
 
 Der generierte Code ist committet. Das OpenAPI-JSON ist es nicht. Du generierst also immer von der Live-URL neu.

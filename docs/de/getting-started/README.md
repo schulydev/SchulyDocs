@@ -6,7 +6,7 @@ title: Erste Schritte
 # Erste Schritte mit Schuly
 
 Schuly zeigt deine Noten, Prüfungen, den Stundenplan, Absenzen und Dokumente aus deinem Schulportal
-in einer App. Es ist kostenlos und Open Source und funktioniert mit Schulnetz und OdA Org.
+in einer App. Es ist kostenlos, der Quellcode ist öffentlich, und es funktioniert mit Schulnetz und OdA Org.
 
 Schuly ist ein unabhängiges Projekt. Es ist keine offizielle App deiner Schule, von Schulnetz oder
 von OdA Org.

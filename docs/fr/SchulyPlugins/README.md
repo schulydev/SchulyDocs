@@ -28,7 +28,7 @@ télécharge les plugins listés dans son `plugins.yml` et les charge au démarr
 | Chemin | Rôle |
 |---|---|
 | `src/Schuly.Plugin.Example/` | Plugin de référence à copier. Un `ISchulyPlugin` minimal avec des points d'entrée minimal-API, des routes anonymes et autorisées, et une démo de coffre-fort par plugin. |
-| `src/Schuly.Plugin.Schulware/` | Intégration de Schulnetz par [SchulwareAPI](https://github.com/schulydev/SchulwareAPI). EF Core et Postgres, un client généré par Kiota, une tâche de synchronisation en arrière-plan et des contrôleurs MVC. |
+| `src/Schuly.Plugin.Schulware/` | Intégration de Schulnetz par [SchulwareAPI](https://github.com/PianoNic/SchulwareAPI). EF Core et Postgres, un client généré par Kiota, une tâche de synchronisation en arrière-plan et des contrôleurs MVC. |
 | `src/Schuly.Plugin.OdaOrg/` | Intégration d'OdaOrg (portail d'apprentissage ICT-BBAG). Un scraper HttpClient et AngleSharp, EF Core et Postgres, et une tâche de synchronisation en arrière-plan. |
 | `src/Schuly.Plugin.Microsoft/` | Microsoft 365 par le service [SchulyMicrosoft](https://github.com/schulydev/SchulyMicrosoft). Lie un compte Microsoft, et lit et écrit les données de mail, de calendrier, de OneDrive, de Teams et de OneNote. Il n'a pas de base de données propre. |
 | `src/Shared/` | Helpers compilés dans les plugins qui le choisissent : `ExternalIds`, `SwissTime`, `DataUri` et `Provisioning/InstanceUrl`. |

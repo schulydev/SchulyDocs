@@ -6,7 +6,7 @@ title: Bien démarrer
 # Bien démarrer avec Schuly
 
 Schuly affiche tes notes, examens, horaire, absences et documents de ton portail scolaire dans une
-seule application. Il est gratuit et open source, et fonctionne avec Schulnetz et OdA Org.
+seule application. Il est gratuit, son code source est public, et il fonctionne avec Schulnetz et OdA Org.
 
 Schuly est un projet indépendant. Ce n'est pas une application officielle de ton école, de Schulnetz
 ou d'OdA Org.
