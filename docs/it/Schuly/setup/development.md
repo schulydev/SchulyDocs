@@ -1,83 +1,81 @@
-# Configurazione per lo sviluppo
+# Setup di sviluppo
 
-Impostazione dell'ambiente locale per lavorare sull'app Flutter Schuly.
+Usa questa pagina per preparare il tuo computer ed eseguire l'app Flutter di Schuly.
 
 ## Prerequisiti
 
 | Strumento | Versione | Note |
 | --- | --- | --- |
-| SDK Flutter | `3.44.x` | Fissato nella CI (`subosito/flutter-action`). Include l'SDK Dart corrispondente. |
-| SDK Dart | `^3.10.0` | Incluso con Flutter `3.44.x`; è anche il vincolo `environment.sdk` in `pubspec.yaml`. |
-| bun | `latest` | Usato esclusivamente come task runner per gli script `package.json`. **Non** richiede una toolchain Node - si limita a smistare i comandi. |
-| Android SDK / Xcode | - | Toolchain mobile Flutter standard per compilare/eseguire su Android o iOS. |
+| Flutter SDK | `3.44.x` | Fissato nella CI con `subosito/flutter-action`. Include l'SDK Dart corrispondente. |
+| Dart SDK | `^3.10.0` | Incluso in Flutter. È anche il vincolo `environment.sdk` in `pubspec.yaml`. |
+| bun | `latest` | Esegue gli script di `package.json`. Non aggiunge una toolchain Node. |
+| Android SDK o Xcode | - | La toolchain Flutter standard per Android o iOS. La CI compila Android con Java 17. |
 
-Verifica la toolchain Flutter con:
+Controlla la toolchain Flutter:
 
 ```sh
 flutter doctor
 ```
 
-## Task (preferiti)
-
-Tutti i workflow più comuni sono racchiusi in script `package.json`, in modo da
-essere invocati allo stesso modo da qualsiasi shell. Preferisci sempre
-`bun run <script>` al comando grezzo.
+## Installa le dipendenze
 
 ```sh
-bun run dev        # flutter run --flavor dev
-bun run prod       # flutter run --flavor prod
-bun run analyze    # flutter analyze
-bun run test       # flutter test
-bun run format     # dart format lib
-bun run clean      # flutter clean && flutter pub get
+bun run clean   # flutter clean && flutter pub get
 ```
 
-## Ottenere le dipendenze
+L'app dipende dal pacchetto API generato in `lib/api/`. Per rigenerarlo, vedi
+[Client API](../api-client.md).
+
+## Esegui l'app
+
+Avvia un emulatore o collega un dispositivo, poi esegui un flavor:
 
 ```sh
-bun run clean
+bun run dev    # flutter run --flavor dev
+bun run prod   # flutter run --flavor prod, with BACKEND_BASE_URL=https://api.schuly.dev
 ```
 
-Questo esegue `flutter clean && flutter pub get`. L'app dipende dal package API
-generato localmente in `lib/api/` (referenziato tramite `path:` in `pubspec.yaml`) -
-vedi [Client API](../api-client.md) se hai bisogno di rigenerarlo.
+Usa `dev` per il lavoro quotidiano e `prod` per controllare il comportamento di release.
 
-## Eseguire l'app
+## Flavor
 
-Avvia un emulatore o collega un dispositivo, quindi esegui uno dei flavor:
+La dimensione di flavor `environment` è impostata in `productFlavors` in `android/app/build.gradle.kts`:
 
-```sh
-bun run dev     # flavor di sviluppo
-bun run prod    # flavor di produzione
-```
-
-### Flavor
-
-L'app definisce una dimensione di flavor `environment` (Android: `productFlavors` in
-`android/app/build.gradle.kts`):
-
-| Flavor | Application ID | Nome visualizzato |
+| Flavor | ID dell'applicazione | Nome visualizzato |
 | --- | --- | --- |
-| `dev` | `com.schuly.app.dev` (suffisso `.dev`, suffisso di versione `-DEV`) | **Schuly DEV** |
+| `dev` | `com.schuly.app.dev` (suffisso del nome di versione `-DEV`) | **Schuly DEV** |
 | `prod` | `com.schuly.app` | **Schuly** |
 
-Poiché gli ID differiscono, le build dev e prod si installano fianco a fianco sullo
-stesso dispositivo. Usa `dev` per il lavoro quotidiano e `prod` per validare il
-comportamento di release.
+Gli ID sono diversi, quindi entrambe le build si installano una accanto all'altra sullo stesso dispositivo.
 
-## Controlli di qualità prima del push
+## Collegati a un backend locale
+
+La define `BACKEND_BASE_URL` imposta l'URL del backend in fase di build. Senza di essa, l'app usa
+`http://localhost:5033`, quindi `bun run dev` si aspetta un backend su quella porta. Puoi anche puntare l'app
+a un altro server durante l'onboarding.
+
+Per raggiungere da un dispositivo via USB un backend sul tuo computer, inverti la porta:
 
 ```sh
-bun run analyze   # analisi statica
-bun run test      # test unitari/widget
-bun run format    # formatta automaticamente lib/
+bun run adb:reverse   # adb reverse tcp:5033 tcp:5033
 ```
 
-Il client generato in `lib/api/**` è escluso da `flutter analyze` (vedi
-`analysis_options.yaml`).
+Per creare una build per un altro indirizzo, come un computer nella tua LAN, vedi
+[Punta una build dev a un backend personalizzato](build-and-release.md#punta-una-build-dev-a-un-backend-personalizzato).
 
-## Vedi anche
+## Attiva le notifiche push
 
-- [Build & release](build-and-release.md) - APK di release, iOS, installazione via
-  adb, icone.
-- [Contribuire](../contributing.md) - workflow branch/PR.
+Gli script di esecuzione e di build passano queste variabili d'ambiente come valori `--dart-define`:
+`FIREBASE_API_KEY`, `FIREBASE_APP_ID`, `FIREBASE_SENDER_ID` e `FIREBASE_PROJECT_ID`. Il repository non contiene
+né `google-services.json` né `GoogleService-Info.plist`. Se manca un valore, l'app funziona senza
+notifiche push.
+
+## Controlli di qualità
+
+```sh
+bun run analyze   # flutter analyze
+bun run test      # flutter test
+bun run format    # dart format lib
+```
+
+`analysis_options.yaml` esclude il client generato in `lib/api/**` da `flutter analyze`.

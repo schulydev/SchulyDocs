@@ -1,42 +1,45 @@
 # Migrations
 
-Les migrations EF Core vivent dans `Schuly.Infrastructure`, avec `Schuly.API` comme
-projet de démarrage. Des scripts utilitaires dans `scripts/` encapsulent les commandes
-`dotnet ef`.
-
-## Ajouter / gérer les migrations (bash)
-
-`scripts/migration.sh` utilise des sous-commandes :
-
-```sh
-./scripts/migration.sh add <Name>      # ajoute une nouvelle migration
-./scripts/migration.sh remove          # supprime la dernière migration
-./scripts/migration.sh list            # liste toutes les migrations
-./scripts/migration.sh update [Name]   # applique les migrations (jusqu'à <Name> en option)
-./scripts/migration.sh drop            # supprime la base de données
-```
-
-Chaque sous-commande cible `--project src/Schuly.Infrastructure --startup-project
-src/Schuly.API`.
-
-## Windows
-
-- `scripts/migration.ps1` / `scripts/migration.bat` - équivalents PowerShell / batch.
-- `scripts/DbScript.ps1` - encapsule les utilitaires de cycle de vie de la base de
-  données (démarrer/arrêter/recréer la base de dev, ajouter une migration, supprimer
-  des migrations, réinitialisation complète). Lance-le avec `-help` pour la liste des
-  commandes.
-
-## Appliquées au démarrage
-
-Les migrations sont appliquées automatiquement au démarrage de l'API :
-`ApplyMigrations()` dans `Program.cs` appelle `db.Database.Migrate()`. Le catalogue des
-systèmes scolaires est ensuite alimenté (seed-if-missing : uniquement si absent). Aucune
-étape d'application manuelle n'est nécessaire en développement ni en production.
+Utilise cette page pour ajouter et gérer les migrations EF Core. Elles se trouvent dans `Schuly.Infrastructure`,
+avec `Schuly.API` comme projet de démarrage. Les scripts de `scripts/` enveloppent les commandes `dotnet ef`.
 
 ## Prérequis
 
-- L'outil `dotnet-ef` : `dotnet tool install --global dotnet-ef`.
-- Un Postgres en cours d'exécution, accessible via la chaîne de connexion
-  `SchulyDatabase` (voir [Configuration](setup/configuration.md)). Pour le travail en
-  local, démarre-le avec `docker compose -f compose.dev.yml up -d`.
+- Installe l'outil : `dotnet tool install --global dotnet-ef`.
+- Fais tourner un Postgres que la chaîne de connexion `SchulyDatabase` peut atteindre. Voir
+  [Configuration](setup/configuration.md). Pour le travail en local, exécute
+  `docker compose -f compose.dev.yml up -d`.
+
+## Ajouter et gérer les migrations
+
+```sh
+./scripts/migration.sh add <Name>      # add a new migration
+./scripts/migration.sh remove          # remove the last migration
+./scripts/migration.sh list            # list all migrations
+./scripts/migration.sh update [Name]   # apply migrations, optionally up to <Name>
+./scripts/migration.sh drop            # drop the database
+```
+
+Chaque sous-commande utilise `--project src/Schuly.Infrastructure --startup-project src/Schuly.API`.
+
+Sous Windows, utilise `scripts/migration.ps1` ou `scripts/migration.bat` avec les mêmes sous-commandes.
+
+## Gérer la base de données de développement sous Windows
+
+`scripts/DbScript.ps1` contrôle la base de données de `compose.dev.yml`. Exécute-le avec `-help` pour voir la
+liste des commandes.
+
+| Commande | Ce qu'elle fait |
+|---|---|
+| `-start-db` | Démarre la stack compose |
+| `-stop-db` | Arrête la stack compose |
+| `-recreate-db` | Arrête la stack, exécute `docker volume prune -f` et la redémarre |
+
+N'utilise pas ses commandes `-add-migration`, `-delete-migrations` ou `-full-reset`. Elles pointent vers
+`src\DockiUp.Infrastructure`, qui n'existe pas dans ce dépôt. Utilise plutôt les scripts de migration.
+
+## Application au démarrage
+
+L'API applique les migrations à son démarrage : `ApplyMigrations()` dans `Program.cs` appelle
+`db.Database.Migrate()`. Elle initialise ensuite le catalogue des systèmes scolaires si des entrées manquent. Tu
+n'as pas besoin d'une étape d'application manuelle en développement ni en production.

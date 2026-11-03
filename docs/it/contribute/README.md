@@ -12,11 +12,12 @@ o `feature` sono un buon punto di partenza.
 | Plugin | .NET | [Setup di sviluppo](/it/SchulyPlugins/setup/development) |
 | Contratto dei plugin | .NET, NuGet | [Setup di sviluppo](/it/SchulyPluginAbstractions/setup/development) |
 | Sito web | Angular | [Setup di sviluppo](/it/SchulyWebsite/setup/development) |
+| Servizio Microsoft 365 | Python, FastAPI | [Setup di sviluppo](/it/SchulyMicrosoft/setup/development) |
 | Questa documentazione | VitePress | [Modificare questa documentazione](/editing-these-docs) |
 
 ## Apporta una modifica
 
-Ogni repository usa lo stesso flusso:
+Ogni repository usa lo stesso flusso di lavoro:
 
 1. Apri un issue con un'etichetta.
 2. Crea un branch da `main`, chiamato `feature/<issue#>_PascalCase` o `fix/<issue#>_PascalCase`.

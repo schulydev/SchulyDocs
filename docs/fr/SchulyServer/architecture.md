@@ -1,124 +1,139 @@
 # Architecture
 
-SchulyServer est une solution en architecture propre (clean architecture) avec CQRS.
-Les requêtes arrivent dans des contrôleurs volontairement minces, qui transmettent les
-commandes/requêtes via [Mediator](https://github.com/martinothamar/Mediator) à des
-handlers dans la couche application ; la persistance et les intégrations externes
-vivent dans l'infrastructure.
+Utilise cette page pour trouver où placer le code dans SchulyServer et comment y ajouter des éléments. Le
+serveur est une solution en clean architecture avec CQRS. Des contrôleurs légers envoient les commandes et les
+requêtes par [Mediator](https://github.com/martinothamar/Mediator) aux handlers de la couche application. La
+persistance et les intégrations externes se trouvent dans l'infrastructure.
 
 ## Projets
 
-La solution (`Schuly.API.slnx`) est découpée dans les projets suivants :
+Le fichier de solution est `Schuly.API.slnx`.
 
 | Projet | Rôle |
 |---|---|
-| `Schuly.API` | Point d'entrée. Contrôleurs, câblage de la connexion et endpoints `/auth`, OpenAPI/Scalar, migrations au démarrage, enregistrement de l'hôte de plugins. Détient le `Dockerfile`. |
-| `Schuly.Application` | Commandes/requêtes CQRS + handlers Mediator, DTO, mappers, autorisation et comportements de pipeline. **Ne doit pas** référencer Infrastructure. |
-| `Schuly.Domain` | Entités pures (`School`, `Class`, `Exam`, `Grade`, `Absence`, `AgendaEntry`, `ApplicationUser`, `SchoolUser`, `Teacher`, `SchoolSystem`, `SemesterReport`, `StudentDocument`, …). Chacune hérite de `Base` (`Id`, `CreatedAt`, `UpdatedAt`). |
-| `Schuly.Infrastructure` | `SchulyDbContext` (y compris les tables de connexion), services utilisateur, stockage et vault des secrets de plugins, services du contrat de plugin (`Plugins/`), dépôts (repositories). |
-| `Schuly.Tests` / `Schuly.Tests.Plugin` | Projets de tests (TUnit). |
+| `Schuly.API` | Point d'entrée. Contrôleurs, câblage de la connexion et points d'entrée `/auth`, OpenAPI et Scalar, migrations au démarrage, hôte de plugins, serveur MCP, Helply. Possède le `Dockerfile` de l'API. |
+| `Schuly.Application` | Commandes et requêtes CQRS, handlers Mediator, DTO, mappers, comportements d'autorisation et de pipeline. Ne doit pas référencer Infrastructure. |
+| `Schuly.Domain` | Entités pures (`School`, `Class`, `Exam`, `Grade`, `Absence`, `AgendaEntry`, `ApplicationUser`, `SchoolUser`, `Teacher`, `SchoolSystem`, `SemesterReport`, `StudentDocument` et d'autres). Chacune hérite de `Base` (`Id`, `CreatedAt`, `UpdatedAt`). |
+| `Schuly.Infrastructure` | `SchulyDbContext` (y compris les tables de connexion), services d'utilisateurs, stockage, coffre-fort de secrets des plugins, services du contrat de plugin (`Plugins/`), repositories. |
+| `Schuly.Sandbox` | Le sidecar sandbox de Helply, avec sa propre image `ghcr.io/schulydev/schuly-sandbox`. |
+| `Schuly.Frontend` | L'application web Angular 22, compilée avec Bun. Elle ne fait pas partie du fichier de solution. L'image de l'API la sert depuis `wwwroot`. |
+| `Schuly.Tests`, `Schuly.Tests.Plugin` | Projets de tests (TUnit). |
 
-`Schuly.Plugin.Abstractions` est consommé comme une **référence NuGet
-(`PackageReference`)**, pas comme une référence de projet. Les abstractions et les
-implémentations de plugins vivent dans des dépôts séparés.
+`Schuly.Plugin.Abstractions` est une `PackageReference` NuGet, pas une référence de projet. Les abstractions
+et les plugins se trouvent dans des dépôts séparés.
 
 ## Règles de couches
 
-- Les dépendances pointent vers l'intérieur : `API → Application → Domain`, et
-  `Infrastructure → Application/Domain`.
-- **`Schuly.Application` ne doit pas référencer `Schuly.Infrastructure`.** Les handlers
-  dépendent d'abstractions ; c'est le projet API qui compose les services
-  d'infrastructure concrets dans le conteneur DI au démarrage (`Program.cs`).
-- `Schuly.Domain` n'a aucune dépendance de projet - les entités restent pures.
+- Les dépendances pointent vers l'intérieur : `API → Application → Domain`, et `Infrastructure → Application/Domain`.
+- `Schuly.Application` ne doit pas référencer `Schuly.Infrastructure`. Les handlers dépendent d'abstractions,
+  et le projet API enregistre les services concrets dans `Program.cs`.
+- `Schuly.Domain` n'a pas de dépendances de projet.
 
 ## Pipeline de requêtes
 
-Les contrôleurs sont minces et délèguent à Mediator. Deux comportements de pipeline
-sont enregistrés explicitement dans `Program.cs` et s'exécutent dans l'ordre
-d'enregistrement :
+`Program.cs` enregistre trois comportements de pipeline, qui s'exécutent dans cet ordre :
 
-1. `AuthorizationBehavior` - impose les contrôles de rôle avant l'exécution du handler.
-2. `PluginEventBehavior` - transmet les commandes backend aux handlers d'événements des
-   plugins.
+1. `AuthorizationBehavior` : lève une exception si un type de requête n'a pas d'attribut `[AllowAuthenticated]`.
+2. `NotificationOriginBehavior` : marque la requête comme lancée par l'utilisateur, pour que les propres actions
+   de l'utilisateur ne produisent jamais de notification push.
+3. `PluginEventBehavior` : envoie les commandes du backend aux handlers d'événements des plugins.
 
-Les handlers Mediator sont enregistrés automatiquement via la génération de code
-source, donc une nouvelle commande/requête et son handler sont câblés simplement en
-ajoutant les classes.
+La génération de source de Mediator enregistre les handlers, donc ajouter les classes est suffisant.
+
+## Ajouter une entité et un point d'entrée
+
+1. **Entité :** ajoute-la à `Schuly.Domain`, en héritant de `Base`.
+2. **DbSet et configuration :** ajoute-les à `Schuly.Infrastructure/SchulyDbContext.cs`.
+3. **Migration :** voir [Migrations](migrations.md).
+4. **Commande ou requête :** ajoute-la à `Schuly.Application/Commands/<Entity>/` ou `Queries/<Entity>/`.
+5. **Handler :** ajoute-le à côté de la commande ou de la requête.
+6. **Contrôleur :** ajoute un contrôleur léger à `Schuly.API/Controllers/` qui délègue à Mediator.
 
 ## Stockage de documents
 
-Les documents d'élèves et les avatars sont conservés dans un bucket compatible S3 -
-SeaweedFS dans les piles de développement et d'auto-hébergement fournies, bien que
-n'importe quelle implémentation S3 fonctionne sans changement de code. Voir
-[Configuration](setup/configuration.md#stockage-de-documents-s3) pour les paramètres.
+Les documents des élèves et les avatars se trouvent dans un bucket compatible S3. Les stacks fournies pour le
+développement et l'auto-hébergement utilisent SeaweedFS, et toute implémentation S3 fonctionne sans changement
+de code. Voir [Configuration](setup/configuration.md#document-storage-s3) pour les paramètres.
 
-Le backend **fait office de proxy pour chaque octet lui-même** : les clients ne
-reçoivent jamais d'URL S3 et ne se connectent jamais directement au backend de
-stockage. Les envois passent par `POST /api/students/{id}/documents` (multipart) et
-les téléchargements reviennent depuis `GET /api/documents/{id}` sous forme de réponse
-fichier. Les avatars sont l'exception - ils sont envoyés avec `PUT /api/me/avatar`,
-la base de données ne conserve qu'une simple clé de blob, et une URL de capacité signée
-HMAC à courte durée de vie sous `/api/avatars/users/{id}` est générée à chaque accès
-(voir [Signature des URL d'avatar](setup/configuration.md#signature-des-url-d-avatar)).
+Le backend sert de proxy pour chaque octet. Les clients ne reçoivent jamais d'URL S3 et ne se connectent jamais
+directement au stockage :
 
-## Ajouter une entité + un endpoint
+- Envoi avec `POST /api/students/{id}/documents` (multipart).
+- Téléchargement depuis `GET /api/documents/{id}`, qui renvoie une réponse de fichier.
 
-1. **Entité** dans `Schuly.Domain` (hérite de `Base`).
-2. **DbSet + configuration** dans `Schuly.Infrastructure/SchulyDbContext.cs`.
-3. **Migration** - voir [Migrations](migrations.md).
-4. **Commande/Requête** dans `Schuly.Application/Commands/<Entity>/` ou
-   `Queries/<Entity>/`.
-5. **Handler** à côté de la commande/requête (enregistré automatiquement via la
-   génération de code source de Mediator).
-6. **Contrôleur** dans `Schuly.API/Controllers/` - mince, délègue à Mediator.
+Les avatars sont la seule exception. Tu les envoies avec `PUT /api/me/avatar`, et la base de données ne contient
+qu'une simple clé de blob. Le serveur crée une URL de courte durée signée par HMAC sous
+`/api/avatars/users/{id}` à chaque accès. Voir
+[Signature des URL d'avatar](setup/configuration.md#avatar-url-signing).
+
+## Serveur MCP et Helply
+
+`/mcp` est un serveur Streamable HTTP sans état. Ses outils se trouvent dans `Schuly.API/Mcp/Tools`, et son
+authentification dans `Schuly.Infrastructure/Mcp`. Les jetons MCP et les JWT de `/api` ne fonctionnent pas sur
+les points d'entrée de l'autre.
+
+Chaque outil a besoin de `[McpAccess(area, level)]`, et les suppressions ont aussi besoin de
+`[McpDestructive]`. Un nouvel outil sans `[McpAccess]` est visible par toutes les connexions.
+
+Helply se trouve dans `Schuly.API/Helply`. Voir [Configuration](setup/configuration.md#helply) pour Helply et
+[Serveur MCP](setup/configuration.md#mcp-server) pour les paramètres MCP.
 
 ## Hôte de plugins
 
-Le backend héberge des plugins qui implémentent `ISchulyPlugin` depuis
-`Schuly.Plugin.Abstractions`. L'exécution des plugins vit dans `Schuly.API/Plugins` :
-les plugins sont téléchargés à l'exécution depuis un registre vers `/app/plugins`,
-chacun chargé dans son propre `AssemblyLoadContext` collectible avec un conteneur DI
-enfant, et peuvent enregistrer des contrôleurs, des endpoints minimal-API, et des
-tâches de fond récurrentes - exécutées par le planificateur propre à l'hôte et renvoyées par leur nom dans le
-scope DI du plugin propriétaire. Les requêtes destinées aux plugins s'exécutent dans le
-scope DI du plugin propriétaire via `PluginScopeMiddleware`. Voir
-[Gestion des plugins](plugin-management.md) pour le registre, le hot-swap, les tâches
-de fond, et les endpoints d'administration.
+Le backend héberge des plugins qui implémentent `ISchulyPlugin` de `Schuly.Plugin.Abstractions`. Le runtime se
+trouve dans `Schuly.API/Plugins` :
+
+- Il télécharge les plugins depuis un registre dans `/app/plugins` à l'exécution.
+- Il charge chaque plugin dans son propre `AssemblyLoadContext` collectable, avec un conteneur DI enfant.
+- Les plugins peuvent enregistrer des contrôleurs, des points d'entrée minimal-API et des tâches récurrentes en
+  arrière-plan. Le planificateur de l'hôte exécute chaque tâche par son nom dans le scope DI du plugin
+  propriétaire.
+- `PluginScopeMiddleware` exécute les requêtes de plugin dans le scope DI du plugin propriétaire.
+
+Voir [Gestion des plugins](plugin-management.md) pour le registre, le remplacement à chaud et les tâches en
+arrière-plan.
 
 ### Ce qu'un plugin peut atteindre
 
-Les plugins n'obtiennent jamais `SchulyDbContext` ni les entités du backend. L'hôte
-enregistre les services du contrat dans le conteneur de chaque plugin :
+Les plugins n'obtiennent jamais `SchulyDbContext` ni les entités du backend. L'hôte enregistre ces services du
+contrat dans le conteneur de chaque plugin :
 
-| Service | Implémenté par |
+| Service | Reposant sur |
 |---|---|
 | `ISchoolData` | `PluginSchoolData` sur `SchulyDbContext`, marqué avec le nom d'assembly du plugin comme `Source` |
-| `IPluginVault` | Le vault persistant, espace de noms `plugin:<Name>` |
+| `IPluginVault` | Le coffre-fort persistant, namespace `plugin:<Name>` |
 | `IPluginFileStore` | `IDocumentStorage` (S3 chiffré) |
-| `IPluginUserContext` | L'utilisateur de la requête en cours |
+| `IPluginUserContext` | L'utilisateur de la requête courante |
 
-Les lignes synchronisées (`AgendaEntry`, `Absence`, `Grade`, `StudentDocument`) portent
-`Source` et `ExternalId`, uniques par élève ; un `Source` null signifie que la ligne a
-été saisie à la main et qu'aucun plugin n'y touche. Un plugin ne peut écrire que pour
-les élèves dont le `SchoolUser.Source` est le sien ; un élève sans source est adopté
-par le premier plugin qui le crée ou le synchronise.
+Les lignes synchronisées (`AgendaEntry`, `Absence`, `Grade`, `StudentDocument`) portent `Source` et `ExternalId`,
+uniques par élève. Une `Source` null signifie que quelqu'un a saisi la ligne à la main, et aucun plugin n'y touche.
+
+Un plugin ne peut écrire que pour les élèves dont le `SchoolUser.Source` est le sien. Le premier plugin qui
+provisionne ou synchronise un élève sans source adopte cet élève.
 
 ### Données saisies à la main
 
-Schuly fonctionne sans aucun plugin. Sous `api/me`, un utilisateur connecté crée sa
-propre école (`POST api/me/schools`, il en devient l'élève) et ajoute, modifie et
-supprime ses propres notes (`api/me/grades` ; la matière et l'examen sont créés si
-besoin). Les absences et les entrées d'agenda utilisent les endpoints habituels. Les
-lignes saisies à la main ont un `Source` null, donc aucune synchronisation n'y touche ;
-une modification ou une suppression manuelle d'une ligne synchronisée est refusée avec
-le nom du plugin. Les heures des écritures manuelles doivent porter un décalage UTC
-(`...Z` ou `+02:00`) ; les heures sans décalage sont refusées.
+Schuly fonctionne sans aucun plugin. Sous `api/me`, un utilisateur connecté peut :
+
+- Créer sa propre école avec `POST api/me/schools`, ce qui fait de lui son élève.
+- Ajouter, modifier et supprimer ses propres notes avec `api/me/grades`. La branche et l'examen sont créés si
+  nécessaire.
+
+Les absences et les entrées d'agenda utilisent les points d'entrée normaux. Les lignes saisies à la main ont une
+`Source` null, donc aucune synchronisation n'y touche. L'API refuse la modification ou la suppression manuelle
+d'une ligne synchronisée et nomme le plugin.
+
+Les heures des écritures manuelles doivent porter un décalage UTC (`...Z` ou `+02:00`). L'API refuse les heures
+sans décalage.
 
 ### Compatibilité du contrat
 
-Avant d'instancier un plugin, `PluginContract` vérifie la version de
-`Schuly.Plugin.Abstractions` avec laquelle le plugin a été compilé. Avant 1.0, le
-MAJOR.MINOR doit correspondre ; à partir de 1.0, le MAJOR doit correspondre et le MINOR
-du plugin ne peut pas être plus récent que celui de l'hôte. Un plugin qui référence
-`Schuly.Domain`, `Schuly.Infrastructure`, `Schuly.Application` ou `Schuly.API` est
-aussi refusé. Les refus indiquent les deux versions dans l'erreur.
+Avant de créer un plugin, `PluginContract` vérifie pour quelle version de `Schuly.Plugin.Abstractions` le plugin
+a été compilé :
+
+- **Avant la 1.0 :** le MAJOR.MINOR doit correspondre.
+- **À partir de la 1.0 :** le MAJOR doit correspondre, et le MINOR du plugin ne peut pas être plus récent que
+  celui de l'hôte.
+
+`PluginContract` refuse aussi un plugin qui référence `Schuly.Domain`, `Schuly.Infrastructure`,
+`Schuly.Application` ou `Schuly.API`. Les erreurs de refus nomment les deux versions.

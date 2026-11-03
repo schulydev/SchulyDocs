@@ -1,32 +1,28 @@
-# Contribuire
+# Come contribuire
 
-Il flusso qui sotto è **obbligatorio** - non fare mai commit direttamente su `main`.
+Queste regole valgono per questo repository. Per branch, commit, pull request ed etichette, segui il
+[flusso di lavoro condiviso](/it/contribute/).
 
-## Flusso
+## Etichette
 
-1. **Apri una issue etichettata** che descriva la modifica. Scegli l'etichetta giusta
-   (ad es. `new-plugin` per un nuovo plugin, più `bug` / `enhancement` / `documentation` / ecc.).
-2. **Crea un branch** a partire da `main`: `feature/<issue#>_PascalCase` oppure
-   `fix/<issue#>_PascalCase`.
-3. **Fai commit** con un oggetto breve e all'imperativo (ad es. `Add OdaOrg vacation sync`).
-4. **Apri una PR** che colleghi la issue. Il corpo della PR contiene **solo il riepilogo e
-   `Closes #<issue>`** - niente piani di test.
-5. **Squash-merge**, poi elimina il branch.
+Questo repository aggiunge queste etichette a quelle condivise:
 
-## Regole ferree
+| Etichetta | Da usare per |
+|---|---|
+| `new-plugin` | Una proposta o lo scaffolding di un nuovo plugin |
+| `plugin: example`, `plugin: schulware`, `plugin: odaorg`, `plugin: microsoft` | Modifiche a quel plugin |
 
-- **Nessuna attribuzione a IA/Claude, da nessuna parte - mai.** Né nei messaggi di commit, né
-  nei titoli/corpi delle PR, né nel testo delle issue. Nessun trailer `Co-Authored-By`, nessuna
-  riga "Generated with".
-- Usa i generatori da CLI quando esistono (`gh issue create`, `gh pr create`,
-  `dotnet ef migrations add`, `kiota`, …).
-- Mantieni le modifiche circoscritte: l'indice di distribuzione pubblicato legge `Version` /
-  `Description` / `Authors` dal csproj di ogni plugin, quindi incrementa `<Version>` quando
-  cambi il comportamento di un plugin.
+## Regole
 
-## Vedi anche
+- Usa un generatore da CLI dove esiste: `gh issue create`, `gh pr create`,
+  `dotnet ef migrations add`, `kiota`.
+- Aumenta `<Version>` nel csproj del plugin quando cambi il comportamento del plugin. L'indice pubblicato
+  legge `Version`, `Description` e `Authors` da ogni csproj, e i server confrontano la versione per
+  decidere se aggiornare.
 
-- [adding-a-plugin.md](adding-a-plugin.md) - scheletro + ciclo di vita.
-- [migrations.md](migrations.md) - migrazioni EF Core.
-- [setup/kiota-client.md](setup/kiota-client.md) - rigenerare il client Schulware.
-- [setup/distribution.md](setup/distribution.md) - come vengono distribuiti i merge su `main`.
+## Pagine correlate
+
+- [Aggiungi un plugin](adding-a-plugin.md)
+- [Migrazioni EF Core](migrations.md)
+- [Client Kiota](setup/kiota-client.md)
+- [Distribuzione](setup/distribution.md): come vengono rilasciati i merge in `main`

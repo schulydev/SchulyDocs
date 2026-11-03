@@ -1,27 +1,30 @@
 # Schuly-Dokumentation
 
-Schuly ist eine Flutter-App für den mobilen Zugriff auf Schuldaten (Noten, Prüfungen,
-Stundenplan, Absenzen) von Schulnetz-basierten Systemen. Sie läuft in zwei Modi - einem
-**Account-Modus**, der über [SchulyServer](https://github.com/schulydev/SchulyServer)
-per OIDC läuft, und einem **privaten / sicheren Modus**, der die Zugangsdaten auf dem
-Gerät behält und nur mit anonymen, zustandslosen Proxy-Endpunkten kommuniziert. Das UI
-ist mit [Forui](https://forui.dev) gebaut.
+Nutze diese Seiten, um die Schuly-Mobile-App auszuführen, zu bauen und zu ändern. Schuly ist eine
+Flutter-App für Android und iOS. Sie zeigt Noten, Prüfungen, Agenda und Absenzen aus Schulsystemen an.
+Das UI nutzt [Forui](https://forui.dev).
 
-## Inhalt
+Die App läuft in zwei Modi:
 
-| Dokument | Inhalt |
-| --- | --- |
-| [Architektur: App-Modi](architecture-modes.md) | Account- vs. privater Modus, wo die Daten liegen, der Verbindungsablauf |
-| [Entwicklungsumgebung](setup/development.md) | Flutter SDK, bun-Task-Runner, Ausführen der Dev-/Prod-Flavors, analyze/test/format |
-| [Build & Release](setup/build-and-release.md) | Release-APKs, iOS-Build, adb-Installation, Neugenerierung des App-Icons |
-| [API-Client](api-client.md) | Wie `lib/api/` generiert wird und wie man es neu generiert |
-| [Contributing](contributing.md) | Der verbindliche Issue-→-Branch-→-PR-Workflow und die Label-Taxonomie |
+- **Account-Modus:** nutzt ein Schuly-Konto auf [SchulyServer](https://github.com/schulydev/SchulyServer).
+- **Privater Modus** (auch sicherer Modus genannt): behält die Zugangsdaten auf dem Gerät und ruft
+  anonyme, zustandslose Proxy-Endpunkte auf.
 
 ## Schnellstart
 
 ```sh
 bun run clean   # flutter clean && flutter pub get
-bun run dev     # Dev-Flavor auf einem verbundenen Gerät/Emulator ausführen
+bun run dev     # run the dev flavor on a connected device or emulator
 ```
 
-Voraussetzungen findest du unter [Entwicklungsumgebung](setup/development.md).
+[Entwicklungsumgebung](setup/development.md) listet die Voraussetzungen auf.
+
+## Seiten
+
+| Seite | Inhalt |
+| --- | --- |
+| [App-Modi](architecture-modes.md) | Account- und privater Modus, wo die Daten liegen, der Verbindungsablauf |
+| [Entwicklungsumgebung](setup/development.md) | Voraussetzungen, bun-Tasks, Flavors, lokales Backend, Qualitätsprüfungen |
+| [Build & Release](setup/build-and-release.md) | Lokale Builds, adb-Installation, App-Icons, der Release-Workflow |
+| [API-Client](api-client.md) | Wie `lib/api/` generiert wird und wie du es neu generierst |
+| [Contributing](contributing.md) | Die Regeln und Prüfungen dieses Repos |

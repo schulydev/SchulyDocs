@@ -1,28 +1,30 @@
-# Documentazione Schuly
+# Documentazione di Schuly
 
-Schuly è un'app mobile Flutter per accedere ai dati scolastici (voti, esami, agenda,
-assenze) dei sistemi basati su Schulnetz. Funziona in due modalità - una
-**modalità account**, basata su
-[SchulyServer](https://github.com/schulydev/SchulyServer) tramite OIDC, e una
-**modalità privata / sicura**, che mantiene le credenziali sul dispositivo e comunica
-solo con endpoint proxy anonimi e senza stato. L'interfaccia è realizzata con
+Usa queste pagine per eseguire, compilare e modificare l'app mobile di Schuly. Schuly è un'app Flutter per Android
+e iOS che mostra note, esami, agenda e assenze dei sistemi scolastici. L'interfaccia usa
 [Forui](https://forui.dev).
 
-## Indice
+L'app funziona in due modalità:
 
-| Documento | Contenuto |
-| --- | --- |
-| [Architettura: modalità dell'app](architecture-modes.md) | Modalità account vs privata, dove risiedono i dati, il flusso di connessione |
-| [Configurazione per lo sviluppo](setup/development.md) | SDK Flutter, task runner bun, esecuzione dei flavor dev/prod, analyze/test/format |
-| [Build & release](setup/build-and-release.md) | APK di release, build iOS, installazione via adb, rigenerazione dell'icona dell'app |
-| [Client API](api-client.md) | Come viene generato `lib/api/` e come rigenerarlo |
-| [Contribuire](contributing.md) | Il workflow obbligatorio issue → branch → PR e la tassonomia delle label |
+- **Modalità account:** usa un account Schuly su [SchulyServer](https://github.com/schulydev/SchulyServer).
+- **Modalità privata** (detta anche modalità sicura): tiene le credenziali sul dispositivo e chiama endpoint proxy
+  anonimi e senza stato.
 
 ## Avvio rapido
 
 ```sh
 bun run clean   # flutter clean && flutter pub get
-bun run dev     # esegue il flavor dev su un dispositivo/emulatore connesso
+bun run dev     # run the dev flavor on a connected device or emulator
 ```
 
-Per i prerequisiti vedi [Configurazione per lo sviluppo](setup/development.md).
+[Setup di sviluppo](setup/development.md) elenca i prerequisiti.
+
+## Pagine
+
+| Pagina | Contenuto |
+| --- | --- |
+| [Modalità dell'app](architecture-modes.md) | Modalità account e privata, dove risiedono i dati, il flusso di connessione |
+| [Setup di sviluppo](setup/development.md) | Prerequisiti, task bun, flavor, backend locale, controlli di qualità |
+| [Build e release](setup/build-and-release.md) | Build locali, installazione con adb, icone dell'app, il workflow di release |
+| [Client API](api-client.md) | Come viene generato `lib/api/` e come rigenerarlo |
+| [Come contribuire](contributing.md) | Le regole e i controlli di questo repository |

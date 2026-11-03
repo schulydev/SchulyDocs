@@ -1,13 +1,13 @@
 # Documentation SchulyWebsite
 
-Le site vitrine Angular 20 de [schuly.dev](https://schuly.dev). C'est une application
-Angular à composants standalone, construite et packagée avec **Bun** comme
-gestionnaire de paquets, et déployée sur **Cloudflare Pages**.
+Utilise ces pages pour exécuter, modifier et livrer le site vitrine sur [schuly.dev](https://schuly.dev). C'est
+une application Angular 20 avec des composants standalone. Elle utilise Bun comme gestionnaire de packages et se
+déploie sur Cloudflare Pages.
 
-## Contenu
-
-- [Setup - Développement](setup/development.md) - environnement local, prérequis, commandes dev/build.
-- [Setup - Déploiement](setup/deployment.md) - configuration Cloudflare Pages, sortie du build, déploiements de prévisualisation des PR.
-- [Setup - Release](setup/release.md) - comment les versions sont préparées et synchronisées.
-- [Architecture](architecture.md) - vue d'ensemble du stack et conventions de code Angular 20.
-- [Contributing](contributing.md) - le workflow imposé issue → branche → PR → squash-merge.
+| Page | Contenu |
+| --- | --- |
+| [Configuration de développement](setup/development.md) | Prérequis, commandes d'installation, d'exécution, de build et de test |
+| [Déploiement](setup/deployment.md) | Paramètres de Cloudflare Pages, sortie du build, déploiements de prévisualisation |
+| [Release](setup/release.md) | Comment les versions sont créées et synchronisées |
+| [Architecture](architecture.md) | Technologies, structure, langues et conventions de code Angular 20 |
+| [Contribuer](contributing.md) | Les règles et les contrôles de ce dépôt |

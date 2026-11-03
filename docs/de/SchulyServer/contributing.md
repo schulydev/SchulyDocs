@@ -1,47 +1,40 @@
-# Mitwirken
+# Contributing
 
-Ein kurzer, verbindlicher Workflow hält die Historie sauber und releasefähig.
+Diese Seite enthält die Regeln und Prüfungen speziell für den Server. Für Issues, Branches, Pull Requests und Labels folge
+dem [gemeinsamen Workflow](/de/contribute/).
 
-## Workflow
+## Code-Regeln
 
-1. **Ein beschriftetes Issue eröffnen**, das die Änderung beschreibt. Ein Label aus
-   der Taxonomie unten anwenden.
-2. **Von `main` branchen**: `feature/<issue#>_PascalCase` oder
-   `fix/<issue#>_PascalCase`. Nie direkt auf `main` committen.
-3. **Einen PR eröffnen** (ebenfalls beschriftet), der auf `main` zielt. Der PR-Body
-   besteht aus **Summary** plus `Closes #<issue>` - sonst nichts (keine Testpläne).
-4. **Squash-mergen** und den Branch löschen.
-
-## Commit-Nachrichten
-
-- Kurzer, imperativer Betreff (z. B. `Add absences endpoint`).
-- Kein Rauschen im Body; fokussiert auf das Was/Warum.
-
-## Labels
-
-Ein Label passend zur Org-Taxonomie verwenden:
-
-| Label | Verwendung für |
-|---|---|
-| `bug` | Ein Defekt / fehlerhaftes Verhalten. |
-| `enhancement` | Verbesserung an bestehendem Verhalten. |
-| `feature` | Neue Funktionalität. |
-| `refactor` | Interne Umstrukturierung, keine Verhaltensänderung. |
-| `CI/CD` | Build-, Release- und Workflow-Änderungen. |
-| `dependencies` | Aktualisierungen von Abhängigkeiten. |
-| `documentation` | Reine Doku-Änderungen. |
+- Halte die [Schichtregeln](architecture.md#schichtregeln) ein: `Schuly.Application` darf `Schuly.Infrastructure` nicht
+  referenzieren.
+- Halte Controller schlank. Sie delegieren an Mediator, und die Handler enthalten die Logik.
+- Füge Tests zu `Schuly.Tests` hinzu, wo es sinnvoll ist.
+- Halte Signaturen von Deklarationen auf einer Zeile, egal wie lang sie sind. Brich die Parameterliste eines `record`, einer
+  `class` oder eines `struct` mit Primary Constructor, einer Methode oder eines Konstruktors nicht um. Lass Methodenketten,
+  LINQ-Queries und mehrzeilige Bedingungen umgebrochen.
+- Nutze Bun für Frontend-Tasks, nicht npm, npx oder node.
+- Beschränke den Commit-Text auf das, was sich geändert hat und warum.
 
 ## Versionierung
 
-`application.properties` ist die einzige Quelle der Wahrheit für die Version und
-wird beim Veröffentlichen eines Releases automatisch mit dem Release-Tag
-synchronisiert - siehe [Produktion](setup/production.md). In Feature-PRs nicht von
-Hand hochsetzen.
+Erhöhe `application.properties` in Feature-Pull-Requests nicht von Hand. Das Veröffentlichen eines Releases gleicht die
+Datei mit dem Tag ab. Siehe [Images und Releases](setup/production.md).
 
-## Erwartungen an den Code
+## Prüfungen
 
-- Die [Schichtenregeln](architecture.md) respektieren: `Schuly.Application` darf
-  nicht auf `Schuly.Infrastructure` verweisen.
-- Controller bleiben schlank und delegieren an Mediator; die Logik steckt in den
-  Handlern.
-- Tests in `Schuly.Tests` ergänzen, wo es sinnvoll ist.
+CI führt diese bei jedem Pull Request aus. So führst du sie selbst aus:
+
+```sh
+dotnet restore Schuly.API.slnx
+dotnet build Schuly.API.slnx -c Release --no-restore -warnaserror
+dotnet test Schuly.API.slnx -c Release --no-build
+```
+
+```sh
+cd src/Schuly.Frontend
+bun install --frozen-lockfile
+bun run build
+bun run test --watch=false
+```
+
+CI baut auch das Sandbox-Image, wenn ein Pull Request `src/Schuly.Sandbox/**` ändert.

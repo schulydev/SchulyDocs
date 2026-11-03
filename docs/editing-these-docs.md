@@ -14,6 +14,7 @@ The first segment of the URL is the repository name.
 | `/SchulyPluginAbstractions/...` | [SchulyPluginAbstractions](https://github.com/schulydev/SchulyPluginAbstractions) `docs/` |
 | `/SchulyPlugins/...` | [SchulyPlugins](https://github.com/schulydev/SchulyPlugins) `docs/` |
 | `/SchulyWebsite/...` | [SchulyWebsite](https://github.com/schulydev/SchulyWebsite) `docs/` |
+| `/SchulyMicrosoft/...` | [SchulyMicrosoft](https://github.com/schulydev/SchulyMicrosoft) `docs/` |
 | `/getting-started/`, `/self-host/`, `/build-plugins/`, `/contribute/` | [SchulyDocs](https://github.com/schulydev/SchulyDocs) `docs/` |
 | Translations (`/de/`, `/fr/`, `/it/`) | [SchulyDocs](https://github.com/schulydev/SchulyDocs) `docs/<language>/` |
 

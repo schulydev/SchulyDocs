@@ -1,13 +1,9 @@
-# Modes de l'app
+# Modes de l'application
 
-Schuly fonctionne selon l'un des deux modes, choisi au niveau du gate. Les deux
-lisent les mêmes systèmes scolaires depuis le même catalogue backend ; ce qui diffère,
-c'est **qui authentifie l'utilisateur** et **où finissent les données**. Aucun système
-scolaire n'est codé en dur dans l'app - chacun d'eux provient du catalogue.
-
-Les deux modes finissent par lire le même système scolaire. Ce qui change, c'est où ton
-identifiant de connexion est conservé et si une partie des données finit par résider
-sur un serveur.
+Utilise cette page pour voir en quoi les deux modes de l'application diffèrent. Tu choisis un mode à
+l'écran d'entrée. Les deux modes lisent les mêmes systèmes scolaires depuis le même catalogue du backend.
+Ils diffèrent sur qui te connecte, où ton identifiant est conservé et si des données restent sur un
+serveur. L'application ne code en dur aucun système scolaire.
 
 ```mermaid
 flowchart LR
@@ -28,26 +24,24 @@ flowchart LR
   PB -->|"lit en direct, ne stocke rien"| School
 ```
 
-## Ce que fait le mode privé sur l'appareil
+| | Mode compte | Mode privé |
+| --- | --- | --- |
+| Authentification auprès de Schuly | Jeton bearer du compte Schuly | Aucune |
+| Client HTTP | `ApiClient` (intercepteur d'authentification) | `Dio` vierge, points d'entrée anonymes uniquement |
+| Où se trouvent les données | Côté serveur, dans Postgres | Sur l'appareil uniquement |
+| Rôle du backend | Stocke les données et synchronise en arrière-plan | Proxy en direct sans état, ne stocke rien |
+| Choix du fournisseur | Par compte connecté | `privateAuthStrategy` du catalogue (`token` ou `scrape`) |
 
-- L'identifiant de connexion à l'école est écrit dans le **trousseau (keystore) de
-  l'appareil** et n'en sort jamais, si ce n'est pour être envoyé au système scolaire
-  via les points d'entrée proxy anonymes du backend.
-- L'écran de connexion est générique : il affiche les champs de connexion listés par
-  le catalogue pour ton école, et suit la `privateAuthStrategy` qu'il déclare -
-  `token` (une connexion headless génère un jeton bearer et une session
-  renouvelable) ou `scrape` (les identifiants sont rejoués à chaque récupération de
-  données).
-- Si ton école utilise un code à usage unique, sa graine (seed) est mise sous coffre
-  avec le reste, et l'écran **Authenticator** génère les codes directement sur
-  l'appareil.
-- Quand une session expire, l'app se reconnecte silencieusement depuis le trousseau,
-  donc tu n'as pas à te reconnecter manuellement.
+## Ce que le mode privé fait sur l'appareil
 
-|                     | Mode compte                     | Mode privé / sécurisé                                |
-| ------------------- | -------------------------------- | ------------------------------------------------------ |
-| Authentification à Schuly | Jeton bearer du compte Schuly | **aucune**                                             |
-| Client HTTP         | `ApiClient` (intercepteur auth)  | `Dio` brut, uniquement des points d'entrée anonymes    |
-| Où résident les données | côté serveur, dans Postgres  | **uniquement sur l'appareil**                          |
-| Rôle du backend     | stocke + synchronise en arrière-plan | proxy sans état en direct, ne stocke rien           |
-| Sélection du provider | par compte connecté            | `privateAuthStrategy` du catalogue (`token` / `scrape`) |
+- L'application écrit l'identifiant de l'école dans le trousseau de l'appareil. L'identifiant ne quitte
+  l'appareil que quand l'application l'envoie au système scolaire par les points d'entrée proxy anonymes
+  du backend.
+- L'écran de connexion est générique. Il affiche les champs de connexion que le catalogue liste pour ton
+  école et suit le `privateAuthStrategy` du catalogue :
+  - `token` : une connexion sans interface crée un jeton bearer et une session renouvelable.
+  - `scrape` : l'application renvoie les identifiants à chaque récupération.
+- Si ton école utilise un code à usage unique, l'application stocke sa graine avec l'identifiant. L'écran
+  **Authenticator** génère les codes sur l'appareil.
+- Quand une session expire, l'application se reconnecte depuis le trousseau sans te demander de te
+  connecter.

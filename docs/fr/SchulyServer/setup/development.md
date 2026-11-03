@@ -1,13 +1,13 @@
-# Mise en place du développement
+# Configuration de développement
 
-Fais tourner l'API et ses dépendances en local.
+Utilise cette page pour exécuter l'API, l'application web et leurs dépendances sur ta machine.
 
 ## Prérequis
 
-- **.NET 10 SDK**
-- **Docker** (pour Postgres ; le fichier compose de dev démarre aussi SeaweedFS et une
-  instance locale de SchulwareAPI)
-- Optionnel : l'outil global `dotnet-ef` pour les [migrations](../migrations.md)
+- SDK .NET 10
+- Docker
+- Bun, pour l'application web
+- Optionnel : l'outil `dotnet-ef` pour les [migrations](../migrations.md)
   (`dotnet tool install --global dotnet-ef`)
 
 ## 1. Démarrer les dépendances
@@ -16,31 +16,28 @@ Fais tourner l'API et ses dépendances en local.
 docker compose -f compose.dev.yml up -d
 ```
 
-`compose.dev.yml` démarre :
+| Service | Image | Port de l'hôte | Remarques |
+|---|---|---|---|
+| Postgres | `postgres:18.1` | `2406` | Base de données `schuly-dev` |
+| SeaweedFS | `chrislusf/seaweedfs:latest` | `8333`, `9333`, `8888` | API S3, interface du master, filer |
+| SchulwareAPI | `ghcr.io/pianonic/schulwareapi:latest` | `8000` | Pont vers Schulnetz pour le plugin Schulware |
 
-- **Postgres** (`postgres:18.1`) sur le port hôte `2406`, base de données `schuly-dev`.
-- **SeaweedFS** S3 (stockage de documents) sur `8333`.
-- **SchulwareAPI** (pont Schulnetz utilisé par le plugin Schulware) sur `8000`.
-
-Les mails de connexion (vérification, réinitialisation du mot de passe) vont vers un
-capteur SMTP local sur `localhost:1025`, comme défini dans
-`appsettings.Development.json`. Il ne fait pas partie de `compose.dev.yml` ; démarres-en
-un, par exemple avec :
+Les mails de connexion, comme la vérification et la réinitialisation du mot de passe, vont à un collecteur SMTP sur
+`localhost:1025`, comme défini dans `appsettings.Development.json`. `compose.dev.yml` n'en contient pas, donc
+démarre-le toi-même :
 
 ```sh
 docker run -p 1025:1025 -p 8025:8025 axllent/mailpit
 ```
 
-La boîte de réception est sur <http://localhost:8025>. Les liens dans les mails
-pointent vers `http://localhost:4200`.
+La boîte de réception est à [http://localhost:8025](http://localhost:8025). Les liens dans les mails pointent vers
+`http://localhost:4200`.
 
-## 2. Pointer l'API vers elles
+## 2. Y connecter l'API
 
-Aucune chaîne de connexion n'est livrée dans le dépôt, donc un clone tout frais
-s'arrête au démarrage avec `The ConnectionString property has not been initialized.`
-Stocke les valeurs locales dans les
-[secrets utilisateur](https://learn.microsoft.com/aspnet/core/security/app-secrets),
-ce qui les garde hors de git :
+Le dépôt ne fournit pas de chaîne de connexion, donc un nouveau clone s'arrête au démarrage avec
+`The ConnectionString property has not been initialized.` Stocke les valeurs locales dans les
+[secrets utilisateur](https://learn.microsoft.com/aspnet/core/security/app-secrets), ce qui les garde hors de git :
 
 ```sh
 cd src/Schuly.API
@@ -49,29 +46,41 @@ dotnet user-secrets set "LocalLogin:SigningKey" "$(openssl rand -base64 32)"
 dotnet user-secrets set "TwoFactor:EncryptionKey" "$(openssl rand -base64 32)"
 ```
 
-La chaîne de connexion n'est jamais que la reprise de `compose.dev.yml`. Les deux
-clés signent les jetons d'accès et chiffrent les secrets de double authentification.
-Garde-les une fois définies : une nouvelle clé de signature déconnecte tout le monde, et
-une nouvelle clé de chiffrement casse la double authentification. Les variables d'environnement sont une
-alternative équivalente - voir [Configuration](configuration.md).
+La chaîne de connexion reprend `compose.dev.yml`. Les deux clés signent les jetons d'accès et chiffrent les secrets
+de double authentification. Garde-les une fois définies : une nouvelle clé de signature déconnecte tout le monde, et
+une nouvelle clé de chiffrement casse la double authentification. Tu peux utiliser des variables d'environnement à
+la place. Voir [Configuration](configuration.md).
 
-## 3. Lancer l'API
+Pour utiliser les documents et les avatars, définis aussi les clés `S3:` et `Avatar:SigningKey`. Les identifiants S3
+de développement sont dans `scripts/seaweedfs/s3-config.json`.
+
+En Development, le serveur démarre sans `Vault:MasterKey` ni `Documents:EncryptionKey`. Il utilise alors des clés
+temporaires, donc les identifiants de plugins stockés et les documents chiffrés ne survivent pas à un redémarrage.
+
+## 3. Exécuter l'API
 
 ```sh
 cd src/Schuly.API
 dotnet run --urls=http://localhost:5033
 ```
 
-Au démarrage, l'API applique les migrations EF Core (`ApplyMigrations()` dans
-`Program.cs`) et alimente le catalogue des systèmes scolaires, donc la base de données
-est prête dès le premier lancement.
+Au démarrage, l'API applique les migrations EF Core et initialise le catalogue des systèmes scolaires, donc la base
+de données est prête dès la première exécution. En Development, elle active aussi la journalisation des requêtes et
+l'interface de référence de l'API.
 
-En Development, la journalisation des requêtes et l'interface de référence de l'API
-sont activées.
+## 4. Exécuter l'application web
+
+```sh
+cd src/Schuly.Frontend
+bun install
+bun start        # ng serve on http://localhost:4200
+```
+
+`proxy.conf.json` transmet `/api` et `/auth` à `http://127.0.0.1:5033`.
 
 ## Obtenir un jeton
 
-Inscris-toi via l'application web, ou appelle directement les endpoints de connexion :
+Inscris-toi par l'application web, ou appelle les points d'entrée de connexion :
 
 ```sh
 curl -X POST http://localhost:5033/auth/register -H "Content-Type: application/json" \
@@ -80,30 +89,39 @@ curl -X POST http://localhost:5033/auth/login -H "Content-Type: application/json
   -d '{"identifier":"dev","password":"<password>"}'
 ```
 
-La réponse de connexion contient le jeton d'accès. Envoie-le en `Authorization: Bearer`
-à `/api/*`, ou colle-le dans l'interface Scalar. Voir
-[Configuration](configuration.md#connexion).
+`appsettings.json` définit `LocalLogin:RequireVerifiedEmailForSignIn` à `true`, donc vérifie l'adresse par le mail
+dans la boîte de réception avant de te connecter.
+
+La réponse de connexion contient le jeton d'accès. Envoie-le dans `Authorization: Bearer` à `/api/*`, ou colle-le
+dans l'interface Scalar. Voir [Configuration](configuration.md#sign-in).
 
 ## Référence de l'API
 
-- **Interface Scalar** : <http://localhost:5033/scalar>
-- **Document OpenAPI 3.0** : <http://localhost:5033/openapi/v1.json> (le client Dart
-  est généré à partir de ce document)
+- **Interface Scalar :** [http://localhost:5033/scalar](http://localhost:5033/scalar)
+- **Document OpenAPI 3.0 :**
+  [http://localhost:5033/openapi/v1.json](http://localhost:5033/openapi/v1.json). Le
+  `Microsoft.AspNetCore.OpenApi` intégré le produit, et le client Dart est généré à partir de lui.
 
-Le document OpenAPI est produit par le module intégré `Microsoft.AspNetCore.OpenApi`.
-
-## Tests
+## Exécuter les tests
 
 ```sh
 dotnet test
 ```
 
-La suite utilise [TUnit](https://tunit.dev/), qui s'exécute sur
-Microsoft.Testing.Platform. Le SDK .NET 10 ne fait plus passer ces projets par l'ancien
-chemin VSTest, donc `global.json` fait basculer le dépôt en mode MTP - sans cela,
-`dotnet test` échoue avec *"Testing with VSTest target is no longer supported"*. Pour
-exécuter le projet directement à la place :
+La suite utilise [TUnit](https://tunit.dev/), qui s'exécute sur Microsoft.Testing.Platform. Le SDK .NET 10 n'exécute
+plus ces projets par VSTest, donc `global.json` fait passer le dépôt en mode MTP. Sans lui, `dotnet test` échoue avec
+`Testing with VSTest target is no longer supported`.
+
+Pour exécuter directement le projet :
 
 ```sh
 dotnet run --project src/Schuly.Tests
+```
+
+Pour tester l'application web :
+
+```sh
+cd src/Schuly.Frontend
+bun run test --watch=false
+bun run e2e                 # playwright test
 ```

@@ -67,6 +67,10 @@ const SECTIONS = [
     dir: 'SchulyPlugins',
     text: { en: 'Plugins', de: 'Plugins', fr: 'Plugins', it: 'Plugin' },
   },
+  {
+    dir: 'SchulyMicrosoft',
+    text: { en: 'Microsoft 365 service', de: 'Microsoft-365-Dienst', fr: 'Service Microsoft 365', it: 'Servizio Microsoft 365' },
+  },
 ]
 
 // root = English, unprefixed paths (docs/<Repo>/**). Others live under docs/<locale>/<Repo>/**.

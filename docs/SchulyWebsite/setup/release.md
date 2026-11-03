@@ -1,20 +1,15 @@
 # Release
 
-Versioning is driven by **`application.properties`** (the single source of truth,
-an XML file with a `<version>` element).
+Use this page to cut a release. The `<version>` element in `application.properties`, an XML file, is the
+source of truth for the version.
 
-## How a release is cut
+## Cut a release
 
-1. Publish a GitHub Release with a tag (e.g. `v0.1.0`).
-2. The `sync-version-on-release.yml` workflow runs on `release: published` and,
-   if the tag version differs from the file, updates both:
-   - the `<version>` in `application.properties`, and
-   - the top-level `"version"` in `package.json`
-   then opens and auto-merges a `release-sync/<version>` PR back into `main`.
+1. Publish a GitHub release with a tag such as `v0.1.0`. Release Drafter keeps a draft ready from pushes
+   to `main`.
+2. `sync-version-on-release.yml` runs and compares the tag to `application.properties`. If they match,
+   it stops.
+3. If they differ, it updates `<version>` in `application.properties` and the top-level `version` in
+   `package.json`, then squash-merges a `release-sync/<version>` pull request into `main`.
 
-If the file version already matches the tag, the workflow is a no-op.
-
-## Related
-
-- [Deployment](deployment.md)
-- [Contributing](../contributing.md)
+That merge reaches production through the [normal deploy](deployment.md).

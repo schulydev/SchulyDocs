@@ -1,48 +1,39 @@
 # Images und Releases
 
-Die API wird als Multi-Arch-Docker-Image ausgeliefert, gebaut aus
-`src/Schuly.API/Dockerfile`.
+Auf dieser Seite siehst du, wie die Docker-Images des Servers gebaut und veröffentlicht werden. Die API wird als
+Multi-Arch-Image ausgeliefert, gebaut aus `src/Schuly.API/Dockerfile`.
 
 ## Container-Image
 
-- **Der Build-Kontext ist `./src`.** Die `COPY`-Pfade im Dockerfile sind relativ
-  zu diesem Verzeichnis, nicht zur Repo-Wurzel.
-- Build-Stages: SDK-Build/Publish auf `mcr.microsoft.com/dotnet/sdk:10.0`,
-  Runtime auf `mcr.microsoft.com/dotnet/aspnet:10.0`. Einstiegspunkt ist
-  `dotnet Schuly.API.dll`.
-- Die `application.properties` im Repo-Root (die `Directory.Build.props`
-  normalerweise für die Version ausliest) ist **nicht** im Build-Kontext
-  enthalten, daher wird das Image mit `-p:Version=$VERSION` gebaut. Der
-  Release-Workflow übergibt den Release-Tag als `VERSION`; das hält die
-  Assembly-Version des Hosts konsistent mit dem, wogegen zur Laufzeit geladene
+- **Build-Kontext:** `./src`. Die `COPY`-Pfade im Dockerfile sind relativ dazu, nicht zum Repo-Root.
+- **Build-Stufen:** Das Frontend baut mit `oven/bun:1.3.5` und `node:24-slim`, und seine Ausgabe geht nach `wwwroot`. Die
+  API baut und veröffentlicht auf `mcr.microsoft.com/dotnet/sdk:10.0`.
+- **Laufzeit:** `mcr.microsoft.com/dotnet/aspnet:10.0`. Der Einstiegspunkt ist `dotnet Schuly.API.dll`.
+- **Version:** `Directory.Build.props` liest die Version normalerweise aus `application.properties` im Repo-Root, aber diese
+  Datei ist nicht im Build-Kontext. Das Image wird stattdessen mit `-p:Version=$VERSION` gebaut, und der Release-Workflow
+  übergibt die Release-Version. So bleibt die Assembly-Version des Hosts im Einklang mit dem, woran zur Laufzeit geladene
   Plugins binden.
-- Das Image legt `/app/plugins` und `/app/plugins-config` für zur Laufzeit
-  geladene Plugins und deren Konfiguration pro Plugin vorab an.
+- **Plugin-Ordner:** Das Image erstellt `/app/plugins` und `/app/plugins-config` für zur Laufzeit geladene Plugins und ihre
+  Konfiguration.
 
-## Versionierung + Release
+## Versionierung und Releases
 
-Einzige Quelle der Wahrheit: **`application.properties`** (`<version>`).
-`src/Directory.Build.props` liest sie über `XmlPeek` aus.
+`application.properties` (`<version>`) ist die einzige Quelle. `src/Directory.Build.props` liest sie.
 
-Das Veröffentlichen eines GitHub Release löst `docker-publish-release.yaml`
-aus:
+Das Veröffentlichen eines GitHub-Releases startet `docker-publish-release.yaml`:
 
-1. **`sync-version`** - vergleicht den Release-Tag (ohne führendes `v`) mit
-   `application.properties`. Bei Abweichung wird ein Branch
-   `release-sync/<version>` mit aktualisierter Datei erstellt und der PR
-   automatisch (squash) in `main` gemergt.
-2. **`build-and-push-multiarch`** - baut `linux/amd64` + `linux/arm64` aus
-   `./src` und pusht folgende Tags:
-   - `ghcr.io/schulydev/schuly:<semver>` sowie `:<major>`,
-     `:<major>.<minor>` und `:latest` (`latest` nur für Nicht-Prereleases).
-   - `<DOCKERHUB_USERNAME>/schuly:<semver>` (Docker Hub, **best-effort** - der
-     Login-Schritt ist `continue-on-error`).
+1. **`sync-version`:** Vergleicht den Release-Tag ohne sein `v` mit `application.properties`. Wenn sie sich unterscheiden,
+   aktualisiert der Job die Datei und führt einen `release-sync/<version>`-Pull-Request per Squash-Merge in `main` zusammen.
+2. **`build-and-push-multiarch`:** Baut `linux/amd64` und `linux/arm64` aus `./src` und pusht nach
+   `ghcr.io/schulydev/schuly` und `<DOCKERHUB_USERNAME>/schuly`. Der Login-Schritt für Docker Hub ist `continue-on-error`.
+3. **`build-and-push-sandbox`:** Baut den Sandbox-Sidecar für `linux/amd64` aus `src/Schuly.Sandbox/Dockerfile` und pusht ihn
+   nach `ghcr.io/schulydev/schuly-sandbox`.
+
+Jedes Image erhält die Tags `<semver>`, `<major>.<minor>` und `<major>`, dazu `latest` bei Nicht-Prereleases.
 
 ## Migrationen beim Start
 
-Der Container wendet EF-Core-Migrationen automatisch beim Start an
-(`ApplyMigrations()` in `Program.cs` → `db.Database.Migrate()`) und spielt den
-School-Systems-Katalog ein. Beim Deployment ist kein separater
-Migrationsschritt nötig; stelle nur sicher, dass die Datenbank über den
-`SchulyDatabase`-Connection-String erreichbar ist. Siehe
-[Migrationen](../migrations.md) und [Konfiguration](configuration.md).
+Der Container wendet beim Start EF-Core-Migrationen an (`ApplyMigrations()` in `Program.cs` ruft `db.Database.Migrate()` auf)
+und befüllt den Schulsystem-Katalog. Beim Deployment brauchst du keinen separaten Migrationsschritt. Stelle sicher, dass der
+Connection-String `SchulyDatabase` die Datenbank erreicht. Siehe [Migrationen](../migrations.md) und
+[Konfiguration](configuration.md).

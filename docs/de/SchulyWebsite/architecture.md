@@ -1,69 +1,89 @@
 # Architektur
 
+Auf dieser Seite findest du dich im Code der Site zurecht und siehst ihre Coding-Konventionen.
+
 ## Stack
 
-- **Angular 20**, Standalone-Komponenten (keine NgModules).
-- **Signals** für State.
-- **SCSS** fürs Styling - **kein Tailwind**.
-- **FontAwesome** über `@fortawesome/angular-fontawesome`.
-- **`@ngx-translate`** für i18n.
-- Gebaut mit dem `@angular/build:application`-Builder; **Bun** als Paketmanager.
+- Angular 20 mit Standalone Components, ohne NgModules
+- Signals für den Zustand
+- SCSS fürs Styling, kein Tailwind
+- FontAwesome über `@fortawesome/angular-fontawesome`
+- `@ngx-translate` für Übersetzungen
+- Der Builder `@angular/build:application`, mit Bun als Package Manager
 
 ## Aufbau
 
-Der Anwendungscode liegt unter [`src/app/`](https://github.com/schulydev/SchulyWebsite/tree/main/src/app):
+Der Quellcode liegt in [`src/app/`](https://github.com/schulydev/SchulyWebsite/tree/main/src/app):
 
-- `app.ts`, `app.config.ts`, `app.routes.ts` - Root-Komponente, Provider, Routing.
-- `app.config.server.ts`, `app.routes.server.ts` - Konfiguration für Server-Side Rendering.
-- `components/` - wiederverwendbare UI-Bausteine (`hero`, `features`, `faq`, `screenshots`,
-  `download`, `navigation`, `footer`, `legal`, `language-switcher`, `theme-toggle`).
-- `pages/` - geroutete Views (`home`, `not-found`).
-- `services/` - Singleton-Services (`language`, `theme`).
+- `app.ts`, `app.config.ts`, `app.routes.ts`: Root-Komponente, Provider, Routing.
+- `app.config.server.ts`, `app.routes.server.ts`: Einstellungen für Server-Rendering und Prerendering.
+- `components/`: UI-Teile (`hero`, `features`, `faq`, `screenshots`, `download`, `navigation`,
+  `footer`, `legal`, `language-switcher`).
+- `pages/`: geroutete Ansichten (`home`, `not-found`).
+- `services/`: `language`, `lang.resolver`, `seo`.
 
-## Angular-20-Coding-Konventionen
+Ausserhalb von `src/app/`:
 
-Diese Konventionen gelten verbindlich für alle Beiträge.
+- `public/i18n/`: eine Übersetzungsdatei pro Sprache, einschliesslich der Seitenmetadaten `meta.*`.
+- `public/_redirects`, `public/_headers`: Redirects und Header für Cloudflare Pages.
+- `functions/index.js`: eine Cloudflare Pages Function nur für `/`.
+- `scripts/postbuild.ts`: läuft nach `ng build`.
+
+## Routen und Sprachen
+
+Jede Seite hat ein Sprachpräfix: `en`, `de`, `fr`, `it` oder `rm`. Englisch ist der Standard.
+
+| Route | Seite |
+| --- | --- |
+| `/<lang>` | Startseite |
+| `/<lang>/impressum` | Impressum |
+| `/<lang>/privacy` | Datenschutz |
+| `/<lang>/terms` | Nutzungsbedingungen |
+| `/404` und jeder andere Pfad | Nicht gefunden |
+
+- `app.routes.ts` erzeugt die Routen für jede Sprache. `langResolver` setzt die aktive Sprache und wartet auf ihre
+  Übersetzungen. So wird jede Route in ihrer eigenen Sprache vorgerendert.
+- Der Build nutzt `outputMode: static`. `app.routes.server.ts` listet die Routen und Sprachen zum Vorrendern auf.
+- `services/seo.ts` setzt beim Vorrendern Titel, Beschreibung, kanonische URL, Social Tags und `hreflang`-Alternativen jeder
+  Route.
+- `functions/index.js` leitet `/` anhand von `Accept-Language` zu einer Sprache weiter. `public/_redirects` schickt `/` als
+  Fallback nach `/en` und die alten Pfade ohne Präfix zu ihren `/en`-Versionen.
+- `scripts/postbuild.ts` schreibt `404.html` und `sitemap.xml` und entfernt das `index.html` im Root. Wenn du eine Sprache
+  oder eine Seite hinzufügst, aktualisiere `LANGS` oder `PAGES` in diesem Skript.
+
+## Angular-20-Coding-Konventionen {#angular-20-coding-conventions}
+
+Alle Beiträge folgen diesen Konventionen.
 
 ### Komponenten
 
-- Nur Standalone-Komponenten. **Setze nicht** `standalone: true` in Decorators - das
-  ist der Default.
-- Verwende die Funktionen `input()` / `output()` statt der Decorators `@Input()` / `@Output()`.
+- Nutze nur Standalone Components. Setze `standalone: true` nicht in Decorators, weil es der Standard ist.
+- Nutze die Funktionen `input()` und `output()` statt der Decorators `@Input()` und `@Output()`.
 - Setze `changeDetection: ChangeDetectionStrategy.OnPush`.
-- Halte Komponenten klein und mit einer einzigen Verantwortung; bevorzuge bei kleinen
-  Komponenten Inline-Templates.
-- Bevorzuge **Reactive Forms** gegenüber Template-Driven Forms.
-- Platziere Host-Bindings im `host`-Objekt des Decorators - **verwende nicht**
-  `@HostBinding` / `@HostListener`.
-- Verwende `class`- und `style`-Bindings - **nicht** `ngClass` / `ngStyle`.
-- Verwende `NgOptimizedImage` für statische Bilder (Hinweis: funktioniert nicht bei
-  eingebetteten Base64-Bildern).
-- Implementiere Lazy Loading für Feature-Routes.
+- Halte Komponenten klein, mit einer Verantwortung. Bevorzuge Inline-Templates bei kleinen Komponenten.
+- Bevorzuge Reactive Forms gegenüber Template-Driven Forms.
+- Lege Host-Bindings im `host`-Objekt des Decorators ab. Nutze nicht `@HostBinding` oder `@HostListener`.
+- Nutze `class`- und `style`-Bindings, nicht `ngClass` oder `ngStyle`.
+- Nutze `NgOptimizedImage` für statische Bilder. Es funktioniert nicht für Inline-Base64-Bilder.
+- Lade Feature-Routen per Lazy Loading.
 
-### State
+### Zustand
 
-- Verwende **Signals** für lokalen Komponenten-State und `computed()` für abgeleiteten
-  State.
-- Verwende bei Signals **nicht** `mutate` - nutze `update` oder `set`.
-- Halte State-Transformationen pur und vorhersehbar.
+- Nutze Signals für lokalen Komponentenzustand und `computed()` für abgeleiteten Zustand.
+- Nutze `update` oder `set` auf Signals, nicht `mutate`.
+- Halte Zustandsänderungen rein und vorhersehbar.
 
 ### Templates
 
-- Verwende die nativen Control-Flow-Syntaxen (`@if`, `@for`, `@switch`) - nicht
-  `*ngIf` / `*ngFor` / `*ngSwitch`.
-- Verwende die `async`-Pipe für Observables. Halte Templates frei von komplexer Logik.
+- Nutze den nativen Control Flow (`@if`, `@for`, `@switch`), nicht `*ngIf`, `*ngFor` oder `*ngSwitch`.
+- Nutze die `async`-Pipe für Observables. Halte komplexe Logik aus Templates heraus.
 
 ### Services
 
-- Single Responsibility; `providedIn: 'root'` für Singletons.
-- Verwende die Funktion `inject()` statt Constructor Injection.
+- Gib jedem Service eine Verantwortung, und nutze `providedIn: 'root'` für Singletons.
+- Nutze die Funktion `inject()` statt Constructor Injection.
 
 ### TypeScript
 
-- Strikte Typüberprüfung. Bevorzuge Typinferenz, wenn sie eindeutig ist.
-- Vermeide `any`; verwende `unknown`, wenn der Typ unklar ist.
-
-## Siehe auch
-
-- [Entwicklungsumgebung](setup/development.md)
-- [Contributing](contributing.md)
+- Nutze strikte Typprüfung. Bevorzuge Typinferenz, wenn der Typ offensichtlich ist.
+- Vermeide `any`. Nutze `unknown`, wenn der Typ unsicher ist.

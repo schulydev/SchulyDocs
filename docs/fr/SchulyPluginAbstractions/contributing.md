@@ -1,44 +1,26 @@
 # Contribuer
 
-Ce dépôt est le **contrat publié stable**. Garde-le petit, garde-le stable. Presque chaque
-changement est régi par le [versionnement](versioning.md) - lis-le d'abord.
+Ces règles s'appliquent à ce dépôt. Pour les branches, les commits, les pull requests et les labels, suis
+le [processus partagé](/fr/contribute/).
+
+Ce dépôt est le contrat publié, donc garde-le petit et stable. Le [versionnement](versioning.md) encadre
+presque chaque changement. Lis-le d'abord.
 
 ## Règles de dépendances
 
-L'assembly abstractions ne doit référencer **que** :
+L'assembly des abstractions peut référencer uniquement :
 
-- la BCL, et
-- la référence de framework `Microsoft.AspNetCore.App`.
+- la BCL
+- la référence de framework `Microsoft.AspNetCore.App`
 
-N'ajoute **pas** de référence vers `Schuly.Application` (ces types vivent dans
-[SchulyServer](https://github.com/schulydev/SchulyServer) et ne sont pas publiés).
+N'ajoute pas de références à `Schuly.Application`, `Schuly.Domain` ou `Schuly.Infrastructure`. Ces types se
+trouvent dans [SchulyServer](https://github.com/schulydev/SchulyServer) et ne sont pas publiés.
 
-> Le dépôt embarque les DLL du backend `Schuly.Domain.dll` et `Schuly.Infrastructure.dll`
-> comme binaires précompilés sous `src/Schuly.Plugin.Abstractions/libs/` (synchronisés depuis
-> le backend) afin que les plugins bénéficient d'un accès typé à la base de données ; les
-> packages EF Core dont ces DLL ont besoin sont déclarés dans le csproj. Ne transforme pas ces
-> DLL en références de projet et ne tire pas davantage de code source du backend dans ce dépôt.
+Les plugins ne voient jamais les entités ni le `DbContext` du backend. Ils écrivent les données scolaires par
+`ISchoolData` avec les records simples de `SchoolRecords.cs`. Garde ces records sans types du backend, et
+n'ajoute des champs que d'une manière rétrocompatible.
 
-## Workflow (imposé)
+## Choisir un incrément de version
 
-1. **Ouvre une issue labellisée** décrivant le changement. Utilise le bon label pour que
-   release-drafter détermine correctement la prochaine version (`breaking-change`, `feature`,
-   `documentation`, `CI/CD`, `dependencies`, `bug`, `refactor`).
-2. **Branche depuis `main`** : `feature/<issue#>_PascalCase` ou `fix/<issue#>_PascalCase`. Ne
-   commite jamais sur `main`.
-3. **Ouvre une PR** avec `Closes #<issue>`. Le corps de la PR se limite au **Summary +
-   `Closes #<issue>`** - pas de plan de test.
-4. **Squash-merge** et supprime la branche.
-
-Les sujets de commit sont courts et à l'impératif.
-
-## Aucune attribution IA
-
-N'ajoute jamais d'attribution IA / assistant où que ce soit - ni dans les messages de commit,
-ni dans les descriptions de PR, ni dans les issues. Aucun trailer `Co-Authored-By`, aucune
-ligne « generated with ». Jamais.
-
-## Choisir un bump de version
-
-Voir le tableau dans [versionnement](versioning.md). Le label de PR que tu choisis pilote la
-version de release - choisis-le donc avec soin.
+Le label de PR que tu choisis détermine la version de la release, donc choisis-le avec soin. En plus des
+labels partagés, ce dépôt utilise `breaking-change`. Voir le tableau dans [versionnement](versioning.md).

@@ -1,13 +1,13 @@
-# SchulyWebsite Documentation
+# SchulyWebsite documentation
 
-The Angular 20 marketing site for [schuly.dev](https://schuly.dev). This is a
-standalone-component Angular app, built and packaged with **Bun** as the
-package manager, and deployed to **Cloudflare Pages**.
+Use these pages to run, change, and ship the marketing site at [schuly.dev](https://schuly.dev). It's
+an Angular 20 app with standalone components. It uses Bun as its package manager and deploys to
+Cloudflare Pages.
 
-## Contents
-
-- [Setup - Development](setup/development.md) - local environment, prerequisites, dev/build commands.
-- [Setup - Deployment](setup/deployment.md) - Cloudflare Pages config, build output, PR preview deploys.
-- [Setup - Release](setup/release.md) - how versions are cut and synced.
-- [Architecture](architecture.md) - stack overview and Angular 20 coding conventions.
-- [Contributing](contributing.md) - the enforced issue → branch → PR → squash-merge workflow.
+| Page | What it covers |
+| --- | --- |
+| [Development setup](setup/development.md) | Prerequisites, install, run, build, and test commands |
+| [Deployment](setup/deployment.md) | Cloudflare Pages settings, build output, preview deploys |
+| [Release](setup/release.md) | How versions are cut and synced |
+| [Architecture](architecture.md) | Stack, layout, languages, and Angular 20 coding conventions |
+| [Contributing](contributing.md) | This repo's rules and checks |

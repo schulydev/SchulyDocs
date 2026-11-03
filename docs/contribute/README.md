@@ -12,6 +12,7 @@ a good place to start.
 | Plugins | .NET | [Development setup](/SchulyPlugins/setup/development) |
 | Plugin contract | .NET, NuGet | [Development setup](/SchulyPluginAbstractions/setup/development) |
 | Website | Angular | [Development setup](/SchulyWebsite/setup/development) |
+| Microsoft 365 service | Python, FastAPI | [Development setup](/SchulyMicrosoft/setup/development) |
 | These docs | VitePress | [Editing these docs](/editing-these-docs) |
 
 ## Make a change

@@ -1,12 +1,9 @@
 # App-Modi
 
-Schuly läuft in einem von zwei Modi, die am Gate gewählt werden. Beide lesen dieselben
-Schulsysteme aus demselben Backend-Katalog; der Unterschied liegt darin, **wer den
-Nutzer anmeldet** und **wo die Daten landen**. Kein Schulsystem ist in der App fest
-codiert - jedes davon stammt aus dem Katalog.
-
-Beide Modi greifen letztlich auf dasselbe Schulsystem zu. Was sich unterscheidet, ist,
-wo dein Login aufbewahrt wird und ob überhaupt Daten auf einem Server landen.
+Auf dieser Seite siehst du, wie sich die beiden App-Modi unterscheiden. Du wählst einen Modus am Gate.
+Beide Modi lesen dieselben Schulsysteme aus demselben Backend-Katalog. Sie unterscheiden sich darin, wer
+dich anmeldet, wo dein Login aufbewahrt wird und ob Daten auf einem Server liegen. Die App enthält kein
+fest codiertes Schulsystem.
 
 ```mermaid
 flowchart LR
@@ -27,26 +24,22 @@ flowchart LR
   PB -->|"liest live, speichert nichts"| School
 ```
 
+| | Account-Modus | Privater Modus |
+| --- | --- | --- |
+| Authentifizierung bei Schuly | Bearer-Token des Schuly-Kontos | Keine |
+| HTTP-Client | `ApiClient` (Auth-Interceptor) | Sauberes `Dio`, nur anonyme Endpunkte |
+| Wo die Daten liegen | Serverseitig, in Postgres | Nur auf dem Gerät |
+| Rolle des Backends | Speichert Daten und synchronisiert im Hintergrund | Zustandsloser Live-Proxy, speichert nichts |
+| Auswahl des Providers | Pro verbundenem Konto | `privateAuthStrategy` im Katalog (`token` oder `scrape`) |
+
 ## Was der private Modus auf dem Gerät macht
 
-- Der Schul-Login wird im **Keystore des Geräts** gespeichert und verlässt ihn nie -
-  ausser wenn er über die anonymen Proxy-Endpunkte des Backends an das Schulsystem
-  gesendet wird.
-- Der Verbindungsbildschirm ist generisch: Er rendert genau die Login-Felder, die der
-  Katalog für deine Schule vorgibt, und folgt der deklarierten
-  `privateAuthStrategy` - `token` (ein Headless-Login erzeugt ein Bearer-Token und eine
-  erneuerbare Session) oder `scrape` (die Zugangsdaten werden bei jedem Abruf erneut
-  verwendet).
-- Nutzt deine Schule einen Einmalcode, wird dessen Seed zusammen mit den übrigen Daten
-  im Tresor abgelegt, und der **Authenticator**-Bildschirm erzeugt die Codes direkt auf
-  dem Gerät.
-- Läuft eine Session ab, verbindet sich die App aus dem Keystore heraus still neu, sodass
-  du nicht erneut zur Anmeldung aufgefordert wirst.
-
-|                     | Account-Modus                  | Privater / sicherer Modus                          |
-| ------------------- | ------------------------------ | --------------------------------------------------- |
-| Authentifizierung bei Schuly | Bearer-Token des Schuly-Kontos | **keine**                                           |
-| HTTP-Client         | `ApiClient` (Auth-Interceptor) | reiner `Dio`, nur anonyme Endpunkte                 |
-| Wo die Daten liegen | serverseitig in Postgres       | **nur auf dem Gerät**                               |
-| Rolle des Backends  | speichert + synchronisiert im Hintergrund | Live-Stateless-Proxy, speichert nichts    |
-| Provider-Auswahl    | pro verbundenem Account        | Katalog `privateAuthStrategy` (`token` / `scrape`)  |
+- Die App schreibt den Schul-Login in den Keystore des Geräts. Der Login verlässt das Gerät nur, wenn die
+  App ihn über die anonymen Proxy-Endpunkte des Backends an das Schulsystem sendet.
+- Der Verbindungsbildschirm ist generisch. Er zeigt die Login-Felder, die der Katalog für deine Schule
+  auflistet, und folgt der `privateAuthStrategy` des Katalogs:
+  - `token`: Ein Headless-Login erstellt ein Bearer-Token und eine erneuerbare Session.
+  - `scrape`: Die App sendet die Zugangsdaten bei jedem Abruf erneut.
+- Wenn deine Schule einen Einmalcode nutzt, speichert die App dessen Seed mit dem Login. Der Bildschirm
+  **Authenticator** erzeugt die Codes auf dem Gerät.
+- Wenn eine Session abläuft, verbindet sich die App aus dem Keystore neu, ohne dass du dich anmelden musst.

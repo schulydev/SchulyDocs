@@ -1,35 +1,26 @@
 # Contributing
 
-## Verbindlicher Workflow
+Diese Seite enthält die Regeln und Prüfungen speziell für die Website. Für Issues, Branches, Pull Requests und Labels folge
+dem [gemeinsamen Workflow](/de/contribute/).
 
-**Arbeite nie direkt auf `main`.** Jede Änderung folgt diesem Ablauf:
+## Regeln
 
-1. **Eröffne ein gelabeltes Issue**, das die Änderung beschreibt.
-2. **Branch** von `main` abzweigen: `feature/<issue#>_PascalCase` oder `fix/<issue#>_PascalCase`.
-3. **Öffne einen PR**, der mit `Closes #<issue>` auf das Issue verweist.
-   - Der PR-Body besteht **nur aus Summary + `Closes #<issue>`**. Keine Testpläne.
-4. **Squash-mergen** und den Branch löschen.
+- Nutze Bun für alles, nicht npm, npx oder node.
+- Folge den [Angular-20-Coding-Konventionen](architecture.md#angular-20-coding-conventions).
+- Wenn du eine Sprache oder eine Seite hinzufügst, aktualisiere `scripts/postbuild.ts`. Siehe
+  [Routen und Sprachen](architecture.md#routen-und-sprachen).
 
-### PR-Labels
+## Prüfungen
 
-`bug`, `enhancement`, `feature`, `refactor`, `CI/CD`, `dependencies`, `documentation`.
+CI führt diese bei Pushes und Pull Requests auf `main` aus. Führe sie aus, bevor du einen Pull Request eröffnest:
 
-### Commit-Messages
+```sh
+bun install --frozen-lockfile
+bun run build
+```
 
-- Kurzer, imperativer Betreff (z. B. `Add FAQ section`).
+Führe auch die Unit-Tests aus. CI führt sie nicht aus.
 
-## Absolute Regel
-
-**Keine KI-/Claude-Attribution, nirgends** - weder in Commits, PR-Bodies noch Issues.
-Niemals. Kein `Co-Authored-By`, "Generated with" oder Ähnliches.
-
-## Coding-Standards
-
-Halte dich an die **Angular-20-Coding-Konventionen**, die in
-[architecture.md](architecture.md#angular-20-coding-konventionen) dokumentiert sind.
-
-## Siehe auch
-
-- [Entwicklungsumgebung](setup/development.md)
-- [Deployment](setup/deployment.md)
-- [Release](setup/release.md)
+```sh
+bun run test
+```

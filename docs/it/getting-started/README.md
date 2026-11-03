@@ -22,6 +22,8 @@ Non sai cosa scegliere? Usa **Schuly Cloud** e un **Schuly account**. Puoi cambi
 ## Facoltativo
 
 - [Configura i codici a due fattori](authenticator.md) in Schuly, così non ti serve un'app di autenticazione separata.
+- [Chiedi a Helply](helply.md), l'assistente IA nell'app web.
+- [Collega un'app di IA](connect-ai-apps.md), come Claude o ChatGPT, ai tuoi dati scolastici.
 
 ## Ottieni aiuto
 

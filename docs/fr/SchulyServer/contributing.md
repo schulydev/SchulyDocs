@@ -1,47 +1,41 @@
 # Contribuer
 
-Un flux de travail court et appliqué garde l'historique propre et prêt à être publié.
+Utilise cette page pour les règles et les contrôles propres au serveur. Pour les issues, les branches, les pull
+requests et les labels, suis le [processus partagé](/fr/contribute/).
 
-## Flux de travail
+## Règles de code
 
-1. **Ouvre une issue étiquetée** décrivant le changement. Applique un label parmi la
-   taxonomie ci-dessous.
-2. **Branche depuis `main`** : `feature/<issue#>_PascalCase` ou `fix/<issue#>_PascalCase`.
-   Ne commite jamais directement sur `main`.
-3. **Ouvre une PR** (également étiquetée) ciblant `main`. Le corps de la PR se limite à
-   **Summary** plus `Closes #<issue>` - rien d'autre (pas de plan de tests).
-4. **Squash-merge** puis supprime la branche.
-
-## Messages de commit
-
-- Sujet court, à l'impératif (par ex. `Add absences endpoint`).
-- Pas de bruit dans le corps du message ; reste centré sur le quoi/pourquoi.
-
-## Labels
-
-Utilise un label cohérent avec la taxonomie de l'organisation :
-
-| Label | Utilisation |
-|---|---|
-| `bug` | Un défaut / comportement incorrect. |
-| `enhancement` | Amélioration d'un comportement existant. |
-| `feature` | Nouvelle fonctionnalité. |
-| `refactor` | Restructuration interne, sans changement de comportement. |
-| `CI/CD` | Changements de build, de release et de workflow. |
-| `dependencies` | Montées de version de dépendances. |
-| `documentation` | Changements limités à la documentation. |
+- Respecte les [règles de couches](architecture.md#regles-de-couches) : `Schuly.Application` ne doit pas
+  référencer `Schuly.Infrastructure`.
+- Garde les contrôleurs légers. Ils délèguent à Mediator, et les handlers contiennent la logique.
+- Ajoute des tests à `Schuly.Tests` quand c'est pertinent.
+- Garde les signatures de déclaration sur une seule ligne, quelle que soit leur longueur. Ne coupe pas la liste
+  de paramètres d'un `record`, d'une `class` ou d'un `struct` à constructeur principal, d'une méthode ou d'un
+  constructeur. Laisse coupés les enchaînements de méthodes, les requêtes LINQ et les conditions sur plusieurs
+  lignes.
+- Utilise Bun pour les tâches du frontend, pas npm, npx ou node.
+- Garde le corps du commit centré sur ce qui a changé et pourquoi.
 
 ## Versionnement
 
-`application.properties` est la source de vérité unique pour la version et est
-synchronisé automatiquement depuis le tag de release lors de la publication d'une
-release - voir [Production](setup/production.md). Ne l'incrémente pas à la main dans
-les PR de fonctionnalité.
+Ne change pas `application.properties` à la main dans les pull requests de fonctionnalités. La publication d'une
+release le synchronise depuis le tag. Voir [Images et releases](setup/production.md).
 
-## Attentes sur le code
+## Contrôles
 
-- Respecte les [règles de couches](architecture.md) : `Schuly.Application` ne doit pas
-  référencer `Schuly.Infrastructure`.
-- Les contrôleurs restent minces et délèguent à Mediator ; la logique vit dans les
-  handlers.
-- Ajoute des tests dans `Schuly.Tests` là où cela a du sens.
+La CI les exécute sur chaque pull request. Pour les exécuter toi-même :
+
+```sh
+dotnet restore Schuly.API.slnx
+dotnet build Schuly.API.slnx -c Release --no-restore -warnaserror
+dotnet test Schuly.API.slnx -c Release --no-build
+```
+
+```sh
+cd src/Schuly.Frontend
+bun install --frozen-lockfile
+bun run build
+bun run test --watch=false
+```
+
+La CI compile aussi l'image sandbox quand une pull request modifie `src/Schuly.Sandbox/**`.

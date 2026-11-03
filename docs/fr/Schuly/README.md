@@ -1,28 +1,30 @@
 # Documentation Schuly
 
-Schuly est une application mobile Flutter qui donne accès aux données scolaires
-(notes, examens, agenda, absences) des systèmes basés sur Schulnetz. Elle fonctionne
-selon deux modes - un **mode compte**, adossé à
-[SchulyServer](https://github.com/schulydev/SchulyServer) via OIDC, et un
-**mode privé / sécurisé**, qui conserve les identifiants sur l'appareil et ne
-communique qu'avec des points d'entrée proxy anonymes et sans état. L'interface est
-construite avec [Forui](https://forui.dev).
+Utilise ces pages pour exécuter, compiler et modifier l'application mobile Schuly. Schuly est une
+application Flutter pour Android et iOS qui affiche les notes, les examens, l'agenda et les absences des
+systèmes scolaires. L'interface utilise [Forui](https://forui.dev).
 
-## Sommaire
+L'application fonctionne selon deux modes :
 
-| Document | Contenu |
-| --- | --- |
-| [Architecture : modes de l'app](architecture-modes.md) | Mode compte vs mode privé, où résident les données, le déroulement de la connexion |
-| [Configuration de développement](setup/development.md) | SDK Flutter, task runner bun, exécution des flavors dev/prod, analyze/test/format |
-| [Build & release](setup/build-and-release.md) | APK de release, build iOS, installation via adb, régénération de l'icône de l'app |
-| [Client API](api-client.md) | Comment `lib/api/` est généré et comment le régénérer |
-| [Contribuer](contributing.md) | Le workflow imposé issue → branche → PR et la taxonomie des labels |
+- **Mode compte :** utilise un compte Schuly sur [SchulyServer](https://github.com/schulydev/SchulyServer).
+- **Mode privé** (aussi appelé mode sécurisé) : conserve les identifiants sur l'appareil et appelle des
+  points d'entrée proxy anonymes et sans état.
 
 ## Démarrage rapide
 
 ```sh
 bun run clean   # flutter clean && flutter pub get
-bun run dev     # lance le flavor dev sur un appareil/émulateur connecté
+bun run dev     # run the dev flavor on a connected device or emulator
 ```
 
-Voir [Configuration de développement](setup/development.md) pour les prérequis.
+[Configuration de développement](setup/development.md) liste les prérequis.
+
+## Pages
+
+| Page | Contenu |
+| --- | --- |
+| [Modes de l'application](architecture-modes.md) | Mode compte et mode privé, où se trouvent les données, le processus de connexion |
+| [Configuration de développement](setup/development.md) | Prérequis, tâches bun, flavors, backend local, contrôles de qualité |
+| [Build et release](setup/build-and-release.md) | Builds locaux, installation par adb, icônes de l'application, workflow de release |
+| [Client API](api-client.md) | Comment `lib/api/` est généré et comment le régénérer |
+| [Contribuer](contributing.md) | Les règles et les contrôles de ce dépôt |

@@ -18,12 +18,14 @@ von OdA Org.
 3. [Schule verbinden](first-setup.md)
 4. [Daten erkunden](using-schuly.md)
 
-Nicht sicher, was du wählen sollst? Nimm **Schuly Cloud** und **Schuly account**. Du kannst das
+Nicht sicher, was du wählen sollst? Nimm **Schuly Cloud** und einen **Schuly account**. Du kannst das
 später ändern.
 
 ## Optional
 
 - [Zwei-Faktor-Codes in Schuly einrichten](authenticator.md), damit du keine separate Authenticator-App brauchst.
+- [Helply fragen](helply.md), den KI-Assistenten in der Web-App.
+- [Eine KI-App verbinden](connect-ai-apps.md), zum Beispiel Claude oder ChatGPT, mit deinen Schuldaten.
 
 ## Hilfe erhalten
 
