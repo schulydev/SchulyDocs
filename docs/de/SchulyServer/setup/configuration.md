@@ -234,6 +234,17 @@ Der Server stellt MCP unter `/mcp` bereit, damit User KI-Apps verbinden können.
 
 Normalerweise setzt du nur diese zwei. Token-Laufzeiten und Limits liegen ebenfalls unter `Mcp:` und haben funktionierende Standardwerte (`McpOAuthOptions`).
 
+## Registrierungen auf die Schweiz beschränken
+
+Setze `SignUp:SwitzerlandOnly` auf `true` (`SignUp__SwitzerlandOnly=true` in `config/backend.env`), um neue Konten nur aus Schweizer Netzen anzunehmen. Standardmässig ist das aus.
+
+- Registrierungen mit Passwort aus anderen Netzen erhalten eine Fehlermeldung. Der Server vergleicht die Adresse nur mit einer eingebauten Liste und speichert oder protokolliert sie nicht.
+- OIDC-Anbieter können keine Konten erstellen, egal was `AllowSignUp` sagt. Konten, die bereits einen Anbieter verknüpft haben, nutzen ihn weiter.
+- Bestehende Konten funktionieren weiterhin überall. Der private Modus hat kein Konto und ist deshalb nicht betroffen.
+- Eine Schweizer Adresse muss den Server erreichen. Setze hinter einem Proxy `ForwardedHeaders:KnownNetworks` korrekt, sonst wird jede Registrierung abgelehnt.
+
+Die Liste stammt aus RIPE-Registerdaten. Diese zeigen, wo ein Netz registriert ist, und sind deshalb nicht exakt. Ein VPN kann sie umgehen. Führe vor einem Release `scripts/update-swiss-networks.sh` aus, um die Liste zu aktualisieren.
+
 ## Autorisierungsrichtlinie
 
 Die Fallback-Richtlinie verlangt für jeden Endpunkt einen authentifizierten User (`AddSchulyAuthorization`). Endpunkte
