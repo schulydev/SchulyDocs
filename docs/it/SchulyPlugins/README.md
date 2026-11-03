@@ -6,8 +6,7 @@ plugin vive nella propria cartella sotto `src/`, ha come target **.NET 10** e im
 (usato come `PackageReference` NuGet). Il backend carica all'avvio le DLL dei plugin compilati e
 ne gestisce il ciclo di vita (`ConfigureServices`, `ConfigureEndpoints`, `MigrateAsync`), oltre a
 ogni `IPluginBackgroundTask` ricorrente. I plugin vengono compilati e distribuiti come DLL sul
-branch `repo` (distribuzione in stile Aniyomi) e collocati dagli operatori nella cartella
-`/app/plugins/` del backend.
+branch `repo` (distribuzione in stile Aniyomi) e il backend scarica quelli elencati nel suo `plugins.yml`.
 
 ## Struttura del repository
 
@@ -16,6 +15,8 @@ branch `repo` (distribuzione in stile Aniyomi) e collocati dagli operatori nella
 | `src/Schuly.Plugin.Example/` | Plugin di riferimento / scheletro. `ISchulyPlugin` minimale con endpoint in API minimale, route anonime e autorizzate, e una demo di vault dedicato al plugin. |
 | `src/Schuly.Plugin.Schulware/` | Integrazione con Schulnetz tramite [SchulwareAPI](https://github.com/schulydev/SchulwareAPI). EF Core + Postgres, client generato con Kiota, task di sincronizzazione in background, controller MVC. |
 | `src/Schuly.Plugin.OdaOrg/` | Integrazione con OdaOrg (portale di tirocinio dell'ICT-BBAG). HttpClient + scraper AngleSharp, EF Core + Postgres, task di sincronizzazione in background. |
+| `src/Schuly.Plugin.Microsoft/` | Accesso in sola lettura a Microsoft 365 tramite il servizio [SchulyMicrosoft](https://github.com/schulydev/SchulyMicrosoft). |
+| `src/Shared/` | Helper condivisi dai plugin, come `ExternalIds` e `SwissTime`. |
 | `.github/workflows/build_push.yml` | Individua ogni `src/Schuly.Plugin.*/*.csproj`, compila e pubblica DLL + indice sul branch `repo`. |
 | `.github/workflows/sync-version-on-release.yml` | Sincronizzazione della versione a ogni release. |
 

@@ -6,12 +6,12 @@
 
 ```
 src/Schuly.Plugin.Example/
-├── ExamplePlugin.cs                  # implementazione di ISchulyPlugin
+├── ExamplePlugin.cs                  # ISchulyPlugin implementation
 ├── Schuly.Plugin.Example.csproj
-└── Schuly.Plugin.Example.slnx        # apre questo plugin in modo autonomo in un IDE
+└── Schuly.Plugin.Example.slnx        # opens this plugin standalone in an IDE
 ```
 
-I plugin reali crescono aggiungendo, quando serve, una cartella `Controllers/`, `Data/` (un
+I plugin reali aggiungono, quando serve, una cartella `Controllers/`, `Data/` (un
 `DbContext` + migrazioni EF) e `Services/` - guarda `src/Schuly.Plugin.Schulware/` o
 `src/Schuly.Plugin.OdaOrg/` per vedere come si presenta un plugin che dialoga con un database e
 un'API esterna. Nulla di tutto ciò è necessario per iniziare.
@@ -44,7 +44,7 @@ backend, all'avvio, invoca questi metodi in ordine:
 
 ### `ConfigureServices(IServiceCollection services, PluginServiceContext context)`
 
-Registra qui i tuoi servizi, le opzioni, il task in background e il login. `context` espone:
+Registra i tuoi servizi, le opzioni, il task in background e il login. `context` espone:
 
 - `context.ConnectionString` - la connection string Postgres dedicata al plugin (l'host la
   modifica per puntare a `schuly_plugin_<name>`; vedi [migrations.md](migrations.md)).
@@ -58,21 +58,34 @@ services.AddDbContext<MyDbContext>(o => o.UseNpgsql(context.ConnectionString));
 services.AddSingleton<MySyncTask>();
 services.AddSingleton<IPluginBackgroundTask>(sp => sp.GetRequiredService<MySyncTask>());
 
-// Vault dei segreti in memoria, isolato per plugin, indicizzato dall'host tramite il nome del plugin.
-services.AddScoped(sp => new MySecretStore(
-    sp.GetRequiredKeyedService<IPluginVault>(MyPlugin.PluginName)));
+// Takes the plugin's own IPluginVault, which the host registers.
+services.AddScoped<MySecretStore>();
 
 services.AddScoped<IPluginLogin, MyLogin>();
 ```
 
-> La chiave del vault deve essere una costante (usata con
-> `[FromKeyedServices(PluginName)]`), quindi esponi un `public const string PluginName`. Il
-> vault esiste solo in memoria - i segreti **non** sopravvivono a un riavvio del backend, e il
-> codice di sincronizzazione deve gestire il caso di vault vuoto ("serve una nuova connessione").
+L'host registra questi servizi del contratto nel container di ogni plugin. Iniettali, mai
+i tipi propri del backend:
+
+| Servizio | Usalo per |
+|---|---|
+| `ISchoolData` | Predisporre la scuola e lo studente, poi sincronizzare agenda, voti, assenze e documenti |
+| `IPluginVault` | Conservare token e credenziali, cifrati, nel namespace proprio del plugin |
+| `IPluginFileStore` | Salvare un file scaricato (ad es. una pagella) e ottenere la sua chiave |
+| `IPluginUserContext` | Leggere l'utente corrente durante una richiesta di login |
+
+Il codice di sincronizzazione crea semplici record e li passa a `ISchoolData`. Assegna a ogni record un
+`ExternalId` stabile (`Shared/ExternalIds.cs`) e converti prima in UTC gli orari locali del provider
+(`Shared/SwissTime.cs` per i sistemi svizzeri). Il backend salva solo UTC.
+
+```csharp
+var records = lessons.Select(l => new AgendaRecord(ExternalIds.Of("lesson", l.Start.ToString("O"), l.Course), AgendaKind.Lesson, l.Title, l.Start, l.End, l.Room)).ToList();
+await schoolData.SyncAgendaAsync(account.SchoolUserId!.Value, records, ct);
+```
 
 ### `ConfigureEndpoints(IEndpointRouteBuilder endpoints)`
 
-Qui si mappano le route in API minimale. Il plugin Example lo usa direttamente:
+Mappa qui le route in API minimale. Il plugin Example lo usa direttamente:
 
 ```csharp
 endpoints.MapGet("/api/plugins/example/hello",
@@ -88,25 +101,25 @@ Entrambi gli approcci funzionano; i controller si adattano meglio a superfici pi
 ### `MigrateAsync(IServiceProvider serviceProvider, CancellationToken)`
 
 Applica le migrazioni EF Core. Risolvi il `DbContext` da uno scope e chiama
-`db.Database.MigrateAsync()`. Il plugin Example (senza database) restituisce semplicemente
+`db.Database.MigrateAsync()`. Il plugin Example (senza database) restituisce
 `Task.CompletedTask`. Vedi [migrations.md](migrations.md) - usa `MigrateAsync()`, mai
 `EnsureCreatedAsync`.
 
 ### `IPluginBackgroundTask` (opzionale)
 
-Lavoro ricorrente. Implementa `Name`, `Interval` ed `ExecuteAsync`. Il `PluginBackgroundTaskHost`
-del backend invoca `ExecuteAsync` a ogni tick di `Interval`:
+Lavoro ricorrente. Implementa `Name`, `Schedule` ed `ExecuteAsync`. Il `PluginBackgroundTaskHost`
+del backend invoca `ExecuteAsync` con la cadenza dichiarata da `Schedule`:
 
 ```csharp
 public class MySyncTask : IPluginBackgroundTask
 {
     public string Name => "My Data Sync";
-    public TimeSpan Interval => TimeSpan.FromMinutes(30);
+    public PluginSchedule Schedule => PluginSchedule.Every(TimeSpan.FromMinutes(30));
 
     public async Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken ct)
     {
         using var scope = serviceProvider.CreateScope();
-        // risolvere i servizi a scope ridotto, eseguire il lavoro
+        // resolve scoped services, do work
     }
 }
 ```

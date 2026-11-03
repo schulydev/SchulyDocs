@@ -14,32 +14,51 @@ Ambiente locale per compilare e pacchettizzare il pacchetto abstractions.
 ```
 src/
 ├── Directory.Build.props                      # reads <version> from application.properties
-└── Schuly.Plugin.Abstractions/
-    ├── ISchulyPlugin.cs                        # + PluginServiceContext record
-    ├── IPluginBackgroundTask.cs
-    ├── IPluginEventHandler.cs
-    ├── IPluginUserContext.cs
-    ├── IPluginLogin.cs                         # + PluginLoginResult record
-    ├── NUGET_README.md                         # packed as the NuGet README
-    ├── Schuly.Plugin.Abstractions.csproj
-    └── libs/                                    # shipped backend DLLs
-        ├── Schuly.Domain.dll
-        └── Schuly.Infrastructure.dll
+├── Schuly.Plugin.Abstractions/
+│   ├── ISchulyPlugin.cs                        # + PluginServiceContext record
+│   ├── IPluginBackgroundTask.cs
+│   ├── PluginSchedule.cs                       # PluginSchedule record
+│   ├── IPluginEventHandler.cs
+│   ├── IPluginUserContext.cs
+│   ├── IPluginLogin.cs                         # + PluginLoginResult record
+│   ├── SchoolSystemDescriptor.cs
+│   ├── ISchoolData.cs                          # + SyncResult record
+│   ├── SchoolRecords.cs                        # records ISchoolData accepts
+│   ├── IPluginVault.cs
+│   ├── IPluginFileStore.cs                     # + StoredFile record
+│   ├── NUGET_README.md                         # packed as the NuGet README
+│   └── Schuly.Plugin.Abstractions.csproj
+└── Schuly.Plugin.Abstractions.Tests/
+    ├── PluginScheduleTests.cs
+    └── Schuly.Plugin.Abstractions.Tests.csproj
 ```
 
-Il csproj referenzia `libs/Schuly.Domain.dll` e `libs/Schuly.Infrastructure.dll`
-(sincronizzate da SchulyServer) così il progetto compila contro di esse, e le pacchettizza
-sotto `lib/net10.0/` così i plugin ottengono un accesso tipizzato al database. Le dipendenze
-transitive di cui queste DLL hanno bisogno (`Microsoft.EntityFrameworkCore`,
-`Npgsql.EntityFrameworkCore.PostgreSQL`) sono dichiarate come `PackageReference` nel csproj.
+Il pacchetto non ha dipendenze oltre al framework reference `Microsoft.AspNetCore.App`.
+Non distribuisce assembly del backend: i plugin raggiungono i dati scolastici solo tramite `ISchoolData`.
 
 ## Build
+
+La root del repository contiene un file di soluzione (`Schuly.Plugin.Abstractions.slnx`) che
+compila insieme il progetto abstractions e il suo progetto di test:
+
+```sh
+dotnet build
+```
+
+Oppure punta direttamente al progetto abstractions, come fa il workflow di pubblicazione:
 
 ```sh
 dotnet build src/Schuly.Plugin.Abstractions/Schuly.Plugin.Abstractions.csproj
 ```
 
-Non c'è un progetto di test in questo repository; il contratto viene verificato dai
+Ora esiste un progetto di test TUnit (`Schuly.Plugin.Abstractions.Tests`) che copre
+`PluginSchedule`:
+
+```sh
+dotnet test
+```
+
+Le interfacce stesse non hanno un comportamento a runtime proprio e vengono ancora verificate dai
 consumatori a valle (SchulyServer e i plugin).
 
 ## Pack dry-run (locale)
@@ -54,7 +73,7 @@ dotnet pack Schuly.Plugin.Abstractions.csproj --configuration Release -o ./out
 `src/Schuly.Plugin.Abstractions/Schuly.Plugin.Abstractions.csproj` - è esattamente ciò che
 esegue il workflow di pubblicazione.)
 
-Non passi `-p:Version=`. La versione proviene da `application.properties`
+**Non** passi `-p:Version=`. La versione proviene da `application.properties`
 (`<version>…</version>`), che `src/Directory.Build.props` legge al caricamento del progetto
 tramite una regex e assegna a `$(Version)`. `Directory.Build.props` fissa inoltre la versione
 di **assembly** a `MAJOR.MINOR.0.0`, così qualsiasi plugin `MAJOR.MINOR.x` si lega a un'unica

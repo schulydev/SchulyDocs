@@ -12,7 +12,7 @@ pour un hôte ne casse pas sur un autre.
 
 - [Référence du contrat](contract.md) - chaque interface et chaque record, avec les signatures
   réelles et l'endroit où chaque membre s'inscrit dans le cycle de vie du plugin.
-- [Configuration](setup/) - développement local et publication :
+- Configuration - développement local et publication :
   - [Développement](setup/development.md) - prérequis, build, pack local à blanc.
   - [Publication](setup/publishing.md) - le flux de release NuGet et les métadonnées du
     package.

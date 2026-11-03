@@ -5,41 +5,31 @@ title: 2. Choose how you sign in
 
 # 2. Choose how you sign in
 
-On first launch Schuly asks how you want to use it. There are two modes - you can change
-your mind later, so don't overthink it.
+When you first open Schuly, it asks two questions. You can change your answers later.
 
-:::info Self-hosting? Pick your server first
-Just before the mode choice, Schuly asks **which server** to use. Almost everyone should
-keep **Schuly Cloud** (the default). If you run your own Schuly backend, choose
-**Self-hosted** and enter its URL - Schuly verifies it's reachable (and reports its
-version) before continuing. Either mode below then talks to whichever server you picked.
-:::
+## Which server?
 
-## Account mode (recommended for most people)
+Choose **Schuly Cloud**, the official server, unless you run your own. If you do, choose
+**Self-hosted** and enter its **Backend URL**. To run your own server, see
+[Self-host Schuly](/self-host/).
 
-You sign in with a **Schuly account**. Your data is synced and kept up to date for you in
-the background, so the app opens fast and stays current across devices.
+## Schuly account or Private mode?
 
-- Easiest, and the app refreshes your data on its own.
-- Same data on every device you sign in on.
-- Your school data is stored on the Schuly backend so it can be synced.
+| | Schuly account | Private mode |
+|---|---|---|
+| Sign in with | A Schuly account | Your school login only |
+| Data updates | In the background | When you open the app |
+| Notifications about new grades | Yes | No |
+| Same data on all your devices | Yes | No |
+| Your school data | Stored on the server | Stored only on your phone |
+| Your school login | Encrypted on the server, or only a session, depending on your school | Stored only on your phone |
 
-## Private / secure mode (privacy-first)
+**Choose a Schuly account** if you want Schuly to stay up to date without opening it. Most people
+choose this.
 
-**No Schuly account, no Schuly login.** You connect directly to your school system, and
-your credentials stay **only on your device**. Schuly fetches your data live and stores
-**nothing** on its servers.
+**Choose Private mode** if you don't want your data stored on a server. Your login still passes
+through the Schuly server each time Schuly loads your data, but the server doesn't store it.
 
-- Maximum privacy - nothing about your school data lives on Schuly's servers.
-- Still works with the same schools.
-- Data is fetched live, so it loads when you open the app rather than syncing in the
-  background.
+## Next step
 
-## Which should I pick?
-
-| You want…                                    | Pick             |
-| -------------------------------------------- | ---------------- |
-| The simplest setup and background updates    | **Account mode** |
-| To keep everything on-device, nothing stored | **Private mode** |
-
-Made your choice? Next: **[connect your school](first-setup.md)**.
+[Connect your school](first-setup.md)

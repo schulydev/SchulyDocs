@@ -5,32 +5,33 @@ title: 4. Explore your data
 
 # 4. Explore your data
 
-Once you're connected, Schuly brings your school data together in one place:
+The tabs at the bottom of the app lead to your data:
 
-- **Grades** - your marks across subjects, as they're published.
-- **Exams** - upcoming tests and assessments so nothing sneaks up on you.
-- **Agenda** - your timetable and lessons.
-- **Absences** - your recorded absences and their status.
+| Tab | What you find |
+|---|---|
+| **Start** | An overview of what's new |
+| **Agenda** | Your timetable |
+| **Grades** | Your grades, exams, and averages |
+| **Absences** | Your absences and their status |
+| **Account** | Your profile, classes, teachers, and documents |
 
-## Keeping data fresh
+## Refresh your data
 
-- **Account mode** keeps your data updated in the background, so it's usually ready the
-  moment you open the app. You can also pull to refresh.
-- **Private mode** fetches your data live each session - give it a moment after opening,
-  or pull to refresh, to load the latest.
+Pull down on a screen to refresh it. With a Schuly account, your data also updates in the
+background. In Private mode, it loads when you open the app, so give it a moment.
 
-## Tips
+## Use several schools
 
-- **Add Schuly to your home screen** for one-tap access to grades.
-- **Check the agenda the night before** so you walk in knowing your schedule and any exams.
-- **Lost or changed your password?** Update your school login in settings - in Private
-  mode, Schuly starts using the new one straight away.
+To add another school account, open the sidebar. You can switch between accounts there, and each
+school's data stays separate.
 
-## Need more?
+## Use the web app
 
-- Curious how the two modes actually work? See
-  [App modes: Account vs Private](/Schuly/architecture-modes).
-- Want to report a bug or request a feature? Head to the
-  [Schuly GitHub repo](https://github.com/schulydev/Schuly).
+With a Schuly account, you can also use Schuly at [app.schuly.dev](https://app.schuly.dev). If you
+link a Microsoft 365 account in the settings, the web app also shows your mail, chats, files, and
+notes.
 
-That's it - you're set up. Welcome to Schuly!
+## Learn more
+
+- [Set up two-factor codes](authenticator.md)
+- [How the two modes work](/Schuly/architecture-modes)

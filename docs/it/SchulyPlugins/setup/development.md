@@ -2,11 +2,10 @@
 
 ## Prerequisiti
 
-- **SDK .NET 10** - ogni csproj dei plugin ha come target `net10.0`
-  (`<TargetFramework>net10.0</TargetFramework>`).
-- **Strumenti CLI di EF Core** (`dotnet-ef`) - per i plugin con un `DbContext` (Schulware,
-  OdaOrg). Installa/aggiorna con `dotnet tool install --global dotnet-ef` (oppure
-  `dotnet tool update`). Vedi [migrations.md](../migrations.md).
+- **SDK .NET 10** - ogni csproj dei plugin ha come target `net10.0` (`<TargetFramework>net10.0</TargetFramework>`).
+- **Strumenti CLI di EF Core** (`dotnet-ef`) - per i plugin con un `DbContext` (Schulware, OdaOrg).
+  Installa/aggiorna con `dotnet tool install --global dotnet-ef` (oppure `dotnet tool update`).
+  Vedi [migrations.md](../migrations.md).
 - **[Kiota](https://learn.microsoft.com/openapi/kiota/install)** - serve solo per rigenerare il
   client API di Schulware. Vedi [setup/kiota-client.md](kiota-client.md).
 - Un **[SchulyServer](https://github.com/schulydev/SchulyServer)** attivo con PostgreSQL, per
@@ -17,13 +16,17 @@
 `Schuly.Plugin.Abstractions` è una **`PackageReference`** NuGet, non un riferimento a progetto:
 
 ```xml
-<PackageReference Include="Schuly.Plugin.Abstractions" Version="0.2.*" />
+<PackageReference Include="Schuly.Plugin.Abstractions" Version="0.11.*" />
 ```
 
-Fornisce `ISchulyPlugin`, `IPluginBackgroundTask`, `IPluginUserContext`, `IPluginLogin` e
-`PluginServiceContext`. I tipi forniti dal backend, come `IPluginVault`
-(`Schuly.Infrastructure.Vault`), vengono risolti a runtime dal container DI dell'host - l'host
-registra il vault isolato di ogni plugin indicizzandolo tramite il suo `Name`.
+Fornisce l'intero contratto: `ISchulyPlugin`, `IPluginBackgroundTask`, `IPluginUserContext`,
+`IPluginLogin`, `ISchoolData` (con i suoi record), `IPluginVault`, `IPluginFileStore` e
+`PluginServiceContext`. I plugin non referenziano nulla del backend; l'host registra le
+implementazioni dei servizi nel container di ogni plugin a runtime.
+
+Il backend rifiuta di caricare un plugin compilato con una versione del contratto incompatibile (prima
+della 1.0: un MAJOR.MINOR diverso), e il workflow di pubblicazione registra questa versione come `contract` in
+`index.json`, così il backend non si aggiorna mai automaticamente a una build che non può caricare.
 
 ## Come è strutturato un plugin
 
@@ -38,16 +41,16 @@ Per il ciclo di vita completo vedi [adding-a-plugin.md](../adding-a-plugin.md).
 ## Compilare un plugin
 
 ```sh
-# Ripristina + compila un singolo plugin
+# Restore + build a single plugin
 dotnet build src/Schuly.Plugin.Schulware/Schuly.Plugin.Schulware.csproj -c Release
 
-# Produce l'output caricabile (DLL + dipendenze non fornite dall'host) - stesso comando usato dalla CI
+# Produce the loadable output (DLL + non-host dependencies) - same command CI uses
 dotnet publish src/Schuly.Plugin.Schulware/Schuly.Plugin.Schulware.csproj -c Release -o ./out
 ```
 
 Ogni plugin ha anche un file di soluzione `.slnx` per aprirlo in modo autonomo in un IDE.
 
-## Eseguire un plugin contro un backend attivo
+## Eseguire un plugin con un backend attivo
 
 L'host dei plugin del backend carica le DLL dei plugin dalla propria cartella `plugins/`
 (`/app/plugins/` nel container) e legge la configurazione YAML di ogni plugin dalla propria
@@ -57,8 +60,8 @@ cartella di configurazione dei plugin.
 2. Esegui `dotnet publish` del plugin (sopra) e copia la DLL del plugin insieme alle DLL delle
    sue dipendenze di terze parti nella cartella `plugins/` del backend. Gli assembly condivisi
    dall'host (ASP.NET Core, EF Core, Npgsql, le abstractions, gli assembly host di Schuly) sono
-   già forniti dal backend - servono solo le vere dipendenze di terze parti (ad es. Kiota,
-   AngleSharp) insieme al plugin.
+   già forniti dal backend - solo le vere dipendenze di terze parti (ad es. Kiota, AngleSharp)
+   devono accompagnare il plugin.
 3. Colloca la configurazione a runtime del plugin come `Schuly.Plugin.<Name>.yml` nella cartella
    di configurazione dei plugin del backend. Per Schulware questa **deve** contenere almeno
    `SchulwareApi.BaseUrl` - altrimenti `ConfigureServices` lancia un'eccezione e rifiuta il
@@ -66,7 +69,7 @@ cartella di configurazione dei plugin.
 4. Riavvia il backend. All'avvio l'host chiama `ConfigureServices` → `ConfigureEndpoints` →
    `MigrateAsync` (che esegue `db.Database.MigrateAsync()` per creare/aggiornare il database
    Postgres dedicato del plugin), quindi pianifica ogni `IPluginBackgroundTask` secondo il
-   proprio `Interval`.
+   proprio `Schedule`.
 
-Per la distribuzione reale (scaricare DLL precompilate tramite `curl`) vedi
+Per sapere come vengono pubblicati i plugin, vedi
 [setup/distribution.md](distribution.md).

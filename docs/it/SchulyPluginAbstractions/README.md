@@ -12,7 +12,7 @@ così i plugin costruiti per un host non si rompono su un altro.
 
 - [Riferimento del contratto](contract.md) - ogni interfaccia e ogni record, con le firme
   reali e la posizione di ciascun membro nel ciclo di vita del plugin.
-- [Setup](setup/) - sviluppo locale e pubblicazione:
+- Setup - sviluppo locale e pubblicazione:
   - [Sviluppo](setup/development.md) - prerequisiti, build, pack dry-run locale.
   - [Pubblicazione](setup/publishing.md) - il flusso di release NuGet e i metadati del
     pacchetto.

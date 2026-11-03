@@ -11,7 +11,7 @@
 
 ## Layout
 
-Application source lives under [`src/app/`](../src/app):
+Application source lives under [`src/app/`](https://github.com/schulydev/SchulyWebsite/tree/main/src/app):
 
 - `app.ts`, `app.config.ts`, `app.routes.ts` - root component, providers, routing.
 - `app.config.server.ts`, `app.routes.server.ts` - server-side rendering config.

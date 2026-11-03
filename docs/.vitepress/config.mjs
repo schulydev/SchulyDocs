@@ -5,16 +5,33 @@ import { fileURLToPath } from 'node:url'
 
 const DOCS_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
-// Each synced source repo gets a section folder under docs/. Order + per-locale display
-// label live here (this replaces Docusaurus' per-folder _category_.json). Contributors
-// only edit markdown in the source repos - the English sidebar is generated from the
-// files. Translated sections (docs/<locale>/<Repo>/) are owned directly in this repo,
-// same as docs/getting-started/ already was before translations existed.
-const SECTIONS = [
+// The site is organized by reader, not by repo: these are the top-nav entries, each with
+// a landing page owned by this repo. A synced page belongs to an audience only if listed
+// in `pages`; any other page lands under Contribute, so a new markdown file always shows up.
+// getting-started has no `pages`: its sidebar is generated from its own folder.
+const AUDIENCES = [
   {
     dir: 'getting-started',
-    text: { en: 'Getting started', de: 'Erste Schritte', fr: 'Premiers pas', it: 'Per iniziare' },
+    text: { en: 'Use Schuly', de: 'Schuly nutzen', fr: 'Utiliser Schuly', it: 'Usare Schuly' },
   },
+  {
+    dir: 'self-host',
+    text: { en: 'Self-host', de: 'Selbst hosten', fr: 'Auto-héberger', it: 'Self-hosting' },
+    pages: ['SchulyServer/setup/self-hosting', 'SchulyServer/setup/self-hosting-lan', 'SchulyServer/setup/operations', 'SchulyServer/plugin-management', 'SchulyServer/setup/configuration'],
+  },
+  {
+    dir: 'build-plugins',
+    text: { en: 'Build plugins', de: 'Plugins entwickeln', fr: 'Créer des plugins', it: 'Creare plugin' },
+    pages: ['SchulyPlugins/setup/development', 'SchulyPlugins/adding-a-plugin', 'SchulyPlugins/migrations', 'SchulyPlugins/setup/distribution', 'SchulyPluginAbstractions/contract', 'SchulyPluginAbstractions/versioning'],
+  },
+]
+const CONTRIBUTE = { dir: 'contribute', text: { en: 'Contribute', de: 'Mitwirken', fr: 'Contribuer', it: 'Contribuire' } }
+
+// Each synced source repo gets a section folder under docs/, shown under Contribute. Order +
+// per-locale display label live here. Contributors only edit markdown in the source repos -
+// the English sidebar is generated from the files. Translated sections
+// (docs/<locale>/<Repo>/) are owned directly in this repo.
+const SECTIONS = [
   {
     dir: 'Schuly',
     text: {
@@ -61,7 +78,6 @@ const UI_TEXT = {
     htmlLang: 'en-US',
     title: 'Schuly Docs',
     description: 'Documentation for the Schuly project',
-    projects: 'Projects',
     editingDocs: 'Editing these docs',
     outline: 'On this page',
     prev: 'Previous page',
@@ -102,7 +118,6 @@ const UI_TEXT = {
     htmlLang: 'de-CH',
     title: 'Schuly Docs',
     description: 'Dokumentation für das Schuly-Projekt',
-    projects: 'Projekte',
     editingDocs: 'Diese Docs bearbeiten',
     outline: 'Auf dieser Seite',
     prev: 'Vorherige Seite',
@@ -143,7 +158,6 @@ const UI_TEXT = {
     htmlLang: 'fr-CH',
     title: 'Schuly Docs',
     description: 'Documentation du projet Schuly',
-    projects: 'Projets',
     editingDocs: 'Modifier cette documentation',
     outline: 'Sur cette page',
     prev: 'Page précédente',
@@ -184,7 +198,6 @@ const UI_TEXT = {
     htmlLang: 'it-CH',
     title: 'Schuly Docs',
     description: 'Documentazione del progetto Schuly',
-    projects: 'Progetti',
     editingDocs: 'Modifica questa documentazione',
     outline: 'In questa pagina',
     prev: 'Pagina precedente',
@@ -246,7 +259,7 @@ function humanize(name) {
 }
 
 // Build sidebar items for a folder. README is exposed as the group link, not a child.
-function itemsFor(dir, urlBase) {
+function itemsFor(dir, urlBase, skip = new Set()) {
   const abs = path.join(DOCS_ROOT, dir)
   const entries = fs.readdirSync(abs, { withFileTypes: true })
 
@@ -262,6 +275,7 @@ function itemsFor(dir, urlBase) {
         name: e.name,
       }
     })
+    .filter((f) => !skip.has(f.link))
     .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name))
     .map(({ text, link }) => ({ text, link }))
 
@@ -271,8 +285,9 @@ function itemsFor(dir, urlBase) {
     .map((e) => ({
       text: humanize(e.name),
       collapsed: true,
-      items: itemsFor(path.join(dir, e.name), `${urlBase}/${e.name}`),
+      items: itemsFor(path.join(dir, e.name), `${urlBase}/${e.name}`, skip),
     }))
+    .filter((g) => g.items.length > 0)
 
   return [...files, ...folders]
 }
@@ -285,30 +300,47 @@ function localePrefix(locale) {
   return locale === 'en' ? '' : `/${locale}`
 }
 
+function pageItem(locale, page) {
+  const file = path.join(DOCS_ROOT, `${localeDir(locale, page)}.md`)
+  if (!fs.existsSync(file)) return null
+  return { text: readMeta(file).title || humanize(path.basename(page)), link: `${localePrefix(locale)}/${page}` }
+}
+
+// One sidebar per audience. VitePress picks the key with the most path segments and, on a tie,
+// the first one inserted, so a listed page must be added before its repo's folder key.
 function buildSidebar(locale) {
-  return SECTIONS.filter((s) => fs.existsSync(path.join(DOCS_ROOT, localeDir(locale, s.dir)))).map((s) => ({
-    text: s.text[locale] || s.text.en,
-    link: `${localePrefix(locale)}/${s.dir}/`,
-    collapsed: false,
-    items: itemsFor(localeDir(locale, s.dir), `${localePrefix(locale)}/${s.dir}`),
-  }))
+  const t = UI_TEXT[locale]
+  const prefix = localePrefix(locale)
+  const sidebar = {}
+  const claimed = new Set()
+
+  for (const a of AUDIENCES) {
+    const items = a.pages ? a.pages.map((p) => pageItem(locale, p)).filter(Boolean) : itemsFor(localeDir(locale, a.dir), `${prefix}/${a.dir}`)
+    const group = [{ text: a.text[locale], link: `${prefix}/${a.dir}/`, items }]
+    sidebar[`${prefix}/${a.dir}/`] = group
+    for (const p of a.pages ?? []) {
+      sidebar[`${prefix}/${p}`] = group
+      claimed.add(`${prefix}/${p}`)
+    }
+  }
+
+  const contribute = [
+    { text: CONTRIBUTE.text[locale], link: `${prefix}/${CONTRIBUTE.dir}/`, items: [{ text: t.editingDocs, link: '/editing-these-docs' }] },
+    ...SECTIONS.filter((s) => fs.existsSync(path.join(DOCS_ROOT, localeDir(locale, s.dir)))).map((s) => ({
+      text: s.text[locale] || s.text.en,
+      link: `${prefix}/${s.dir}/`,
+      collapsed: true,
+      items: itemsFor(localeDir(locale, s.dir), `${prefix}/${s.dir}`, claimed),
+    })),
+  ]
+  sidebar[`${prefix}/${CONTRIBUTE.dir}/`] = contribute
+  sidebar['/editing-these-docs'] = contribute
+  for (const s of SECTIONS) sidebar[`${prefix}/${s.dir}/`] = contribute
+  return sidebar
 }
 
 function buildNav(locale) {
-  const t = UI_TEXT[locale]
-  return [
-    { text: SECTIONS[0].text[locale] || SECTIONS[0].text.en, link: `${localePrefix(locale)}/getting-started/` },
-    {
-      text: t.projects,
-      items: SECTIONS.filter((s) => s.dir !== 'getting-started')
-        .filter((s) => fs.existsSync(path.join(DOCS_ROOT, localeDir(locale, s.dir))))
-        .map((s) => ({
-          text: s.text[locale] || s.text.en,
-          link: `${localePrefix(locale)}/${s.dir}/`,
-        })),
-    },
-    { text: t.editingDocs, link: '/editing-these-docs' },
-  ]
+  return [...AUDIENCES, CONTRIBUTE].map((a) => ({ text: a.text[locale], link: `${localePrefix(locale)}/${a.dir}/` }))
 }
 
 function buildThemeConfig(locale) {
@@ -382,7 +414,7 @@ for (const locale of LOCALES) {
     lang: t.htmlLang,
     title: t.title,
     description: t.description,
-    link: `${localePrefix(locale)}/getting-started/`,
+    link: `${localePrefix(locale)}/`,
     themeConfig: buildThemeConfig(locale),
     markdown: buildMarkdownLocale(locale),
   }

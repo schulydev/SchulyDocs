@@ -5,24 +5,26 @@ title: Erste Schritte
 
 # Erste Schritte mit Schuly
 
-Neu bei Schuly? Diese Anleitung bringt dich von der Installation bis zu deinen ersten
-Noten - und das in wenigen Minuten.
+Schuly zeigt deine Noten, Prüfungen, den Stundenplan, Absenzen und Dokumente aus deinem Schulportal
+in einer App. Es ist kostenlos und Open Source und funktioniert mit Schulnetz und OdA Org.
 
-**Schuly** ist eine mobile App, mit der du deine Schuldaten - Noten, Prüfungen,
-Stundenplan und Absenzen - aus Schulnetz-basierten Schulsystemen an einem Ort siehst.
+Schuly ist ein unabhängiges Projekt. Es ist keine offizielle App deiner Schule, von Schulnetz oder
+von OdA Org.
 
-## Die Anleitung
+## Schuly einrichten
 
-1. **[App installieren](install.md)** - Schuly für Android oder iOS holen.
-2. **[Anmeldeart wählen](choose-a-mode.md)** - Konto-Modus oder privater Modus.
-3. **[Schule verbinden](first-setup.md)** - Schulsystem wählen und anmelden.
-4. **[Daten erkunden](using-schuly.md)** - Noten, Prüfungen, Stundenplan, Absenzen.
+1. [App installieren](install.md)
+2. [Anmeldeart wählen](choose-a-mode.md)
+3. [Schule verbinden](first-setup.md)
+4. [Daten erkunden](using-schuly.md)
 
-Sobald du eingerichtet bist, kann Schuly auch **[deine Zwei-Faktor-Codes
-verwalten](authenticator.md)**, damit du keine separate Authenticator-App brauchst.
+Nicht sicher, was du wählen sollst? Nimm **Schuly Cloud** und **Schuly account**. Du kannst das
+später ändern.
 
-:::tip In Eile?
-Die meisten Leute: Schuly installieren → **Konto-Modus** wählen → Schule auswählen →
-anmelden → fertig. Die obigen Seiten sind nur wichtig, wenn du die
-datenschutzfreundliche Option willst oder nicht weiterkommst.
-:::
+## Optional
+
+- [Zwei-Faktor-Codes in Schuly einrichten](authenticator.md), damit du keine separate Authenticator-App brauchst.
+
+## Hilfe erhalten
+
+Hast du einen Fehler gefunden oder eine Idee? [Eröffne ein Issue auf GitHub](https://github.com/schulydev/Schuly/issues).

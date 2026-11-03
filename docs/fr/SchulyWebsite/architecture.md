@@ -12,7 +12,7 @@
 
 ## Organisation
 
-Le code source de l'application se trouve dans [`src/app/`](../src/app) :
+Le code source de l'application se trouve dans [`src/app/`](https://github.com/schulydev/SchulyWebsite/tree/main/src/app) :
 
 - `app.ts`, `app.config.ts`, `app.routes.ts` - composant racine, providers, routing.
 - `app.config.server.ts`, `app.routes.server.ts` - configuration du rendu côté serveur (SSR).

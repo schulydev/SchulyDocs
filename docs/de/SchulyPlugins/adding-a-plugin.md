@@ -6,9 +6,9 @@
 
 ```
 src/Schuly.Plugin.Example/
-├── ExamplePlugin.cs                  # ISchulyPlugin-Implementierung
+├── ExamplePlugin.cs                  # ISchulyPlugin implementation
 ├── Schuly.Plugin.Example.csproj
-└── Schuly.Plugin.Example.slnx        # öffnet dieses Plugin eigenständig in einer IDE
+└── Schuly.Plugin.Example.slnx        # opens this plugin standalone in an IDE
 ```
 
 Echte Plugins bekommen bei Bedarf einen `Controllers/`-, `Data/`- (ein `DbContext` + EF-Migrationen)
@@ -59,21 +59,34 @@ services.AddDbContext<MyDbContext>(o => o.UseNpgsql(context.ConnectionString));
 services.AddSingleton<MySyncTask>();
 services.AddSingleton<IPluginBackgroundTask>(sp => sp.GetRequiredService<MySyncTask>());
 
-// Pro Plugin isoliertes, In-Memory-Secret-Vault, vom Host über den Plugin-Namen als Key registriert.
-services.AddScoped(sp => new MySecretStore(
-    sp.GetRequiredKeyedService<IPluginVault>(MyPlugin.PluginName)));
+// Takes the plugin's own IPluginVault, which the host registers.
+services.AddScoped<MySecretStore>();
 
 services.AddScoped<IPluginLogin, MyLogin>();
 ```
 
-> Der Vault-Key muss eine Konstante sein (verwendet mit `[FromKeyedServices(PluginName)]`), stelle
-> also ein `public const string PluginName` bereit. Das Vault liegt nur im Arbeitsspeicher -
-> Secrets überleben einen Backend-Neustart **nicht**, und der Sync-Code muss den Fall eines leeren
-> Vaults ("erneute Verbindung nötig") abfangen.
+Der Host registriert diese Contract-Services im Container jedes Plugins. Injiziere sie, niemals
+die eigenen Typen des Backends:
+
+| Service | Verwende ihn, um |
+|---|---|
+| `ISchoolData` | die Schule und den Schüler bereitzustellen und danach Agenda, Noten, Absenzen und Dokumente zu synchronisieren |
+| `IPluginVault` | Tokens und Zugangsdaten verschlüsselt im eigenen Namespace des Plugins aufzubewahren |
+| `IPluginFileStore` | eine heruntergeladene Datei (z. B. ein Zeugnis) zu speichern und ihren Key zu erhalten |
+| `IPluginUserContext` | während einer Login-Anfrage den aktuellen Benutzer zu lesen |
+
+Der Sync-Code baut einfache Records und übergibt sie an `ISchoolData`. Gib jedem Record eine stabile
+`ExternalId` (`Shared/ExternalIds.cs`) und rechne die lokalen Uhrzeiten des Anbieters zuerst in UTC um
+(`Shared/SwissTime.cs` für Schweizer Systeme). Das Backend speichert nur UTC.
+
+```csharp
+var records = lessons.Select(l => new AgendaRecord(ExternalIds.Of("lesson", l.Start.ToString("O"), l.Course), AgendaKind.Lesson, l.Title, l.Start, l.End, l.Room)).ToList();
+await schoolData.SyncAgendaAsync(account.SchoolUserId!.Value, records, ct);
+```
 
 ### `ConfigureEndpoints(IEndpointRouteBuilder endpoints)`
 
-Hier werden Minimal-API-Routen gemappt. Das Example-Plugin nutzt das direkt:
+Mappe hier Minimal-API-Routen. Das Example-Plugin nutzt das direkt:
 
 ```csharp
 endpoints.MapGet("/api/plugins/example/hello",
@@ -88,26 +101,26 @@ funktionieren; Controller skalieren bei grösseren Oberflächen besser.
 
 ### `MigrateAsync(IServiceProvider serviceProvider, CancellationToken)`
 
-Wende hier die EF-Core-Migrationen an. Löse den `DbContext` aus einem Scope auf und rufe
-`db.Database.MigrateAsync()` auf. Das Example-Plugin (ohne DB) gibt einfach `Task.CompletedTask`
+Wende die EF-Core-Migrationen an. Löse den `DbContext` aus einem Scope auf und rufe
+`db.Database.MigrateAsync()` auf. Das Example-Plugin (ohne DB) gibt `Task.CompletedTask`
 zurück. Siehe [migrations.md](migrations.md) - verwende `MigrateAsync()`, niemals
 `EnsureCreatedAsync`.
 
 ### `IPluginBackgroundTask` (optional)
 
-Wiederkehrende Arbeit. Implementiere `Name`, `Interval` und `ExecuteAsync`. Der
-`PluginBackgroundTaskHost` des Backends ruft `ExecuteAsync` bei jedem `Interval`-Tick auf:
+Wiederkehrende Arbeit. Implementiere `Name`, `Schedule` und `ExecuteAsync`. Der
+`PluginBackgroundTaskHost` des Backends ruft `ExecuteAsync` in dem Takt auf, den `Schedule` festlegt:
 
 ```csharp
 public class MySyncTask : IPluginBackgroundTask
 {
     public string Name => "My Data Sync";
-    public TimeSpan Interval => TimeSpan.FromMinutes(30);
+    public PluginSchedule Schedule => PluginSchedule.Every(TimeSpan.FromMinutes(30));
 
     public async Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken ct)
     {
         using var scope = serviceProvider.CreateScope();
-        // gescopte Services auflösen, Arbeit erledigen
+        // resolve scoped services, do work
     }
 }
 ```

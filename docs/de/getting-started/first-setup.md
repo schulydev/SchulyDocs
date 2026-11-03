@@ -5,44 +5,29 @@ title: 3. Schule verbinden
 
 # 3. Schule verbinden
 
-Schuly wird nicht mit einer festen Schulliste ausgeliefert. Die aktuelle Liste wird
-geladen, sobald du diesen Bildschirm erreichst - du wählst also einfach deine Schule
-aus, es gibt nichts von Hand einzugeben oder einzurichten.
+## Mit einem Schuly-Konto
 
-## Schritt 1 - Schulsystem wählen
+1. Melde dich an oder wähle die Registrierung. Zum Registrieren gibst du einen Benutzernamen, eine
+   E-Mail-Adresse und ein Passwort mit mindestens 8 Zeichen ein.
+2. Bestätige deine E-Mail-Adresse über den Link in der E-Mail, die du erhältst.
+3. Wähle dein Schulsystem aus der Liste.
+4. Melde dich mit deinem Schul-Login an.
 
-Wähle deine Schule bzw. dein System aus der Liste, die Schuly dir anzeigt. Diese Liste
-wird live geladen, neue Schulen können also erscheinen, ohne dass die App aktualisiert
-werden muss.
+Schuly synchronisiert deine Daten danach im Hintergrund.
 
-## Schritt 2 - Anmelden
+## Im privaten Modus
 
-Was als Nächstes kommt, hängt vom gewählten Modus ab:
+1. Wähle dein Schulsystem aus der Liste.
+2. Gib die Login-Daten ein, die deine Schule verlangt.
 
-### Wenn du den Konto-Modus gewählt hast
+Schuly speichert dein Login im sicheren Speicher deines Telefons. Wenn deine Schule dich abmeldet,
+meldet Schuly dich automatisch wieder an.
 
-Du gelangst zum **Schuly-Login**. Neu hier? Die App führt dich direkt zur Registrierung,
-und ein Konto zu erstellen geht schnell - nur **Benutzername, E-Mail und Passwort**
-(keine Namensfelder). Melde dich an (oder registriere dich), und das war's - Schuly
-verbindet deine Schule mit deinem Konto und hält deine Daten synchron.
+## Du siehst dein Schulsystem nicht?
 
-### Wenn du den privaten Modus gewählt hast
+Schuly funktioniert mit Schulnetz und OdA Org. Um ein anderes System anzufragen,
+[eröffne ein Issue auf GitHub](https://github.com/schulydev/Schuly/issues).
 
-Schuly zeigt einen **Verbindungsbildschirm mit den Login-Feldern, die deine Schule
-benötigt** (zum Beispiel Benutzername/E-Mail und Passwort sowie einen Einmalcode, falls
-deine Schule Zwei-Faktor-Authentifizierung nutzt). Die genauen Felder werden von deinem
-Schulsystem vorgegeben, du siehst also immer nur das, was relevant ist.
+## Nächster Schritt
 
-- Dein Schul-Login wird **nur im sicheren Speicher deines Telefons** gespeichert - er
-  wird nie an Schuly gesendet und nie auf dessen Servern gespeichert.
-- Falls deine Schule einen Einmalcode verlangt, kann Schuly ihn nach der Einrichtung auf
-  deinem Telefon im Bildschirm **Authenticator** generieren.
-- Wenn deine Schule dich abmeldet, meldet sich Schuly im Hintergrund mit dem auf deinem
-  Telefon gespeicherten Login wieder an, sodass du verbunden bleibst.
-
-:::tip Schule oder Modus später wechseln
-Du kannst jederzeit über die Einstellungen der App eine andere Schule verbinden oder
-zwischen Konto- und privatem Modus wechseln.
-:::
-
-Verbunden? Zeit, **[deine Daten zu erkunden](using-schuly.md)**.
+[Daten erkunden](using-schuly.md)

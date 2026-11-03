@@ -6,11 +6,11 @@ in der üblichen ASP.NET-Core-Rangfolge (Umgebungsvariablen überschreiben User
 Secrets, diese überschreiben `appsettings.{Environment}.json`, welches wiederum
 `appsettings.json` überschreibt).
 
-Secrets werden bewusst **nicht** eingecheckt: Die versionierten
+Secrets sind bewusst **nicht** eingecheckt: Die versionierten
 `appsettings*.json` enthalten nur Logging-Level und nicht geheime Standardwerte
-(Issuer für die Anmeldung, lokale Mail-Einstellungen). Lokal wird diese Lücke mit
-`dotnet user-secrets set` gefüllt (siehe [Entwicklungs-Setup](development.md)); in
-einem Container mit Umgebungsvariablen, wobei `__` als Abschnittstrenner dient
+(Issuer für die Anmeldung, lokale Mail-Einstellungen). Lokal füllt
+`dotnet user-secrets set` diese Lücke (siehe [Entwicklungs-Setup](development.md));
+in einem Container füllen sie Umgebungsvariablen, mit `__` als Abschnittstrenner
 (`ConnectionStrings__SchulyDatabase`).
 
 ## Datenbank-Connection-String
@@ -19,7 +19,7 @@ Der `SchulyDbContext` liest den Connection-String namens **`SchulyDatabase`**
 (`ConnectionStrings:SchulyDatabase`), verdrahtet in `DatabaseExtensions`.
 Retry-on-Failure ist für transiente Postgres-Fehler aktiviert.
 
-Ihn über die Konfiguration oder eine Umgebungsvariable bereitstellen, z. B.:
+Stelle ihn über die Konfiguration oder eine Umgebungsvariable bereit, z. B.:
 
 ```sh
 export ConnectionStrings__SchulyDatabase="Host=localhost;Port=2406;Database=schuly-dev;Username=postgres;Password=..."
@@ -34,16 +34,17 @@ Ihre Tabellen liegen in der Schuly-Datenbank (Migration `AddToamaisutaa`).
 
 Aktivierte Funktionen: Anmeldung mit Passwort und Selbstregistrierung,
 E-Mail-Verifizierung, Zurücksetzen des Passworts per E-Mail, TOTP-Zwei-Faktor mit
-Wiederherstellungscodes, "Dieses Gerät merken" (vertrauenswürdige Geräte) und das
-Aufräumen abgelaufener Tokens. Passkeys, Magic Links, Einladungen, von Admins
-angelegte Konten und externe OIDC-Provider sind nicht aktiviert.
+Wiederherstellungscodes, "Dieses Gerät merken" (vertrauenswürdige Geräte), optionales
+Single Sign-on über OIDC-Provider und das Aufräumen abgelaufener Tokens. Passkeys,
+Magic Links, Einladungen und von Admins angelegte Konten sind nicht aktiviert.
 
 Die Endpunkte liegen unter `/auth`, zum Beispiel `POST /auth/register`,
 `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/password`,
 `/auth/password/forgot`, `/auth/password/reset`, `/auth/email`,
-`/auth/email/verify`, `/auth/2fa/*` und `/auth/devices`. Die API unter `/api/*`
-nimmt das Access-Token als `Authorization: Bearer` entgegen. Access-Tokens leben 15
-Minuten. Refresh-Tokens werden bei jeder Verwendung rotiert.
+`/auth/email/verify`, `/auth/2fa/*` und `/auth/devices`, `/auth/providers` und
+`/auth/external/*`. Die API unter `/api/*` nimmt das Access-Token als
+`Authorization: Bearer` entgegen. Access-Tokens leben 15 Minuten. Refresh-Tokens
+rotieren bei jeder Verwendung.
 
 Die Web-App (vom Server selbst ausgeliefert) sendet den Header
 `X-Schuly-Client: web`. Sie erhält dann das Refresh-Token und das Token für das
@@ -59,15 +60,45 @@ JSON-Body.
 | `LocalLogin:AllowSelfRegistration` | Ob sich jeder registrieren kann (`true` in `appsettings.json`). |
 | `LocalLogin:RequireVerifiedEmailForPasswordReset` | Reset-Mails nur an verifizierte Adressen senden (`true` in `appsettings.json`). |
 | `TwoFactor:Issuer` | Name, der in Authenticator-Apps angezeigt wird (`Schuly`). |
-| `Auth:Administrators` | Liste von E-Mail-Adressen oder Benutzernamen, die die Rolle `Administrator` erhalten (`Auth__Administrators__0`, `__1`, ...). |
 
-Beide Schlüssel mit `openssl rand -base64 32` erzeugen und stabil halten. Ein neuer
+Erzeuge beide Schlüssel mit `openssl rand -base64 32` und halte sie stabil. Ein neuer
 Signierschlüssel meldet alle ab. Ein neuer Verschlüsselungsschlüssel macht
 Zwei-Faktor für jedes Konto unbrauchbar, das es eingerichtet hat.
 
-Jedes Konto, das nicht in `Auth:Administrators` steht, hat keine Rolle. Beim ersten
-gültigen Token für einen unbekannten Benutzer legt die API den passenden
-Schuly-Benutzer an (`AddUserSync` / `IUserService`).
+Es gibt keine Admin-Rolle. Beim ersten gültigen Token für einen unbekannten Benutzer
+legt die API den passenden Schuly-Benutzer an (`AddUserSync` / `IUserService`).
+
+### Single Sign-on (OIDC-Provider) {#single-sign-on-oidc-providers}
+
+Single Sign-on ist optional. Konfiguriere keinen, einen oder mehrere OIDC-Provider
+(Google, Microsoft, Authentik, Pocket ID, Keycloak, jeden Issuer mit einem
+Discovery-Dokument). Ist keiner konfiguriert, zeigen die Web-App und die Mobile-App
+nur das Passwortformular. Jeder Provider erscheint als Button "Continue with ...",
+und angemeldete Benutzer verknüpfen oder trennen Provider in der Web-App unter
+Settings → Security.
+
+| Key | Zweck |
+|---|---|
+| `ExternalLogin:Providers:<key>:DisplayName` | Beschriftung des Buttons. Standardwert ist der Key. |
+| `ExternalLogin:Providers:<key>:IconUrl` | Icon auf dem Button: eine beliebige Bild-URL oder ein Pfad, den der Server ausliefert. Authorities von Google (`https://accounts.google.com`) und Microsoft (`login.microsoftonline.com`, `login.live.com`) erhalten ihr Logo, wenn dieser Wert leer ist. |
+| `ExternalLogin:Providers:<key>:Authority` | Der Issuer, z. B. `https://accounts.google.com`. Muss ausserhalb von Development `https://` sein. |
+| `ExternalLogin:Providers:<key>:ClientId` / `ClientSecret` | Der Client, den der Provider ausgestellt hat. Lass das Secret bei einem Public Client weg. |
+| `ExternalLogin:Providers:<key>:Scopes` | Standardwert ist `openid profile email`. |
+| `ExternalLogin:Providers:<key>:AllowSignUp` | Ob eine erste Anmeldung ein neues Konto anlegen darf. Standardmässig `false`: Nur Konten, die den Provider verknüpft haben, können ihn verwenden. |
+| `ExternalLogin:Providers:<key>:TrustEmailVerified` | Ob die Adresse, die dieser Provider als `email_verified` markiert, als E-Mail des Kontos gilt, wenn das Konto keine eigene verifizierte Adresse hat. Ohne diese Einstellung haben Konten, die über den Provider entstehen, keine E-Mail. Schalte sie nur für Provider ein, die Adressen wirklich verifizieren. |
+| `ExternalLogin:Providers:<key>:LinkByVerifiedEmail` | Ob sich eine erste Anmeldung mit dem Konto verbindet, das die verifizierte Adresse des Providers bereits hat. Schalte diese Einstellung nur für Provider ein, die Adressen wirklich verifizieren. |
+| `ExternalLogin:AllowedReturnUrls` | Exakte URLs, zu denen eine abgeschlossene Anmeldung zurückkehren darf (`ExternalLogin__AllowedReturnUrls__0`, `__1`, ...). |
+| `ExternalLogin:CallbackBaseUrl` | Öffentliches Schema und öffentlicher Host des Servers, wenn ein Proxy sie nicht weiterleitet. |
+
+`AllowedReturnUrls` braucht diese Einträge:
+
+- `https://<API_HOST>/login`: Anmeldung in der Web-App
+- `https://<API_HOST>/settings`: Provider in der Web-App verknüpfen
+- `schuly://auth/callback`: Anmeldung in der Mobile-App (`schuly-dev://auth/callback` für den Dev-Build)
+
+Registriere bei jedem Provider `https://<API_HOST>/auth/external/<key>/callback` als
+Redirect-URI. Der Key wird mit jeder Verknüpfung gespeichert, benenne ihn also später
+nicht um.
 
 ### E-Mail (SMTP)
 
@@ -106,16 +137,16 @@ mitgelieferten Stacks SeaweedFS), konfiguriert unter `S3:`:
 
 | Key | Zweck |
 |---|---|
-| `Avatar:SigningKey` | HMAC-Schlüssel für kurzlebige, signierte Avatar-URLs. Erzeugen mit `openssl rand -hex 32`. |
+| `Avatar:SigningKey` | HMAC-Schlüssel für kurzlebige, signierte Avatar-URLs. Erzeuge ihn mit `openssl rand -hex 32`. |
 
 Benutzer laden ein Profilbild mit `PUT /api/me/avatar` hoch (multipart, PNG, JPEG
 oder WebP, max. 2 MB) und entfernen es mit `DELETE /api/me/avatar`. Die Datei geht
-in den Dokumenten-Storage (S3) und wird über kurzlebige, signierte URLs unter
-`/api/avatars/users/{id}` ausgeliefert.
+in den Dokumenten-Storage (S3). Der Server liefert sie über kurzlebige, signierte URLs
+unter `/api/avatars/users/{id}` aus.
 
-Die Datenbank speichert nur einen blossen Blob-Key; pro Zugriff wird eine
-signierte Capability-URL ausgestellt. Der Schlüssel wird lazy gelesen, sodass
-ein fehlender Wert erst beim ersten Signieren einer Avatar-URL als
+Die Datenbank speichert nur einen blossen Blob-Key; pro Zugriff entsteht eine
+signierte Capability-URL. Der Schlüssel wird lazy gelesen, sodass ein fehlender Wert
+erst beim ersten Signieren einer Avatar-URL als
 `Avatar:SigningKey is not configured.` auffällt, nicht schon beim Start.
 
 ## Aufbewahrung
@@ -128,11 +159,11 @@ zurücklässt.
 | Key | Zweck |
 |---|---|
 | `Retention:Enabled` | Ob das Aufräumen überhaupt läuft (Standard `true`). |
-| `Retention:MonthsAfterLeave` | Zwischengespeicherte Schuldaten werden für Schulbenutzer gelöscht, deren `LeaveDate` älter ist als dieser Wert (Standard `6`). |
-| `Retention:MonthsInactive` | Konten ohne authentifizierten Request in diesem Zeitraum werden gelöscht (Standard `12`). |
+| `Retention:MonthsAfterLeave` | Schuly löscht zwischengespeicherte Schuldaten von Schulbenutzern, deren `LeaveDate` älter ist als dieser Wert (Standard `6`). |
+| `Retention:MonthsInactive` | Schuly löscht Konten ohne authentifizierten Request in diesem Zeitraum (Standard `12`). |
 
-"Inaktiv" wird über `ApplicationUser.LastSeenAt` gemessen. Der Wert wird in der
-JWT-Validierungs-Pipeline höchstens einmal pro Stunde gesetzt, damit ein aktiver
+"Inaktiv" misst Schuly über `ApplicationUser.LastSeenAt`. Die
+JWT-Validierungs-Pipeline setzt den Wert höchstens einmal pro Stunde, damit ein aktiver
 Client nicht bei jedem Request schreibt. Ein Konto, bei dem er nie gesetzt wurde,
 fällt auf sein `CreatedAt` zurück.
 
@@ -142,8 +173,8 @@ synchronisieren.
 
 ## Push-Benachrichtigungen (Firebase)
 
-Die Outbox für Benachrichtigungen (Noten, Absenzen, Agenda-Änderungen) wird von
-einem Background-Service geleert und über Firebase Cloud Messaging zugestellt.
+Ein Background-Service leert die Outbox für Benachrichtigungen (Noten, Absenzen,
+Agenda-Änderungen) und stellt sie über Firebase Cloud Messaging zu.
 
 | Key | Zweck |
 |---|---|
@@ -158,13 +189,12 @@ damit die Tabelle begrenzt bleibt, selbst wenn Push ausgeschaltet ist.
 ## Autorisierungsrichtlinie
 
 Die Standard- (Fallback-)Richtlinie **verlangt für jeden Endpunkt einen
-authentifizierten Benutzer** (`AddSchulyAuthorization`). Endpunkte können sich
-mit `[AllowAnonymous]` davon befreien. Die anonyme `/api/app`-Oberfläche (z. B.
+authentifizierten Benutzer** (`AddSchulyAuthorization`). Endpunkte befreien sich
+mit `[AllowAnonymous]` davon. Die anonyme `/api/app`-Oberfläche (z. B.
 der School-Systems-Katalog und statische Logo-Assets unter `wwwroot`) ist ohne
 Auth erreichbar, damit die App ihren Login-Katalog laden kann. Registrierung,
 Login und die anderen öffentlichen Anmelde-Endpunkte unter `/auth` brauchen
-ebenfalls kein Token. Admin-Endpunkte für Plugins unter `/api/plugins` erfordern
-die Rolle `Administrator`.
+ebenfalls kein Token.
 
 ## Plugins
 

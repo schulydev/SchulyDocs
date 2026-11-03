@@ -5,44 +5,31 @@ title: 2. Scegli come accedere
 
 # 2. Scegli come accedere
 
-Al primo avvio, Schuly ti chiede come vuoi usarla. Ci sono due modalità - potrai
-cambiare idea più avanti, quindi non complicarti la vita adesso.
+Quando apri Schuly per la prima volta, ti fa due domande. Puoi cambiare le risposte in seguito.
 
-:::info Self-hosting? Scegli prima il tuo server
-Poco prima della scelta della modalità, Schuly ti chiede **quale server** usare. Quasi
-tutti dovrebbero mantenere **Schuly Cloud** (l'opzione predefinita). Se gestisci un tuo
-backend Schuly, scegli **Self-hosted** e inserisci il suo URL - Schuly verifica che sia
-raggiungibile (e ne mostra la versione) prima di proseguire. Entrambe le modalità qui
-sotto comunicano poi con il server che hai scelto.
-:::
+## Quale server?
 
-## Modalità Account (consigliata per la maggior parte delle persone)
+Scegli **Schuly Cloud**, il server ufficiale, a meno che tu non ne gestisca uno tuo. In quel caso,
+scegli **Self-hosted** e inserisci il suo **Backend URL**. Per eseguire un tuo server, vedi
+[Self-hosting di Schuly](/it/self-host/).
 
-Accedi con un **account Schuly**. I tuoi dati vengono sincronizzati e tenuti
-aggiornati in background, così l'app si apre velocemente e resta aggiornata su tutti i
-dispositivi.
+## Account Schuly o modalità privata?
 
-- La più semplice, e l'app aggiorna i tuoi dati da sola.
-- Stessi dati su ogni dispositivo su cui accedi.
-- I tuoi dati scolastici sono memorizzati sul backend di Schuly, in modo che possano
-  essere sincronizzati.
+| | Account Schuly | Modalità privata |
+|---|---|---|
+| Accesso con | Un account Schuly | Solo il tuo login scolastico |
+| Aggiornamento dei dati | In background | Quando apri l'app |
+| Notifiche di nuove note | Sì | No |
+| Stessi dati su tutti i tuoi dispositivi | Sì | No |
+| I tuoi dati scolastici | Salvati sul server | Salvati solo sul tuo telefono |
+| Il tuo login scolastico | Cifrato sul server, oppure solo una sessione, a seconda della tua scuola | Salvato solo sul tuo telefono |
 
-## Modalità Privata / sicura (orientata alla privacy)
+**Scegli Schuly account** se vuoi che Schuly resti aggiornata senza aprirla. La maggior parte delle
+persone sceglie questa opzione.
 
-**Nessun account Schuly, nessun login Schuly.** Ti colleghi direttamente al tuo
-sistema scolastico e le tue credenziali restano **solo sul tuo dispositivo**. Schuly
-recupera i tuoi dati in tempo reale e non memorizza **nulla** sui suoi server.
+**Scegli Private mode** se non vuoi che i tuoi dati siano salvati su un server. Il tuo login passa
+comunque dal server Schuly ogni volta che Schuly carica i tuoi dati, ma il server non lo salva.
 
-- Massima privacy - nessun dato scolastico risiede sui server di Schuly.
-- Funziona comunque con le stesse scuole.
-- I dati vengono recuperati in tempo reale, quindi si caricano quando apri l'app
-  invece di sincronizzarsi in background.
+## Prossimo passo
 
-## Quale scegliere?
-
-| Vuoi…                                                          | Scegli                |
-| ----------------------------------------------------------------- | ---------------------- |
-| La configurazione più semplice e aggiornamenti in background      | **Modalità Account**  |
-| Tenere tutto sul dispositivo, senza memorizzare nulla              | **Modalità Privata**  |
-
-Hai scelto? Avanti: **[collega la tua scuola](first-setup.md)**.
+[Collega la tua scuola](first-setup.md)

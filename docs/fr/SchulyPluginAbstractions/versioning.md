@@ -31,3 +31,16 @@ n'importe quel `MAJOR.MINOR.x` se lie à une unique assembly `MAJOR.MINOR.0.0`, 
 bumps de patch ne forcent pas un rebuild de chaque plugin et ne provoquent pas d'échecs de
 chargement de type entre versions de patch. Seul un bump **MINOR ou MAJOR** modifie la version
 d'assembly de liaison - une raison de plus de suivre exactement le tableau ci-dessus.
+
+## Avant la 1.0
+
+Tant que la version est en `0.x`, un breaking change incrémente **MINOR** (`0.3` → `0.4`) au
+lieu de MAJOR. Crée donc la release avec un `gh release create v0.<next>.0` explicite plutôt
+qu'avec la version que release-drafter propose pour un label `breaking-change`.
+
+## Compatibilité au chargement
+
+Le backend compare la version de l'assembly `Schuly.Plugin.Abstractions` contre laquelle un
+plugin a été construit avec la sienne. Il refuse un plugin incompatible avec un message de log
+clair, au lieu d'échouer plus tard sur une erreur de chargement de type. Compatible signifie le
+même MAJOR pour `1.x` et les versions suivantes, et le même MAJOR.MINOR pour `0.x`.

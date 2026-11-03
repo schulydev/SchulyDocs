@@ -1,27 +1,28 @@
 ---
 sidebar_position: 1
-title: Getting started
+title: Get started
 ---
 
-# Getting started with Schuly
+# Get started with Schuly
 
-New to Schuly? This walkthrough takes you from a fresh install to checking your first
-grades, in a few minutes.
+Schuly shows your grades, exams, timetable, absences, and documents from your school portal in one
+app. It's free and open source, and works with Schulnetz and OdA Org.
 
-**Schuly** is a mobile app for viewing your school data - grades, exams, agenda and
-absences - from Schulnetz-based school systems, in one clean place.
+Schuly is an independent project. It isn't an official app of your school, Schulnetz, or OdA Org.
 
-## The walkthrough
+## Set up Schuly
 
-1. **[Install the app](install.md)** - get Schuly on Android or iOS.
-2. **[Choose how you sign in](choose-a-mode.md)** - Account mode or Private mode.
-3. **[Connect your school](first-setup.md)** - pick your school system and sign in.
-4. **[Explore your data](using-schuly.md)** - grades, exams, agenda, absences.
+1. [Install the app](install.md)
+2. [Choose how you sign in](choose-a-mode.md)
+3. [Connect your school](first-setup.md)
+4. [Explore your data](using-schuly.md)
 
-Once you're set up, Schuly can also **[hold your two-factor codes](authenticator.md)**, so
-you don't need a separate authenticator app.
+Not sure what to pick? Use **Schuly Cloud** and a **Schuly account**. You can change your mind later.
 
-:::tip In a hurry?
-Most people: install Schuly → pick **Account mode** → choose your school → sign in →
-done. The pages above only matter if you want the privacy-first option or get stuck.
-:::
+## Optional
+
+- [Set up two-factor codes](authenticator.md) in Schuly, so you don't need a separate authenticator app.
+
+## Get help
+
+Found a bug or have an idea? [Open an issue on GitHub](https://github.com/schulydev/Schuly/issues).

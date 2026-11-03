@@ -2,11 +2,10 @@
 
 ## Prérequis
 
-- **SDK .NET 10** - chaque csproj de plugin cible `net10.0`
-  (`<TargetFramework>net10.0</TargetFramework>`).
-- **Outils CLI EF Core** (`dotnet-ef`) - pour les plugins avec un `DbContext` (Schulware,
-  OdaOrg). Installe/mets à jour avec `dotnet tool install --global dotnet-ef` (ou
-  `dotnet tool update`). Voir [migrations.md](../migrations.md).
+- **SDK .NET 10** - chaque csproj de plugin cible `net10.0` (`<TargetFramework>net10.0</TargetFramework>`).
+- **Outils CLI EF Core** (`dotnet-ef`) - pour les plugins avec un `DbContext` (Schulware, OdaOrg).
+  Installe/mets à jour avec `dotnet tool install --global dotnet-ef` (ou `dotnet tool update`).
+  Voir [migrations.md](../migrations.md).
 - **[Kiota](https://learn.microsoft.com/openapi/kiota/install)** - nécessaire uniquement pour
   régénérer le client API de Schulware. Voir [setup/kiota-client.md](kiota-client.md).
 - Un **[SchulyServer](https://github.com/schulydev/SchulyServer)** en cours d'exécution avec
@@ -17,13 +16,17 @@
 `Schuly.Plugin.Abstractions` est une **`PackageReference`** NuGet, pas une référence de projet :
 
 ```xml
-<PackageReference Include="Schuly.Plugin.Abstractions" Version="0.2.*" />
+<PackageReference Include="Schuly.Plugin.Abstractions" Version="0.11.*" />
 ```
 
-Elle fournit `ISchulyPlugin`, `IPluginBackgroundTask`, `IPluginUserContext`, `IPluginLogin` et
-`PluginServiceContext`. Les types fournis par le backend comme `IPluginVault`
-(`Schuly.Infrastructure.Vault`) sont résolus à l'exécution depuis le conteneur DI de l'hôte -
-l'hôte enregistre le coffre-fort isolé de chaque plugin, indexé par son `Name`.
+Elle fournit tout le contrat : `ISchulyPlugin`, `IPluginBackgroundTask`, `IPluginUserContext`,
+`IPluginLogin`, `ISchoolData` (avec ses records), `IPluginVault`, `IPluginFileStore` et
+`PluginServiceContext`. Les plugins ne référencent rien du backend ; l'hôte enregistre les
+implémentations des services dans le conteneur de chaque plugin à l'exécution.
+
+Le backend refuse de charger un plugin compilé avec une version de contrat incompatible (avant
+1.0 : un MAJOR.MINOR différent), et le workflow de publication enregistre cette version comme `contract` dans
+`index.json` pour que le backend ne se mette jamais à jour automatiquement vers un build qu'il ne peut pas charger.
 
 ## Comment un plugin est structuré
 
@@ -38,17 +41,17 @@ Voir [adding-a-plugin.md](../adding-a-plugin.md) pour le cycle de vie complet.
 ## Compiler un plugin
 
 ```sh
-# Restaurer + compiler un seul plugin
+# Restore + build a single plugin
 dotnet build src/Schuly.Plugin.Schulware/Schuly.Plugin.Schulware.csproj -c Release
 
-# Produire le résultat chargeable (DLL + dépendances non fournies par l'hôte) - même commande que la CI
+# Produce the loadable output (DLL + non-host dependencies) - same command CI uses
 dotnet publish src/Schuly.Plugin.Schulware/Schuly.Plugin.Schulware.csproj -c Release -o ./out
 ```
 
 Chaque plugin dispose aussi d'un fichier de solution `.slnx` pour l'ouvrir de manière autonome
 dans un IDE.
 
-## Exécuter un plugin face à un backend en production
+## Exécuter un plugin avec un backend en cours d'exécution
 
 L'hôte de plugins du backend charge les DLL de plugins depuis son répertoire `plugins/`
 (`/app/plugins/` dans le conteneur) et lit la configuration YAML de chaque plugin depuis son
@@ -67,7 +70,7 @@ répertoire de configuration des plugins.
 4. Redémarre le backend. Au démarrage, l'hôte appelle `ConfigureServices` → `ConfigureEndpoints`
    → `MigrateAsync` (qui exécute `db.Database.MigrateAsync()` pour créer/mettre à jour la base
    Postgres dédiée du plugin), puis planifie chaque `IPluginBackgroundTask` selon son
-   `Interval`.
+   `Schedule`.
 
-Pour la distribution réelle (téléchargement des DLL précompilées via `curl`), voir
+Pour savoir comment les plugins sont publiés, voir
 [setup/distribution.md](distribution.md).

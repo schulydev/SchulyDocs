@@ -5,36 +5,34 @@ title: 4. Esplora i tuoi dati
 
 # 4. Esplora i tuoi dati
 
-Una volta connesso, Schuly riunisce i tuoi dati scolastici in un unico posto:
+Le schede in basso nell'app portano ai tuoi dati:
 
-- **Note** - i tuoi voti in tutte le materie, non appena vengono pubblicati.
-- **Esami** - test e verifiche in arrivo, così non ti coglie di sorpresa nulla.
-- **Orario** - il tuo orario e le tue lezioni.
-- **Assenze** - le tue assenze registrate e il loro stato.
+| Scheda | Cosa trovi |
+|---|---|
+| **Start** | Una panoramica delle novità |
+| **Agenda** | Il tuo orario |
+| **Grades** | Le tue note, gli esami e le medie |
+| **Absences** | Le tue assenze e il loro stato |
+| **Account** | Il tuo profilo, le classi, i docenti e i documenti |
 
-## Mantenere i dati aggiornati
+## Aggiorna i tuoi dati
 
-- La **modalità Account** mantiene i tuoi dati aggiornati in background, quindi sono
-  generalmente pronti non appena apri l'app. Puoi anche trascinare verso il basso per
-  aggiornare.
-- La **modalità Privata** recupera i tuoi dati in tempo reale a ogni sessione - dai
-  all'app un momento dopo l'apertura, oppure trascina verso il basso per aggiornare e
-  caricare i dati più recenti.
+Trascina verso il basso su una schermata per aggiornarla. Con un account Schuly, i tuoi dati si
+aggiornano anche in background. In modalità privata, si caricano quando apri l'app, quindi serve un
+momento.
 
-## Consigli
+## Usa più scuole
 
-- **Aggiungi Schuly alla schermata principale** per accedere alle tue note con un
-  tocco.
-- **Controlla l'orario la sera prima**, così arrivi sapendo già il programma e gli
-  esami in arrivo.
-- **Password persa o cambiata?** Aggiorna le tue credenziali scolastiche nelle
-  impostazioni - in modalità Privata, Schuly inizia a usare la nuova immediatamente.
+Per aggiungere un altro account scolastico, apri la barra laterale. Lì puoi passare da un account
+all'altro, e i dati di ogni scuola restano separati.
 
-## Ti serve altro?
+## Usa l'app web
 
-- Curioso di sapere come funzionano davvero le due modalità? Consulta
-  [Modalità dell'app: Account vs Privata](/it/Schuly/architecture-modes).
-- Vuoi segnalare un bug o richiedere una funzionalità? Vai al
-  [repository GitHub di Schuly](https://github.com/schulydev/Schuly).
+Con un account Schuly, puoi usare Schuly anche su [app.schuly.dev](https://app.schuly.dev). Se
+colleghi un account Microsoft 365 nelle impostazioni, l'app web mostra anche mail, chat, file e
+appunti.
 
-Fatto - sei pronto. Benvenuto su Schuly!
+## Per saperne di più
+
+- [Configura i codici a due fattori](authenticator.md)
+- [Come funzionano le due modalità](/it/Schuly/architecture-modes)

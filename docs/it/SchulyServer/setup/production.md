@@ -1,4 +1,4 @@
-# Produzione
+# Immagini e release
 
 L'API viene distribuita come immagine Docker multi-architettura, costruita a
 partire da `src/Schuly.API/Dockerfile`.

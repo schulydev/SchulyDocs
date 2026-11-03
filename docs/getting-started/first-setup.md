@@ -5,41 +5,29 @@ title: 3. Connect your school
 
 # 3. Connect your school
 
-Schuly doesn't ship with a fixed list of schools. It loads the current list when you reach
-this screen, so you just pick yours - there's nothing to type in or set up by hand.
+## With a Schuly account
 
-## Step 1 - Pick your school system
+1. Sign in, or choose to register. To register, enter a username, an email address, and a password
+   of at least 8 characters.
+2. Confirm your email address with the link in the mail you receive.
+3. Choose your school system from the list.
+4. Sign in with your school login.
 
-Choose your school / system from the list Schuly shows you. This list is loaded live, so
-new schools can appear without an app update.
+Schuly then syncs your data in the background.
 
-## Step 2 - Sign in
+## In Private mode
 
-What you see next depends on the mode you chose:
+1. Choose your school system from the list.
+2. Enter the login details your school asks for.
 
-### If you picked Account mode
+Schuly saves your login in your phone's secure storage. When your school signs you out, Schuly
+signs you back in automatically.
 
-You'll be taken to the **Schuly login**. New here? The app takes you straight to sign-up,
-and creating an account is quick - just a **username, email and password** (no name
-fields). Sign in (or sign up), and that's it - Schuly connects your school to your account
-and keeps your data in sync.
+## Don't see your school system?
 
-### If you picked Private mode
+Schuly works with Schulnetz and OdA Org. To ask for another system,
+[open an issue on GitHub](https://github.com/schulydev/Schuly/issues).
 
-Schuly shows a **connect screen with the login fields your school needs** (for example a
-username/email and password, and a one-time code if your school uses two-factor). The
-exact fields are provided by your school system, so you only ever see what's relevant.
+## Next step
 
-- Your school login is saved **only in your phone's secure storage** - it is never sent to
-  Schuly and never stored on its servers.
-- If your school asks for a one-time code, Schuly can generate it on your phone from the
-  **Authenticator** screen after setup.
-- When your school signs you out, Schuly quietly signs back in with the login saved on
-  your phone, so you stay connected.
-
-:::tip Switching schools or modes later
-You can connect a different school, or switch between Account and Private mode, from the
-app's settings at any time.
-:::
-
-Connected? Time to **[explore your data](using-schuly.md)**.
+[Explore your data](using-schuly.md)
