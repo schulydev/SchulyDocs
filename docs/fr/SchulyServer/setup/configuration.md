@@ -243,7 +243,7 @@ Le serveur expose MCP à `/mcp`, pour que les utilisateurs puissent connecter de
 | `Mcp:PublicUrl` | L'origine publique et l'audience de chaque jeton MCP. Définis-la dans les déploiements. Sans elle, le serveur prend l'origine de chaque requête. |
 | `Mcp:AllowedOrigins` | Origines de navigateur autorisées pour CORS, en plus de celle du serveur (`Mcp__AllowedOrigins__0`, `__1`, etc.). Les caractères génériques ne sont pas pris en charge. |
 
-Ce sont les deux seuls paramètres à configurer.
+En général, tu ne définis que ces deux paramètres. Les durées de vie des jetons et les limites se trouvent aussi sous `Mcp:` et ont des valeurs par défaut fonctionnelles (`McpOAuthOptions`).
 
 ## Politique d'autorisation
 
