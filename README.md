@@ -1,107 +1,27 @@
 # SchulyDocs
 
-[![Documentation](https://img.shields.io/badge/docs-docs.schuly.dev-3da8ff)](https://docs.schuly.dev)
+> Looking for the docs themselves? They're at **[docs.schuly.dev](https://docs.schuly.dev)**.
 
-Unified [VitePress](https://vitepress.dev/) site that aggregates the documentation of
-every repo in the [`schulydev`](https://github.com/schulydev) org into one searchable,
-cross-linkable site. It is published at **[docs.schuly.dev](https://docs.schuly.dev)**.
-
-Each source repo keeps its docs next to its code in a `docs/` folder. A GitHub Actions
-workflow in each repo syncs that folder into `docs/<Repo>/` here on every push to `main`,
-and [Cloudflare Pages](https://pages.cloudflare.com/) rebuilds the site automatically.
-
-> **You usually don't edit docs in this repo.** Edit `docs/` in the source repo; it
-> shows up here within a minute. The only things owned here are the site config
-> (`docs/.vitepress/config.mjs`), the audience pages (`docs/getting-started/`, `docs/self-host/`,
-> `docs/build-plugins/`, `docs/contribute/`), and the translations.
-
-## Architecture
+You usually don't edit pages here. Each repo keeps its docs next to its code, and a workflow copies them in on every push to `main`:
 
 ```
-source repos (Schuly, SchulyServer, ...)        this repo (SchulyDocs)        Cloudflare Pages
-  docs/**  --push to main-->  GH Action  --commit-->  docs/<Repo>/  --push-->  rebuild & deploy
+source repo  docs/**  -->  this repo  docs/<Repo>/  -->  Cloudflare Pages
 ```
 
-- **One** VitePress site. Every repo's docs live under `docs/<Repo>/`, giving unified
-  local search and cross-linking between sections.
-- Section labels and ordering live in the `SECTIONS` map in `docs/.vitepress/config.mjs`.
-  Everything inside `docs/<Repo>/` is **replaced** on each sync (so deletions in the
-  source propagate) - the synced folders hold only the source repo's markdown.
-- The sidebar is generated from the `docs/` tree by `config.mjs`, so contributors just
-  add markdown. Each section's `README.md` is the section landing page (a `rewrites` rule
-  maps `**/README.md` → `index.md`, since VitePress only treats `index.md` as a folder
-  index).
-- The site is organized by reader. `AUDIENCES` in `config.mjs` assigns synced pages to **Self-host**
-  and **Build plugins**. Any other page appears under **Contribute**.
-- `docs/getting-started/` and the other audience pages are **owned by this repo** (no source repo
-  syncs into them), so edit them here directly.
+[Which repo owns a page](https://docs.schuly.dev/editing-these-docs) tells you where to go. Only the site config, the audience pages (`getting-started`, `self-host`, `build-plugins`, `contribute`) and the translations live here.
 
-## Local development
+## Preview
 
-Uses **bun** (never npm/node directly).
-
-```bash
+```sh
 bun install
-bun run dev          # dev server at http://localhost:5173
-bun run build        # production build into docs/.vitepress/dist
-bun run preview      # serve the production build locally
+bash scripts/sync-docs.sh   # optional: copy docs from repos cloned next to this one
+bun run dev                 # http://localhost:5173
 ```
 
-To preview with the latest docs from sibling repos cloned next to this one:
+## Add a repo
 
-```bash
-bash scripts/sync-docs.sh
-bun run dev
-```
+Copy [`templates/sync-docs.yml`](templates/sync-docs.yml) to the repo's `.github/workflows/`, then add the repo to `SECTIONS` in `docs/.vitepress/config.mjs` and to `scripts/sync-docs.sh`.
 
-## Hosting: Cloudflare Pages (free tier)
+Cloudflare Pages builds with `bun run build` into `docs/.vitepress/dist`.
 
-Cloudflare Pages has native GitHub integration; it watches this repo and rebuilds on
-every push.
-
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** →
-   **Connect to Git** → pick `schulydev/SchulyDocs`.
-2. Framework preset: **VitePress** (or **None**) and set:
-   - Build command: `bun run build`
-   - Build output directory: `docs/.vitepress/dist`
-   - Env var: `BUN_VERSION` (keep `bun.lock` committed; Cloudflare detects bun from it).
-3. Deploy. You get a `*.pages.dev` URL. Add the custom domain `docs.schuly.dev` under the
-   project's **Custom domains** tab.
-
-From then on: any push here (including the automated doc-sync commits) triggers a rebuild.
-
-## Wiring up a source repo (one-time, per repo)
-
-1. Copy [`templates/sync-docs.yml`](templates/sync-docs.yml) into the source repo at
-   `.github/workflows/sync-docs.yml`.
-2. No secret to create - it uses the org-level **`MAIN_PUSH_TOKEN`** secret already used
-   by the other cross-repo sync workflows in this org.
-3. Push a change under `docs/` (or run the workflow manually). The workflow opens a PR
-   against this repo and auto-merges it (matching the org's sync convention), which
-   triggers the Cloudflare Pages rebuild.
-
-To add a brand-new repo's section: add an entry to the `SECTIONS` array in
-`docs/.vitepress/config.mjs` (its `dir` and display `text`) and add the repo to the list
-in `scripts/sync-docs.sh`.
-
-## Notes / limitations
-
-- Source docs are plain GitHub-flavored Markdown. VitePress compiles markdown through Vue,
-  so raw `{{ }}` or stray HTML-like `</tag>` lines in a `.md` file will break the build -
-  keep such content inside code fences.
-- Mermaid ```mermaid code blocks render via `vitepress-plugin-mermaid`.
-- Nested folders (e.g. `setup/`) become collapsible sub-groups labeled by folder name.
-- Cross-section links should use absolute site paths (e.g. `/SchulyServer/architecture`)
-  or full GitHub URLs; relative links only resolve within the same section.
-
-## The Schuly ecosystem
-
-| Repo | Purpose | Section |
-|---|---|---|
-| [**Schuly**](https://github.com/schulydev/Schuly) | Flutter mobile app | [/Schuly](https://docs.schuly.dev/Schuly/) |
-| [**SchulyServer**](https://github.com/schulydev/SchulyServer) | ASP.NET Core API backend | [/SchulyServer](https://docs.schuly.dev/SchulyServer/) |
-| [**SchulyPluginAbstractions**](https://github.com/schulydev/SchulyPluginAbstractions) | Plugin contract (NuGet) | [/SchulyPluginAbstractions](https://docs.schuly.dev/SchulyPluginAbstractions/) |
-| [**SchulyPlugins**](https://github.com/schulydev/SchulyPlugins) | Official plugins monorepo | [/SchulyPlugins](https://docs.schuly.dev/SchulyPlugins/) |
-| [**SchulyWebsite**](https://github.com/schulydev/SchulyWebsite) | Landing site ([schuly.dev](https://schuly.dev)) | [/SchulyWebsite](https://docs.schuly.dev/SchulyWebsite/) |
-| [**SchulyMicrosoft**](https://github.com/schulydev/SchulyMicrosoft) | Microsoft 365 service | [/SchulyMicrosoft](https://docs.schuly.dev/SchulyMicrosoft/) |
-| [**SchulyDocs**](https://github.com/schulydev/SchulyDocs) | Documentation site *(this repo)* | [docs.schuly.dev](https://docs.schuly.dev) |
+Licensed under [PolyForm Noncommercial 1.0.0](LICENSE).
