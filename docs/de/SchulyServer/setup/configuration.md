@@ -232,7 +232,7 @@ Der Server stellt MCP unter `/mcp` bereit, damit User KI-Apps verbinden können.
 | `Mcp:PublicUrl` | Der öffentliche Origin und die Audience jedes MCP-Tokens. Setze ihn in Deployments. Ohne ihn nimmt der Server den Origin aus jeder Anfrage. |
 | `Mcp:AllowedOrigins` | Browser-Origins, die CORS nutzen dürfen, neben dem eigenen des Servers (`Mcp__AllowedOrigins__0`, `__1` und so weiter). Wildcards werden nicht unterstützt. |
 
-Das sind die einzigen zwei Einstellungen, die du konfigurieren musst.
+Normalerweise setzt du nur diese zwei. Token-Laufzeiten und Limits liegen ebenfalls unter `Mcp:` und haben funktionierende Standardwerte (`McpOAuthOptions`).
 
 ## Autorisierungsrichtlinie
 

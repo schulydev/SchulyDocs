@@ -25,16 +25,18 @@ Nutze unter Windows `scripts/migration.ps1` oder `scripts/migration.bat` mit den
 
 ## Dev-Datenbank unter Windows verwalten
 
-`scripts/DbScript.ps1` steuert die Datenbank in `compose.dev.yml`. Führe es mit `-help` aus, um die Befehlsliste zu sehen.
+`scripts/DbScript.ps1` steuert die Datenbank in `compose.dev.yml` und deine Migrationen. Führe es mit `-help` aus, um die Befehlsliste zu sehen.
 
 | Befehl | Was er macht |
 |---|---|
 | `-start-db` | Startet den Compose-Stack |
 | `-stop-db` | Stoppt den Compose-Stack |
-| `-recreate-db` | Stoppt den Stack, führt `docker volume prune -f` aus und startet ihn wieder |
+| `-recreate-db` | Stoppt den Stack, löscht seine Volumes und startet ihn neu. Deine lokale Datenbank geht verloren. |
+| `-add-migration` | Fragt nach einem Namen und fügt eine Migration hinzu |
+| `-delete-migrations` | Löscht den Ordner `Migrations` |
+| `-full-reset` | Löscht den Ordner `Migrations` und die Volumes des Stacks, startet den Stack neu und fügt eine Migration `Init` hinzu |
 
-Nutze seine Befehle `-add-migration`, `-delete-migrations` und `-full-reset` nicht. Sie zeigen auf
-`src\DockiUp.Infrastructure`, das in diesem Repo nicht existiert. Nutze stattdessen die Migrationsskripte.
+Committe das Ergebnis von `-delete-migrations` oder `-full-reset` nicht. Bestehende Datenbanken hängen von den aktuellen Migrationen ab.
 
 ## Beim Start angewendet
 

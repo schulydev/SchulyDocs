@@ -33,7 +33,6 @@ lädt die Plugins herunter, die in seiner `plugins.yml` aufgelistet sind, und l�
 | `src/Shared/` | Helfer, die in Plugins einkompiliert werden, die sich dafür entscheiden: `ExternalIds`, `SwissTime`, `DataUri` und `Provisioning/InstanceUrl`. |
 | `tests/` | `Schuly.Plugin.Microsoft.Tests` und `Schuly.Plugins.Linking.Tests`. |
 | `.github/workflows/build_push.yml` | Findet jedes Plugin-Projekt, baut es und veröffentlicht DLLs und den Index auf dem `repo`-Branch. |
-| `.github/workflows/sync-version-on-release.yml` | Versionsabgleich beim Release. |
 | `.github/workflows/sync-docs.yml` | Kopiert `docs/` auf die Dokumentations-Site. |
 
 ## In einem Plugin-Ordner
