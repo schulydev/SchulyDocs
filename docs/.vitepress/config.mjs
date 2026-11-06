@@ -432,13 +432,14 @@ export default withMermaid({
   // Synced docs carry cross-repo relative links; don't fail the build over them.
   ignoreDeadLinks: true,
   cleanUrls: true,
+  sitemap: { hostname: 'https://docs.schuly.dev' },
 
   rewrites: buildRewrites(),
   locales,
 
   head: [
     ['link', { rel: 'icon', href: '/img/favicon.ico' }],
-    ['meta', { property: 'og:image', content: '/img/social-card.png' }],
+    ['meta', { property: 'og:image', content: 'https://docs.schuly.dev/img/social-card.png' }],
   ],
 
   themeConfig: {
